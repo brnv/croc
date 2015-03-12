@@ -14,6 +14,7 @@ func main() {
 // 1) parse player chips count
 // 2) parse pot size
 // 3) parse button position
+// 4) parse board cards
 
 //@TODO:
 // convert -crop command settings
