@@ -26,3 +26,7 @@ func main() {
 // pot
 // 8x13+390+154 - sample for identification
 // 43x13+390+154 - pot numbers
+//
+// 2 digit pot
+// 9x13+403+154 - first digit
+// 9x13+412+154 - second digit

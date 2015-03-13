@@ -5,7 +5,7 @@
 
 window_id=`xprop | grep -P "window\ id" | grep -o "0x.*"`
 
-uniq_name=/tmp/screenshot_`date | md5sum | cut -f1 -d' '`
+uniq_name=/tmp/screenshot_`date +%N | md5sum | cut -f1 -d' '`
 
 import -window "$window_id" $uniq_name.png
 
@@ -21,7 +21,7 @@ left_is_uniq="1"
 
 right_is_uniq="1"
 
-for f in $(ls ./samples/*/*); do
+for f in $(ls ./card_samples/*/*); do
 	diff_percentage=$(compare -quiet -metric RMSE $left_card $f NULL: 2>&1)
 	if [[ $diff_percentage == *"(0)"* ]]; then
 		left_is_uniq="0"
