@@ -1,64 +1,53 @@
 #!/bin/bash
 
-# sorry for that code
+function samples_compare {
+	for sample in $(ls ./pot_samples/*); do
+		diff_percentage=$(compare -quiet -metric RMSE $sample $1 NULL: 2>&1)
+		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.00"* ]] ; then
+			basename $sample | cut -f1 -d'.' | cat | tr -d '\n'
+		fi
+	done
+}
+
+function uniq_id {
+	echo `date +%N | md5sum | cut -f1 -d' '`
+}
+
+function get_tmp_filename {
+	echo /tmp/croc-$(uniq_id).png
+}
+
+function recognize {
+	digit=$(get_tmp_filename)
+	convert -crop 9x13+$1+154 $table_image $digit
+	samples_compare $digit
+	rm $digit
+}
 
 window_id=`xprop | grep -P "window\ id" | grep -o "0x.*"`
 
-uniq_name=/tmp/screenshot_`date +%N | md5sum | cut -f1 -d' '`
+table_image=$(get_tmp_filename)
 
-import -window "$window_id" $uniq_name.png
+import -window "$window_id" $table_image
 
-pot_identifier=$uniq_name.pot.id.png
+pot_identifier=$(get_tmp_filename)
 
-convert -crop 8x13+390+154 $uniq_name.png $pot_identifier
+convert -crop 8x13+390+154 $table_image $pot_identifier
 
 two_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_samples/2_digits.png NULL: 2>&1)
+
 three_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_samples/3_digits.png NULL: 2>&1)
 
 if [[ $two_digit_pot_similarity == *"(0)"* ]]; then
-	first_is_new="1"
-	second_is_new="1"
-
-	first_digit=$uniq_name.first.png
-	second_digit=$uniq_name.second.png
-
-	convert -crop 9x13+403+154 $uniq_name.png $first_digit
-	convert -crop 9x13+412+154 $uniq_name.png $second_digit
-
-	for f in $(ls ./pot_samples/*); do
-		diff_percentage=$(compare -quiet -metric RMSE $first_digit $f NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.00"* ]] ; then
-			first_is_new="0"
-			basename $f | cut -f1 -d'.' | cat | tr -d '\n'
-		fi
-	done
-
-	for f in $(ls ./pot_samples/*); do
-		diff_percentage=$(compare -quiet -metric RMSE $second_digit $f NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.00"* ]] ; then
-			second_is_new="0"
-			basename $f | cut -f1 -d'.' | cat | tr -d '\n'
-			echo
-		fi
-	done
-
-
-	if [[ $first_is_new == "1" ]]; then
-		read -p "enter first digit: " digit
-		mv $first_digit ./pot_samples/$digit.png
-	fi
-
-	if [[ $second_is_new == "1" ]]; then
-		read -p "enter second digit: " digit
-		mv $second_digit ./pot_samples/$digit.png
-	fi
-
-	exit
+    recognize 403
+    recognize 412
+elif [[ $three_digit_pot_similarity == *"(0)"* ]]; then
+    recognize 398
+    recognize 407
+    recognize 416
+else
+    recognize 392
+    recognize 404
+    recognize 413
+    recognize 422
 fi
-
-if [[ $three_digit_pot_similarity == *"(0)"* ]]; then
-	echo its three-digit pot
-	exit
-fi
-
-echo its four-digit pot
