@@ -23,3 +23,6 @@ func main() {
 // left card - 46x30+346+340
 // right card - 46x30+396+340
 //
+// pot
+// 8x13+390+154 - sample for identification
+// 43x13+390+154 - pot numbers
