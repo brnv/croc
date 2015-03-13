@@ -3,7 +3,7 @@
 function samples_compare {
 	for sample in $(ls ./pot_samples/*); do
 		diff_percentage=$(compare -quiet -metric RMSE $sample $1 NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.00"* ]] ; then
+		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.0"* ]] ; then
 			basename $sample | cut -f1 -d'.' | cat | tr -d '\n'
 		fi
 	done
@@ -32,22 +32,22 @@ import -window "$window_id" $table_image
 
 pot_identifier=$(get_tmp_filename)
 
-convert -crop 8x13+390+154 $table_image $pot_identifier
+convert -crop 14x13+390+154 $table_image $pot_identifier
 
 two_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_samples/2_digits.png NULL: 2>&1)
 
 three_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_samples/3_digits.png NULL: 2>&1)
 
-if [[ $two_digit_pot_similarity == *"(0)"* ]]; then
-    recognize 403
-    recognize 412
-elif [[ $three_digit_pot_similarity == *"(0)"* ]]; then
-    recognize 398
-    recognize 407
-    recognize 416
+if [[ $two_digit_pot_similarity == *"(0)"* ]] || [[ $two_digit_pot_similarity == *"(0.0"* ]] ; then
+	recognize 407
+	recognize 416
+elif [[ $three_digit_pot_similarity  == *"(0)"* ]] || [[ $three_digit_pot_similarity  == *"(0.0"* ]] ; then
+	recognize 403
+	recognize 412
+	recognize 421
 else
-    recognize 392
-    recognize 404
-    recognize 413
-    recognize 422
+	recognize 397
+	recognize 409
+	recognize 418
+	recognize 427
 fi
