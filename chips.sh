@@ -24,11 +24,13 @@ function recognize {
 	rm $digit
 }
 
-#window_id=`xprop | grep -P "window\ id" | grep -o "0x.*"`
-
-table_image=$1
-
-#import -window "$window_id" $table_image
+if [ -z $1 ]; then
+	window_id=`xprop | grep -P "window\ id\ #\ of\ group\ leader" | grep -o "0x.*"`
+	table_image=$(get_tmp_filename)
+	import -window "$window_id" $table_image
+else
+	table_image=$1
+fi
 
 chips_identifier=$(get_tmp_filename)
 
@@ -51,3 +53,4 @@ else
 	recognize 412
 	recognize 421
 fi
+
