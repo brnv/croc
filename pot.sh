@@ -3,7 +3,7 @@
 function samples_compare {
 	for sample in $(ls ./pot_samples/*); do
 		diff_percentage=$(compare -quiet -metric RMSE $sample $1 NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.0"* ]] ; then
+		if [[ $diff_percentage =~ \(0(\)|\.0) ]] ; then
 			basename $sample | cut -f1 -d'.' | cat | tr -d '\n'
 		fi
 	done
@@ -40,10 +40,10 @@ two_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_sam
 
 three_digit_pot_similarity=$(compare -quiet -metric RMSE $pot_identifier ./pot_samples/3_digits.png NULL: 2>&1)
 
-if [[ $two_digit_pot_similarity == *"(0)"* ]] || [[ $two_digit_pot_similarity == *"(0.0"* ]] ; then
+if [[ $two_digit_pot_similarity =~ \(0(\)|\.0) ]] ; then
 	recognize 407
 	recognize 416
-elif [[ $three_digit_pot_similarity  == *"(0)"* ]] || [[ $three_digit_pot_similarity  == *"(0.0"* ]] ; then
+elif [[ $three_digit_pot_similarity =~ \(0(\)|\.0) ]] ; then
 	recognize 403
 	recognize 412
 	recognize 421

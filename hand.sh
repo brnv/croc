@@ -5,7 +5,7 @@
 function samples_compare {
 	for sample in $(ls ./card_samples/*/*); do
 		diff_percentage=$(compare -quiet -metric RMSE $sample $1 NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.00"* ]] ; then
+		if [[ $diff_percentage =~ \(0(\)|\.00) ]] ; then
 			echo $sample | rev | cut -f1-2 -d/ | cut -f2 -d. | tr -d '/' | rev | tr -d '\n'
 		fi
 	done
