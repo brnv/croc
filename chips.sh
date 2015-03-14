@@ -1,12 +1,14 @@
 #!/bin/bash
 
 function samples_compare {
-	for sample in $(ls ./pot_samples/*); do
+	for sample in $(ls ./pot_samples/{0..9}{,_l}.png 2>/dev/null); do
 		diff_percentage=$(compare -quiet -metric RMSE $sample $1 NULL: 2>&1)
-		if [[ $diff_percentage == *"(0)"* ]] || [[ $diff_percentage == *"(0.0"* ]] ; then
-			basename $sample | cut -f1 -d'.' | cat | tr -d '\n'
+		if [[ $diff_percentage =~ \(0(\)|\.0) ]] ; then
+			basename $sample | cut -f1 -d'.' | cut -f1 -d'_' | cat | tr -d '\n'
+			return
 		fi
 	done
+	echo new
 }
 
 function uniq_id {
@@ -20,8 +22,14 @@ function get_tmp_filename {
 function recognize {
 	digit=$(get_tmp_filename)
 	convert -crop 9x13+$1+407 $table_image -colorspace Gray $digit
-	samples_compare $digit
+	result=$(samples_compare $digit)
+	if [[ $result == "new" ]]; then
+		read -p "enter digit value: " value
+		mv $digit ./pot_samples/$value.png
+		return
+	fi
 	rm $digit
+	echo -n $result
 }
 
 if [ -z $1 ]; then
@@ -40,12 +48,12 @@ four_digit_chips_similarity=$(compare -quiet -metric RMSE $chips_identifier ./po
 
 three_digit_chips_similarity=$(compare -quiet -metric RMSE $chips_identifier ./pot_samples/3_digits_chips.png NULL: 2>&1)
 
-if [[ $four_digit_chips_similarity == *"(0)"* ]] || [[ $four_digit_chips_similarity == *"(0.0"* ]] ; then
+if [[ $four_digit_chips_similarity =~ \(0(\)|\.0|\.1) ]] ; then
 	recognize 401
 	recognize 413
 	recognize 422
 	recognize 431
-elif [[ $three_digit_chips_similarity  == *"(0)"* ]] || [[ $three_digit_chips_similarity  == *"(0.0"* ]] ; then
+elif [[ $three_digit_chips_similarity =~ \(0(\)|\.0|\.1) ]] ; then
 	recognize 407
 	recognize 416
 	recognize 425
