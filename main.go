@@ -3,8 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"regexp"
-	"time"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
@@ -37,20 +38,24 @@ func main() {
 	} else {
 		log.Notice("%v", "Window mode")
 
-		screenshot, err := makeScreenshot()
+		tableScreenshot, err := makeTableScreenshot()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		log.Notice("%v", screenshot)
+		log.Notice("%v", tableScreenshot)
 	}
 }
 
-func makeScreenshot() (string, error) {
-	screenshot := getTmpFilename()
+func makeTableScreenshot() (string, error) {
+	tableScreenshot, err := getTmpFilename("table")
+	if err != nil {
+		return "", err
+	}
 
 	c, err := cmdRunner.Command(fmt.Sprintf(
-		"/bin/import %s", screenshot))
+		"/bin/import png:%s", tableScreenshot),
+	)
 
 	if err != nil {
 		return "", err
@@ -61,7 +66,7 @@ func makeScreenshot() (string, error) {
 		return "", err
 	}
 
-	return screenshot, nil
+	return tableScreenshot, nil
 }
 
 func getWindowId() (string, error) {
@@ -81,8 +86,12 @@ func getWindowId() (string, error) {
 	return "", errors.New("No window id found")
 }
 
-func getTmpFilename() string {
-	return fmt.Sprintf("/tmp/croc-%d.png", time.Now().UnixNano())
+func getTmpFilename(postfix string) (string, error) {
+	file, err := ioutil.TempFile(os.TempDir(), "croc-"+postfix)
+	if err != nil {
+		return "", err
+	}
+	return file.Name(), nil
 }
 
 //@TODO:
