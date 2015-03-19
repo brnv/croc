@@ -2,14 +2,14 @@ package main
 
 //@TODO: move to config
 var (
-	potNumberSamples = "pot_numbers/*"
-	potTypeSamples   = "pot_types/*"
-	potTypeWidth     = 14
-	potTypeHeight    = 13
-	potTypeOffsetX   = 360
-	potOffsetY       = 154
-	potDigitWidth    = 9
-	potDigitHeight   = 13
+	potDigitSamples = "pot_digits/*"
+	potTypeSamples  = "pot_types/*"
+	potTypeWidth    = 14
+	potTypeHeight   = 13
+	potTypeOffsetX  = 360
+	potOffsetY      = 154
+	potDigitWidth   = 9
+	potDigitHeight  = 13
 )
 
 type Pot struct {
@@ -50,12 +50,12 @@ func (image Image) PotRecognize() string {
 
 	potSize := ""
 
-	for _, potNumber := range pot.Number.Digits {
-		number, err := recognize(image.Crop(potNumber), potNumberSamples)
+	for _, potDigit := range pot.Number.Digits {
+		digit, err := recognize(image.Crop(potDigit), potDigitSamples)
 		if err != nil {
 			log.Notice("%v", err.Error())
 		}
-		potSize += number
+		potSize += digit
 	}
 
 	return potSize
