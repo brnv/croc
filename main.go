@@ -16,12 +16,25 @@ import (
 )
 
 var (
-	log                 = logging.MustGetLogger("croc")
+	log       = logging.MustGetLogger("croc")
+	cmdRunner *runcmd.Local
+)
+
+var (
+	compareCmd          = "/bin/compare -quiet -metric RMSE %s %s NULL:"
+	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\)$")
 	compareThreshold    = 0.05
-	cmdRunner           *runcmd.Local
-	compareCmd          = "/bin/compare -quiet -metric RMSE %s %s NULL:"
-	cardSamples         = "cards/*"
+)
+
+//@TODO: move to config
+var (
+	cardSamples          = "cards/*"
+	cardWidth            = 46
+	cardHeight           = 30
+	handLeftCardOffsetX  = 346
+	handRightCardOffsetX = 396
+	handCardOffsetY      = 340
 )
 
 const usage = `
@@ -38,7 +51,7 @@ func (image Image) Crop(snippet ImageSnippet) string {
 	croppedPath, _ := getTmpFilename()
 
 	command, _ := cmdRunner.Command(fmt.Sprintf(
-		"/bin/convert -crop %dx%d+%d+%d %s %s",
+		convertCmd,
 		snippet.Width, snippet.Height, snippet.OffsetX, snippet.OffsetY,
 		image.Path, croppedPath),
 	)
@@ -70,18 +83,18 @@ func main() {
 	hand := Hand{
 		LeftCard: Card{
 			ImageSnippet: ImageSnippet{
-				Width:   46,
-				Height:  30,
-				OffsetX: 346,
-				OffsetY: 340,
+				Width:   cardWidth,
+				Height:  cardHeight,
+				OffsetX: handLeftCardOffsetX,
+				OffsetY: handCardOffsetY,
 			},
 		},
 		RightCard: Card{
 			ImageSnippet: ImageSnippet{
-				Width:   46,
-				Height:  30,
-				OffsetX: 396,
-				OffsetY: 340,
+				Width:   cardWidth,
+				Height:  cardHeight,
+				OffsetX: handRightCardOffsetX,
+				OffsetY: handCardOffsetY,
 			},
 		},
 	}
