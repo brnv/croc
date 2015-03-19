@@ -21,6 +21,7 @@ var (
 )
 
 var (
+	importCmd           = "/bin/import png:%s"
 	compareCmd          = "/bin/compare -quiet -metric RMSE %s %s NULL:"
 	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\)$")
@@ -147,9 +148,7 @@ func makeScreenshot() (string, error) {
 		return "", err
 	}
 
-	command, err := cmdRunner.Command(fmt.Sprintf(
-		"/bin/import png:%s", screenshot),
-	)
+	command, err := cmdRunner.Command(fmt.Sprintf(importCmd, screenshot))
 
 	if err != nil {
 		return "", err
