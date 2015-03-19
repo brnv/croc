@@ -34,7 +34,7 @@ var (
 	cardHeight           = 30
 	handLeftCardOffsetX  = 346
 	handRightCardOffsetX = 396
-	handCardOffsetY      = 340
+	handCardOffsetY      = 341 // 9 players, 340 for 6 players
 )
 
 const usage = `
@@ -99,10 +99,17 @@ func main() {
 		},
 	}
 
-	leftCard, _ := recognize(image.Crop(hand.LeftCard.ImageSnippet), cardSamples)
-	rightCard, _ := recognize(image.Crop(hand.RightCard.ImageSnippet), cardSamples)
-	log.Notice("%v", leftCard)
-	log.Notice("%v", rightCard)
+	leftCard, err := recognize(image.Crop(hand.LeftCard.ImageSnippet), cardSamples)
+	if err != nil {
+		log.Notice("%v", err.Error())
+	}
+	log.Notice("%v\n", leftCard)
+
+	rightCard, err := recognize(image.Crop(hand.RightCard.ImageSnippet), cardSamples)
+	if err != nil {
+		log.Notice("%v", err.Error())
+	}
+	log.Notice("%v\n", rightCard)
 }
 
 func recognize(
@@ -129,7 +136,9 @@ func recognize(
 		}
 	}
 
-	return "", errors.New("Recognition failed")
+	return "", errors.New(
+		fmt.Sprintf("Recognition failed! Input file: %s", input),
+	)
 }
 
 func makeScreenshot() (string, error) {
