@@ -3,32 +3,34 @@ package main
 //@TODO: move to config
 var (
 	potNumberSamples = "pot_numbers/*"
+	potTypeSamples   = "pot_types/*"
 	potTypeWidth     = 14
 	potTypeHeight    = 13
 	potTypeOffsetX   = 360
 	potOffsetY       = 154
-	potNumberWidth   = 9
-	potNumberHeight  = 13
+	potDigitWidth    = 9
+	potDigitHeight   = 13
 )
 
 type Pot struct {
-	Type       ImageSnippet
-	PotNumbers []ImageSnippet
+	Number
 }
 
 func (image Image) PotRecognize() string {
 	pot := Pot{
-		Type: ImageSnippet{
+		Number: Number{
+			Digits: []ImageSnippet{},
+		},
+	}
+
+	potType, err := image.NumberTypeRecognize(
+		ImageSnippet{
 			Width:   potTypeWidth,
 			Height:  potTypeHeight,
 			OffsetX: potTypeOffsetX,
 			OffsetY: potOffsetY,
 		},
-		PotNumbers: []ImageSnippet{},
-	}
-
-	potType, err := recognize(
-		image.Crop(pot.Type), "pot_types/*",
+		potTypeSamples,
 	)
 
 	if err != nil {
@@ -37,14 +39,18 @@ func (image Image) PotRecognize() string {
 
 	switch potType {
 	case "3":
-		pot.PotNumbers = getImageSnippetsForThreePot()
+		pot.Number.Digits = pot.GetPotImageSnippets(
+			[]int{403, 412, 421},
+		)
 	case "4":
-		pot.PotNumbers = getImageSnippetsForFourPot()
+		pot.Number.Digits = pot.GetPotImageSnippets(
+			[]int{397, 409, 418, 427},
+		)
 	}
 
 	potSize := ""
 
-	for _, potNumber := range pot.PotNumbers {
+	for _, potNumber := range pot.Number.Digits {
 		number, err := recognize(image.Crop(potNumber), potNumberSamples)
 		if err != nil {
 			log.Notice("%v", err.Error())
@@ -55,35 +61,11 @@ func (image Image) PotRecognize() string {
 	return potSize
 }
 
-func getImageSnippetsForTwoPot() []ImageSnippet {
-	return []ImageSnippet{
-		getImageSnippetForOffset(407),
-		getImageSnippetForOffset(416),
-	}
-}
-
-func getImageSnippetsForThreePot() []ImageSnippet {
-	return []ImageSnippet{
-		getImageSnippetForOffset(403),
-		getImageSnippetForOffset(412),
-		getImageSnippetForOffset(421),
-	}
-}
-
-func getImageSnippetsForFourPot() []ImageSnippet {
-	return []ImageSnippet{
-		getImageSnippetForOffset(397),
-		getImageSnippetForOffset(409),
-		getImageSnippetForOffset(418),
-		getImageSnippetForOffset(427),
-	}
-}
-
-func getImageSnippetForOffset(offsetX int) ImageSnippet {
-	return ImageSnippet{
-		Width:   potNumberWidth,
-		Height:  potNumberHeight,
-		OffsetX: offsetX,
-		OffsetY: potOffsetY,
-	}
+func (pot Pot) GetPotImageSnippets(offsets []int) []ImageSnippet {
+	return getDigitsImageSnippets(
+		potDigitWidth,
+		potDigitHeight,
+		potOffsetY,
+		offsets,
+	)
 }
