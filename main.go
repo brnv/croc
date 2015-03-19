@@ -28,16 +28,6 @@ var (
 	compareThreshold    = 0.05
 )
 
-//@TODO: move to config
-var (
-	cardSamples          = "cards/*"
-	cardWidth            = 46
-	cardHeight           = 30
-	handLeftCardOffsetX  = 346
-	handRightCardOffsetX = 396
-	handCardOffsetY      = 341 // 9 players, 340 for 6 players
-)
-
 const usage = `
 	Usage:
 	croc
@@ -46,6 +36,13 @@ const usage = `
 
 type Image struct {
 	Path string
+}
+
+type ImageSnippet struct {
+	Width   int
+	Height  int
+	OffsetX int
+	OffsetY int
 }
 
 func (image Image) Crop(snippet ImageSnippet) string {
@@ -82,6 +79,7 @@ func main() {
 	}
 
 	image.HandRecognize()
+	image.PotRecognize()
 }
 
 func recognize(

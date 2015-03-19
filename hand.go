@@ -1,11 +1,14 @@
 package main
 
-type ImageSnippet struct {
-	Width   int
-	Height  int
-	OffsetX int
-	OffsetY int
-}
+//@TODO: move to config
+var (
+	cardSamples          = "cards/*"
+	cardWidth            = 46
+	cardHeight           = 30
+	handLeftCardOffsetX  = 346
+	handRightCardOffsetX = 396
+	handCardOffsetY      = 341 // 9 players, 340 for 6 players
+)
 
 type Card struct {
 	ImageSnippet
