@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 //@TODO: move to config
 var (
 	cardSamples          = "cards/*"
@@ -19,7 +23,7 @@ type Hand struct {
 	RightCard Card
 }
 
-func (image Image) HandRecognize() {
+func (image Image) HandRecognize() string {
 	hand := Hand{
 		LeftCard: Card{
 			ImageSnippet: ImageSnippet{
@@ -43,11 +47,11 @@ func (image Image) HandRecognize() {
 	if err != nil {
 		log.Notice("%v", err.Error())
 	}
-	log.Notice("%v\n", leftCard)
 
 	rightCard, err := recognize(image.Crop(hand.RightCard.ImageSnippet), cardSamples)
 	if err != nil {
 		log.Notice("%v", err.Error())
 	}
-	log.Notice("%v\n", rightCard)
+
+	return fmt.Sprintf("%v%v", leftCard, rightCard)
 }

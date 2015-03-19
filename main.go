@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"sync"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
@@ -33,6 +34,11 @@ const usage = `
 	croc
 	croc <filepath>
 `
+
+type Table struct {
+	Pot  string
+	Hand string
+}
 
 type Image struct {
 	Path string
@@ -78,8 +84,24 @@ func main() {
 		}
 	}
 
-	image.HandRecognize()
-	image.PotRecognize()
+	table := Table{}
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	go func() {
+		table.Hand = image.HandRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.Pot = image.PotRecognize()
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	log.Notice("Hand: %v", table.Hand)
+	log.Notice("Pot: %v", table.Pot)
 }
 
 func recognize(

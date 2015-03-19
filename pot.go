@@ -16,7 +16,7 @@ type Pot struct {
 	PotNumbers []ImageSnippet
 }
 
-func (image Image) PotRecognize() {
+func (image Image) PotRecognize() string {
 	pot := Pot{
 		Type: ImageSnippet{
 			Width:   potTypeWidth,
@@ -52,7 +52,7 @@ func (image Image) PotRecognize() {
 		potSize += number
 	}
 
-	log.Notice("%v", potSize)
+	return potSize
 }
 
 func getImageSnippetsForTwoPot() []ImageSnippet {
