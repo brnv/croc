@@ -26,7 +26,6 @@ var (
 	compareCmd          = "/bin/compare -quiet -metric RMSE %s %s NULL:"
 	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\)$")
-	compareThreshold    = 0.05
 )
 
 const usage = `
@@ -36,12 +35,17 @@ const usage = `
 `
 
 type Table struct {
+	Hero
 	Pot  string
 	Hand string
 }
 
 type Image struct {
 	Path string
+}
+
+type Hero struct {
+	Chips string
 }
 
 type ImageSnippet struct {
@@ -84,9 +88,11 @@ func main() {
 		}
 	}
 
-	table := Table{}
+	table := Table{
+		Hero: Hero{},
+	}
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		table.Hand = image.HandRecognize()
@@ -98,15 +104,23 @@ func main() {
 		wg.Done()
 	}()
 
+	go func() {
+		table.Hero.Chips = image.HeroChipsRecognize()
+		wg.Done()
+	}()
+
 	wg.Wait()
 
+	log.Notice("Input: %v", image.Path)
 	log.Notice("Hand: %v", table.Hand)
 	log.Notice("Pot: %v", table.Pot)
+	log.Notice("Chips: %v", table.Hero.Chips)
 }
 
 func recognize(
 	input string,
 	samplesFilepathPattern string,
+	compareThreshold float64,
 ) (string, error) {
 	samples, _ := filepath.Glob(samplesFilepathPattern)
 

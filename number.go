@@ -7,9 +7,10 @@ type Number struct {
 func (image Image) NumberTypeRecognize(
 	snippet ImageSnippet,
 	typeSamples string,
+	compareThreshold float64,
 ) (string, error) {
 	typeString, err := recognize(
-		image.Crop(snippet), typeSamples,
+		image.Crop(snippet), typeSamples, compareThreshold,
 	)
 
 	if err != nil {

@@ -12,6 +12,7 @@ var (
 	handLeftCardOffsetX  = 346
 	handRightCardOffsetX = 396
 	handCardOffsetY      = 341 // 9 players, 340 for 6 players
+	handCompareThreshold = 0.05
 )
 
 type Card struct {
@@ -43,12 +44,22 @@ func (image Image) HandRecognize() string {
 		},
 	}
 
-	leftCard, err := recognize(image.Crop(hand.LeftCard.ImageSnippet), cardSamples)
+	leftCard, err := recognize(
+		image.Crop(hand.LeftCard.ImageSnippet),
+		cardSamples,
+		handCompareThreshold,
+	)
+
 	if err != nil {
 		log.Notice("%v", err.Error())
 	}
 
-	rightCard, err := recognize(image.Crop(hand.RightCard.ImageSnippet), cardSamples)
+	rightCard, err := recognize(
+		image.Crop(hand.RightCard.ImageSnippet),
+		cardSamples,
+		handCompareThreshold,
+	)
+
 	if err != nil {
 		log.Notice("%v", err.Error())
 	}

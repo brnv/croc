@@ -2,14 +2,15 @@ package main
 
 //@TODO: move to config
 var (
-	potDigitSamples = "pot_digits/*"
-	potTypeSamples  = "pot_types/*"
-	potTypeWidth    = 14
-	potTypeHeight   = 13
-	potTypeOffsetX  = 360
-	potOffsetY      = 154
-	potDigitWidth   = 9
-	potDigitHeight  = 13
+	potDigitSamples     = "pot_digits/*"
+	potTypeSamples      = "pot_types/*"
+	potTypeWidth        = 14
+	potTypeHeight       = 13
+	potTypeOffsetX      = 360
+	potOffsetY          = 154
+	potDigitWidth       = 9
+	potDigitHeight      = 13
+	potCompareThreshold = 0.05
 )
 
 type Pot struct {
@@ -31,6 +32,7 @@ func (image Image) PotRecognize() string {
 			OffsetY: potOffsetY,
 		},
 		potTypeSamples,
+		potCompareThreshold,
 	)
 
 	if err != nil {
@@ -51,7 +53,12 @@ func (image Image) PotRecognize() string {
 	potSize := ""
 
 	for _, potDigit := range pot.Number.Digits {
-		digit, err := recognize(image.Crop(potDigit), potDigitSamples)
+		digit, err := recognize(
+			image.Crop(potDigit),
+			potDigitSamples,
+			potCompareThreshold,
+		)
+
 		if err != nil {
 			log.Notice("%v", err.Error())
 		}
