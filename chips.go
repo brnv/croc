@@ -36,7 +36,7 @@ func (image Image) HeroChipsRecognize() string {
 	)
 
 	if err != nil {
-		log.Notice("%v", err.Error())
+		return err.Error()
 	}
 
 	switch chipsType {
@@ -60,8 +60,9 @@ func (image Image) HeroChipsRecognize() string {
 		)
 
 		if err != nil {
-			log.Notice("%v", err.Error())
+			return err.Error()
 		}
+
 		chipsCount += digit
 	}
 

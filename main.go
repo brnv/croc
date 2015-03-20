@@ -94,6 +94,8 @@ func getImageSnippets(
 func main() {
 	var err error
 
+	logging.SetLevel(logging.ERROR, "")
+
 	cmdRunner, err = runcmd.NewLocalRunner()
 	if err != nil {
 		log.Fatal(err)
@@ -150,21 +152,24 @@ func main() {
 
 	wg.Wait()
 
-	log.Notice("Input: %v", image.Path)
-	log.Notice("Pot: %v", table.Pot)
-	log.Notice("Board: %v", table.Board)
-	log.Notice("Hero hand: %v", table.Hero.Hand)
-	log.Notice("Hero chips: %v", table.Hero.Chips)
-	log.Notice("Hero call: %v", table.Hero.Call)
+	if args["<filepath>"] == nil {
+		fmt.Printf("Input: %v\n", image.Path)
+	}
+
+	fmt.Printf("Pot: %v\n", table.Pot)
+	fmt.Printf("Board: %v\n", table.Board)
+	fmt.Printf("Hero hand: %v\n", table.Hero.Hand)
+	fmt.Printf("Hero chips: %v\n", table.Hero.Chips)
+	fmt.Printf("Hero call: %v\n", table.Hero.Call)
 
 	if args["--blinds"] != nil {
 		table.Blinds = args["--blinds"].(string)
-		log.Notice("Blinds: %v", table.Blinds)
+		fmt.Printf("Blinds: %v\n", table.Blinds)
 	}
 
 	if args["--ante"] != nil {
 		table.Ante = args["--ante"].(string)
-		log.Notice("Ante: %v", table.Ante)
+		fmt.Printf("Ante: %v\n", table.Ante)
 	}
 }
 
@@ -193,9 +198,8 @@ func recognize(
 		}
 	}
 
-	return "", errors.New(
-		fmt.Sprintf("Recognition failed! Input file: %s", input),
-	)
+	return "", errors.New(fmt.Sprintf("%s failed!", input))
+
 }
 
 func makeScreenshot() (string, error) {

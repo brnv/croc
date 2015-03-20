@@ -29,8 +29,9 @@ func (image Image) BoardRecognize() string {
 		)
 
 		if err != nil {
-			log.Notice("%v", err.Error())
+			return err.Error()
 		}
+
 		boardCards += card
 	}
 

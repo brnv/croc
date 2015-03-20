@@ -44,7 +44,7 @@ func (image Image) CallRecognize() string {
 	)
 
 	if err != nil {
-		log.Notice("%v", err.Error())
+		return err.Error()
 	}
 
 	callDigitsTwo := callDigitsTwoCallButton
@@ -64,7 +64,7 @@ func (image Image) CallRecognize() string {
 		)
 
 		if err != nil {
-			log.Notice("%v", err.Error())
+			return err.Error()
 		}
 
 		callDigitsTwo = callDigitsTwoRaiseButton
@@ -97,8 +97,9 @@ func (image Image) CallRecognize() string {
 		)
 
 		if err != nil {
-			log.Notice("%v", err.Error())
+			return err.Error()
 		}
+
 		callSize += digit
 	}
 

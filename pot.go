@@ -36,7 +36,7 @@ func (image Image) PotRecognize() string {
 	)
 
 	if err != nil {
-		log.Notice("%v", err.Error())
+		return err.Error()
 	}
 
 	switch potType {
@@ -60,7 +60,7 @@ func (image Image) PotRecognize() string {
 		)
 
 		if err != nil {
-			log.Notice("%v", err.Error())
+			return err.Error()
 		}
 		potSize += digit
 	}

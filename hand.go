@@ -51,7 +51,7 @@ func (image Image) HandRecognize() string {
 	)
 
 	if err != nil {
-		log.Notice("%v", err.Error())
+		return err.Error()
 	}
 
 	rightCard, err := recognize(
@@ -61,7 +61,7 @@ func (image Image) HandRecognize() string {
 	)
 
 	if err != nil {
-		log.Notice("%v", err.Error())
+		return err.Error()
 	}
 
 	return fmt.Sprintf("%v%v", leftCard, rightCard)
