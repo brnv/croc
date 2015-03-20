@@ -69,7 +69,7 @@ func (image Image) PotRecognize() string {
 }
 
 func (pot Pot) GetPotImageSnippets(offsets []int) []ImageSnippet {
-	return getDigitsImageSnippets(
+	return getImageSnippets(
 		potDigitWidth,
 		potDigitHeight,
 		potOffsetY,

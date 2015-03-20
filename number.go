@@ -19,23 +19,3 @@ func (image Image) NumberTypeRecognize(
 
 	return typeString, err
 }
-
-func getDigitsImageSnippets(
-	width int,
-	height int,
-	offsetY int,
-	offsets []int,
-) []ImageSnippet {
-	imageSnippets := make([]ImageSnippet, len(offsets))
-
-	for index, offset := range offsets {
-		imageSnippets[index] = ImageSnippet{
-			Width:   width,
-			Height:  height,
-			OffsetX: offset,
-			OffsetY: offsetY,
-		}
-	}
-
-	return imageSnippets
-}

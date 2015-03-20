@@ -106,7 +106,7 @@ func (image Image) CallRecognize() string {
 }
 
 func (call Call) GetCallImageSnippets(offsets []int) []ImageSnippet {
-	return getDigitsImageSnippets(
+	return getImageSnippets(
 		callDigitWidth,
 		callDigitHeight,
 		callOffsetY,

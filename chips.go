@@ -69,7 +69,7 @@ func (image Image) HeroChipsRecognize() string {
 }
 
 func (chips Chips) GetChipsImageSnippets(offsets []int) []ImageSnippet {
-	return getDigitsImageSnippets(
+	return getImageSnippets(
 		chipsDigitWidth,
 		chipsDigitHeight,
 		chipsOffsetY,

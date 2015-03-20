@@ -38,6 +38,7 @@ type Table struct {
 	Blinds string
 	Ante   string
 	Pot    string
+	Board  string
 }
 
 type Image struct {
@@ -70,6 +71,26 @@ func (image Image) Crop(snippet ImageSnippet) string {
 	return croppedPath
 }
 
+func getImageSnippets(
+	width int,
+	height int,
+	offsetY int,
+	offsets []int,
+) []ImageSnippet {
+	imageSnippets := make([]ImageSnippet, len(offsets))
+
+	for index, offset := range offsets {
+		imageSnippets[index] = ImageSnippet{
+			Width:   width,
+			Height:  height,
+			OffsetX: offset,
+			OffsetY: offsetY,
+		}
+	}
+
+	return imageSnippets
+}
+
 func main() {
 	var err error
 
@@ -95,7 +116,7 @@ func main() {
 	}
 
 	wg := &sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		table.Hero.Hand = image.HandRecognize()
@@ -109,6 +130,11 @@ func main() {
 
 	go func() {
 		table.Hero.Chips = image.HeroChipsRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.Board = image.BoardRecognize()
 		wg.Done()
 	}()
 
@@ -126,6 +152,7 @@ func main() {
 
 	log.Notice("Input: %v", image.Path)
 	log.Notice("Pot: %v", table.Pot)
+	log.Notice("Board: %v", table.Board)
 	log.Notice("Hero hand: %v", table.Hero.Hand)
 	log.Notice("Hero chips: %v", table.Hero.Chips)
 	log.Notice("Hero call: %v", table.Hero.Call)
