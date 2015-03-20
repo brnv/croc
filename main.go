@@ -30,13 +30,14 @@ var (
 
 const usage = `
 	Usage:
-	croc [<filepath>] [--call=CALL]
+	croc [<filepath>] [--call=CALL] [--blinds=BLINDS] [--ante=ANTE]
 `
 
 type Table struct {
 	Hero
-	Pot  string
-	Hand string
+	Blinds string
+	Ante   string
+	Pot    string
 }
 
 type Image struct {
@@ -46,6 +47,7 @@ type Image struct {
 type Hero struct {
 	Chips string
 	Call  string
+	Hand  string
 }
 
 type ImageSnippet struct {
@@ -96,7 +98,7 @@ func main() {
 	wg.Add(3)
 
 	go func() {
-		table.Hand = image.HandRecognize()
+		table.Hero.Hand = image.HandRecognize()
 		wg.Done()
 	}()
 
@@ -123,10 +125,20 @@ func main() {
 	wg.Wait()
 
 	log.Notice("Input: %v", image.Path)
-	log.Notice("Hand: %v", table.Hand)
 	log.Notice("Pot: %v", table.Pot)
-	log.Notice("Chips: %v", table.Hero.Chips)
-	log.Notice("Raise or call: %v", table.Hero.Call)
+	log.Notice("Hero hand: %v", table.Hero.Hand)
+	log.Notice("Hero chips: %v", table.Hero.Chips)
+	log.Notice("Hero call: %v", table.Hero.Call)
+
+	if args["--blinds"] != nil {
+		table.Blinds = args["--blinds"].(string)
+		log.Notice("Blinds: %v", table.Blinds)
+	}
+
+	if args["--ante"] != nil {
+		table.Ante = args["--ante"].(string)
+		log.Notice("Ante: %v", table.Ante)
+	}
 }
 
 func recognize(
