@@ -30,8 +30,7 @@ var (
 
 const usage = `
 	Usage:
-	croc
-	croc <filepath>
+	croc [<filepath>] [--call=CALL]
 `
 
 type Table struct {
@@ -46,6 +45,7 @@ type Image struct {
 
 type Hero struct {
 	Chips string
+	Call  string
 }
 
 type ImageSnippet struct {
@@ -91,6 +91,7 @@ func main() {
 	table := Table{
 		Hero: Hero{},
 	}
+
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 
@@ -109,12 +110,23 @@ func main() {
 		wg.Done()
 	}()
 
+	if args["--call"] == nil {
+		wg.Add(1)
+		go func() {
+			table.Hero.Call = image.CallRecognize()
+			wg.Done()
+		}()
+	} else {
+		table.Hero.Call = args["--call"].(string)
+	}
+
 	wg.Wait()
 
 	log.Notice("Input: %v", image.Path)
 	log.Notice("Hand: %v", table.Hand)
 	log.Notice("Pot: %v", table.Pot)
 	log.Notice("Chips: %v", table.Hero.Chips)
+	log.Notice("Raise or call: %v", table.Hero.Call)
 }
 
 func recognize(
