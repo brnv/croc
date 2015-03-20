@@ -40,6 +40,7 @@ type Table struct {
 	Pot       string
 	Board     string
 	Opponents string
+	Button    string
 }
 
 type Image struct {
@@ -119,7 +120,7 @@ func main() {
 	}
 
 	wg := &sync.WaitGroup{}
-	wg.Add(5)
+	wg.Add(6)
 
 	go func() {
 		table.Hero.Hand = image.HandRecognize()
@@ -146,6 +147,11 @@ func main() {
 		wg.Done()
 	}()
 
+	go func() {
+		table.Button = image.ButtonRecognize()
+		wg.Done()
+	}()
+
 	if args["--call"] == nil {
 		wg.Add(1)
 		go func() {
@@ -168,6 +174,7 @@ func main() {
 	fmt.Printf("Hero chips: %v\n", table.Hero.Chips)
 	fmt.Printf("Hero call: %v\n", table.Hero.Call)
 	fmt.Printf("Opponents: %v\n", table.Opponents)
+	fmt.Printf("Button: %v\n", table.Button)
 
 	if args["--blinds"] != nil {
 		table.Blinds = args["--blinds"].(string)
