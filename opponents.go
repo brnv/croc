@@ -5,7 +5,7 @@ import "strconv"
 //@TODO: move to config
 var (
 	opponentsSamples          = "opponents/*"
-	opponentsCompareThreshold = 0.025
+	opponentsCompareThreshold = 0.03
 	opponentsWidth            = 6
 	opponentsHeight           = 10
 )
