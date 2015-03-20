@@ -35,10 +35,11 @@ const usage = `
 
 type Table struct {
 	Hero
-	Blinds string
-	Ante   string
-	Pot    string
-	Board  string
+	Blinds    string
+	Ante      string
+	Pot       string
+	Board     string
+	Opponents string
 }
 
 type Image struct {
@@ -94,7 +95,7 @@ func getImageSnippets(
 func main() {
 	var err error
 
-	logging.SetLevel(logging.ERROR, "")
+	logging.SetLevel(logging.NOTICE, "")
 
 	cmdRunner, err = runcmd.NewLocalRunner()
 	if err != nil {
@@ -118,7 +119,7 @@ func main() {
 	}
 
 	wg := &sync.WaitGroup{}
-	wg.Add(4)
+	wg.Add(5)
 
 	go func() {
 		table.Hero.Hand = image.HandRecognize()
@@ -137,6 +138,11 @@ func main() {
 
 	go func() {
 		table.Board = image.BoardRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.Opponents = image.OpponentsRecognize()
 		wg.Done()
 	}()
 
@@ -161,6 +167,7 @@ func main() {
 	fmt.Printf("Hero hand: %v\n", table.Hero.Hand)
 	fmt.Printf("Hero chips: %v\n", table.Hero.Chips)
 	fmt.Printf("Hero call: %v\n", table.Hero.Call)
+	fmt.Printf("Opponents: %v\n", table.Opponents)
 
 	if args["--blinds"] != nil {
 		table.Blinds = args["--blinds"].(string)
