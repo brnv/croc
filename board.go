@@ -29,7 +29,7 @@ func (image Image) BoardRecognize() string {
 		)
 
 		if err != nil {
-			return err.Error()
+			continue
 		}
 
 		boardCards += card
