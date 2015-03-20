@@ -81,6 +81,10 @@ func (image Image) CallRecognize() string {
 		call.Number.Digits = call.GetCallImageSnippets(
 			callDigitsThree,
 		)
+	case "3_1":
+		call.Number.Digits = call.GetCallImageSnippets(
+			[]int{569, 580, 592},
+		)
 	case "4":
 		call.Number.Digits = call.GetCallImageSnippets(
 			callDigitsFour,
@@ -97,7 +101,8 @@ func (image Image) CallRecognize() string {
 		)
 
 		if err != nil {
-			return err.Error()
+			log.Notice("%v", err.Error())
+			return callSize
 		}
 
 		callSize += digit

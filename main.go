@@ -30,7 +30,7 @@ var (
 
 const usage = `
 	Usage:
-	croc [<filepath>] [--call=CALL] [--blinds=BLINDS] [--ante=ANTE]
+	croc [<filepath>] --call=CALL [--blinds=BLINDS] [--ante=ANTE]
 `
 
 type Table struct {
@@ -152,15 +152,7 @@ func main() {
 		wg.Done()
 	}()
 
-	if args["--call"] == nil {
-		wg.Add(1)
-		go func() {
-			table.Hero.Call = image.CallRecognize()
-			wg.Done()
-		}()
-	} else {
-		table.Hero.Call = args["--call"].(string)
-	}
+	table.Hero.Call = args["--call"].(string)
 
 	wg.Wait()
 
