@@ -6,7 +6,7 @@ var (
 	chipsTypeSamples      = "chips_types/*"
 	chipsTypeWidth        = 12
 	chipsTypeHeight       = 13
-	chipsTypeOffsetX      = 349
+	chipsTypeOffsetX      = 353
 	chipsOffsetY          = 408
 	chipsDigitWidth       = 9
 	chipsDigitHeight      = 13
@@ -42,11 +42,7 @@ func (image Image) HeroChipsRecognize() string {
 	switch chipsType {
 	case "3":
 		chips.Number.Digits = chips.GetChipsImageSnippets(
-			[]int{367, 376, 385},
-		)
-	case "4":
-		chips.Number.Digits = chips.GetChipsImageSnippets(
-			[]int{361, 373, 382, 391},
+			[]int{366, 378, 387},
 		)
 	}
 

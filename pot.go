@@ -6,7 +6,7 @@ var (
 	potTypeSamples      = "pot_types/*"
 	potTypeWidth        = 14
 	potTypeHeight       = 13
-	potTypeOffsetX      = 360
+	potTypeOffsetX      = 385
 	potOffsetY          = 154
 	potDigitWidth       = 9
 	potDigitHeight      = 13
@@ -42,11 +42,7 @@ func (image Image) PotRecognize() string {
 	switch potType {
 	case "3":
 		pot.Number.Digits = pot.GetPotImageSnippets(
-			[]int{403, 412, 421},
-		)
-	case "4":
-		pot.Number.Digits = pot.GetPotImageSnippets(
-			[]int{397, 409, 418, 427},
+			[]int{401, 413, 422},
 		)
 	}
 

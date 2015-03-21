@@ -1,18 +1,23 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
+	"github.com/seletskiy/tplutil"
 	"github.com/thearkit/runcmd"
 )
 
@@ -28,9 +33,21 @@ var (
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\)$")
 )
 
+var positions = map[int]string{
+	1: "sb",
+	2: "bb",
+	3: "utg2",
+	4: "utg3",
+	5: "mp1",
+	6: "mp2",
+	7: "mp3",
+	8: "cutoff",
+	9: "dealer",
+}
+
 const usage = `
 	Usage:
-	croc [<filepath>] --call=CALL [--blinds=BLINDS] [--ante=ANTE]
+	croc [<filepath>] [--call=CALL] [--blinds=BLINDS] [--ante=ANTE]
 `
 
 type Table struct {
@@ -48,9 +65,10 @@ type Image struct {
 }
 
 type Hero struct {
-	Chips string
-	Call  string
-	Hand  string
+	Chips    string
+	Call     string
+	Hand     string
+	Position string
 }
 
 type ImageSnippet struct {
@@ -58,6 +76,28 @@ type ImageSnippet struct {
 	Height  int
 	OffsetX int
 	OffsetY int
+}
+
+const tableTpl = `
+	Hero hand: {{.Hero.Hand}}{{"\n"}}
+	Hero position: {{.Hero.Position}}{{"\n"}}
+	Hero chips: {{.Hero.Chips}}{{"\n"}}
+	Pot size: {{.Pot}}{{"\n"}}
+	Board: {{.Board}}{{"\n"}}
+`
+
+func (table Table) String() string {
+	myTpl := template.Must(
+		template.New("table").Parse(tplutil.Strip(
+			tableTpl,
+		)),
+	)
+
+	buf := bytes.NewBuffer([]byte{})
+
+	myTpl.Execute(buf, table)
+
+	return buf.String()
 }
 
 func (image Image) Crop(snippet ImageSnippet) string {
@@ -94,6 +134,8 @@ func getImageSnippets(
 }
 
 func main() {
+	runtime.GOMAXPROCS(4)
+
 	var err error
 
 	logging.SetLevel(logging.NOTICE, "")
@@ -120,7 +162,7 @@ func main() {
 	}
 
 	wg := &sync.WaitGroup{}
-	wg.Add(6)
+	wg.Add(5)
 
 	go func() {
 		table.Hero.Hand = image.HandRecognize()
@@ -128,7 +170,7 @@ func main() {
 	}()
 
 	go func() {
-		table.Pot = image.PotRecognize()
+		table.Pot = strings.TrimLeft(image.PotRecognize(), "0")
 		wg.Done()
 	}()
 
@@ -143,30 +185,16 @@ func main() {
 	}()
 
 	go func() {
-		table.Opponents = image.OpponentsRecognize()
-		wg.Done()
-	}()
-
-	go func() {
 		table.Button = image.ButtonRecognize()
+		table.Hero.Position = table.GetHeroPosition()
 		wg.Done()
 	}()
-
-	table.Hero.Call = args["--call"].(string)
 
 	wg.Wait()
 
-	if args["<filepath>"] == nil {
-		fmt.Printf("Input: %v\n", image.Path)
+	if args["--call"] != nil {
+		table.Hero.Call = args["--call"].(string)
 	}
-
-	fmt.Printf("Pot: %v\n", table.Pot)
-	fmt.Printf("Board: %v\n", table.Board)
-	fmt.Printf("Hero hand: %v\n", table.Hero.Hand)
-	fmt.Printf("Hero chips: %v\n", table.Hero.Chips)
-	fmt.Printf("Hero call: %v\n", table.Hero.Call)
-	fmt.Printf("Opponents: %v\n", table.Opponents)
-	fmt.Printf("Button: %v\n", table.Button)
 
 	if args["--blinds"] != nil {
 		table.Blinds = args["--blinds"].(string)
@@ -177,6 +205,13 @@ func main() {
 		table.Ante = args["--ante"].(string)
 		fmt.Printf("Ante: %v\n", table.Ante)
 	}
+
+	fmt.Print(table)
+}
+
+func (table Table) GetHeroPosition() string {
+	buttonNum, _ := strconv.Atoi(table.Button)
+	return positions[len(positions)+1-buttonNum]
 }
 
 func recognize(
