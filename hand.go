@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 //@TODO: move to config
 var (
 	cardSamples          = "cards/*"
@@ -12,17 +16,19 @@ var (
 )
 
 type Card struct {
+	Value string
+	Suit  string
 	ImageSnippet
 }
 
 type Hand struct {
-	LeftCard  Card
-	RightCard Card
+	CardLeft  Card
+	CardRight Card
 }
 
-func (image Image) HandRecognize() string {
+func (image Image) HandRecognize() Hand {
 	hand := Hand{
-		LeftCard: Card{
+		CardLeft: Card{
 			ImageSnippet: ImageSnippet{
 				Width:   cardWidth,
 				Height:  cardHeight,
@@ -30,7 +36,7 @@ func (image Image) HandRecognize() string {
 				OffsetY: handCardOffsetY,
 			},
 		},
-		RightCard: Card{
+		CardRight: Card{
 			ImageSnippet: ImageSnippet{
 				Width:   cardWidth,
 				Height:  cardHeight,
@@ -40,23 +46,39 @@ func (image Image) HandRecognize() string {
 		},
 	}
 
-	handStr := ""
-
-	leftCard, _ := recognize(
-		image.Crop(hand.LeftCard.ImageSnippet),
+	recognized, err := recognize(
+		image.Crop(hand.CardLeft.ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
-	handStr += leftCard
+	if err == nil {
+		hand.CardLeft.Value = fmt.Sprintf("%c", recognized[0])
+		hand.CardLeft.Suit = fmt.Sprintf("%c", recognized[1])
+	}
 
-	rightCard, _ := recognize(
-		image.Crop(hand.RightCard.ImageSnippet),
+	recognized, err = recognize(
+		image.Crop(hand.CardRight.ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
-	handStr += rightCard
+	if err == nil {
+		hand.CardRight.Value = fmt.Sprintf("%c", recognized[0])
+		hand.CardRight.Suit = fmt.Sprintf("%c", recognized[1])
+	}
 
-	return handStr
+	return hand
+}
+
+func (hand Hand) FoldedNotification() string {
+	if hand.CardLeft.Value == "" || hand.CardRight.Value == "" {
+		return ""
+	}
+
+	if hand.CardLeft.Suit == hand.CardRight.Suit {
+		return fmt.Sprintf("%s%ss", hand.CardLeft.Value, hand.CardRight.Value)
+	}
+
+	return fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
 }

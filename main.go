@@ -36,11 +36,11 @@ var (
 var positions = map[int]string{
 	1: "SB",
 	2: "BB",
-	3: "EP1",
-	4: "EP2",
-	5: "MP1",
-	6: "MP2",
-	7: "MP3",
+	3: "EP",
+	4: "EP",
+	5: "MP",
+	6: "MP",
+	7: "MP",
 	8: "CO",
 	9: "BU",
 }
@@ -67,7 +67,7 @@ type Image struct {
 type Hero struct {
 	Chips    string
 	Call     string
-	Hand     string
+	Hand     Hand
 	Position string
 }
 
@@ -206,7 +206,13 @@ func main() {
 		fmt.Printf("Ante: %v\n", table.Ante)
 	}
 
-	fmt.Print(table)
+	strategy := MSSStrategy{
+		Strategy: Strategy{
+			Table: table,
+		},
+	}
+
+	strategy.Run()
 }
 
 func (table Table) GetHeroPosition() string {
