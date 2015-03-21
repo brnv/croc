@@ -34,15 +34,15 @@ var (
 )
 
 var positions = map[int]string{
-	1: "sb",
-	2: "bb",
-	3: "utg2",
-	4: "utg3",
-	5: "mp1",
-	6: "mp2",
-	7: "mp3",
-	8: "cutoff",
-	9: "dealer",
+	1: "SB",
+	2: "BB",
+	3: "EP1",
+	4: "EP2",
+	5: "MP1",
+	6: "MP2",
+	7: "MP3",
+	8: "CO",
+	9: "BU",
 }
 
 const usage = `
@@ -175,7 +175,7 @@ func main() {
 	}()
 
 	go func() {
-		table.Hero.Chips = image.HeroChipsRecognize()
+		table.Hero.Chips = strings.TrimLeft(image.HeroChipsRecognize(), "0")
 		wg.Done()
 	}()
 

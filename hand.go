@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 //@TODO: move to config
 var (
 	cardSamples          = "cards/*"
@@ -44,25 +40,23 @@ func (image Image) HandRecognize() string {
 		},
 	}
 
-	leftCard, err := recognize(
+	handStr := ""
+
+	leftCard, _ := recognize(
 		image.Crop(hand.LeftCard.ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
-	if err != nil {
-		return err.Error()
-	}
+	handStr += leftCard
 
-	rightCard, err := recognize(
+	rightCard, _ := recognize(
 		image.Crop(hand.RightCard.ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
-	if err != nil {
-		return err.Error()
-	}
+	handStr += rightCard
 
-	return fmt.Sprintf("%v%v", leftCard, rightCard)
+	return handStr
 }
