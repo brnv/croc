@@ -71,14 +71,22 @@ func (image Image) HandRecognize() Hand {
 	return hand
 }
 
-func (hand Hand) FoldedNotification() string {
+func (hand Hand) ShortNotification() string {
 	if hand.CardLeft.Value == "" || hand.CardRight.Value == "" {
 		return ""
 	}
 
-	if hand.CardLeft.Suit == hand.CardRight.Suit {
-		return fmt.Sprintf("%s%ss", hand.CardLeft.Value, hand.CardRight.Value)
+	handShort := ""
+
+	if hand.CardLeft.Value < hand.CardRight.Value {
+		handShort = fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
+	} else {
+		handShort = fmt.Sprintf("%s%s", hand.CardRight.Value, hand.CardLeft.Value)
 	}
 
-	return fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
+	if hand.CardLeft.Suit == hand.CardRight.Suit {
+		handShort += "s"
+	}
+
+	return handShort
 }

@@ -82,6 +82,10 @@ func (strategy Strategy) Run() {
 		return
 	}
 
+	fmt.Printf("players position is %s\n", positions[strategy.Table.Hero.Position])
+
+	fmt.Printf("players hand is %s\n", strategy.Table.Hero.Hand.ShortNotification())
+
 	if strategy.Table.Board == "" {
 		strategy.Preflop()
 	} else {
@@ -90,6 +94,7 @@ func (strategy Strategy) Run() {
 }
 
 func (strategy Strategy) Preflop() {
+
 	if strategy.OpponentsWereRaising() {
 		strategy.PreflopThreeBetStrategy()
 	} else {
@@ -113,7 +118,9 @@ func (strategy Strategy) OpponentsWereRaising() bool {
 }
 
 func (strategy Strategy) PreflopThreeBetStrategy() {
-	hand := strategy.Table.Hero.Hand.FoldedNotification()
+	fmt.Println("preflop 3-bet strategy decision is")
+
+	hand := strategy.Table.Hero.Hand.ShortNotification()
 
 	for _, card := range allInHands {
 		if hand == card {
@@ -145,36 +152,40 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 
 		}
 	}
+
+	fmt.Println("FOLD")
 }
 
 func (strategy Strategy) PreflopRaiseStrategy() {
+	fmt.Println("preflop raise strategy decision is")
+
 	position := positions[strategy.Table.Hero.Position]
 
-	hand := strategy.Table.Hero.Hand.FoldedNotification()
+	hand := strategy.Table.Hero.Hand.ShortNotification()
 
 	for _, element := range raiseFoldHands[position] {
 		if element == hand {
-			fmt.Println("raise fold")
+			fmt.Println("RAISE and FOLD after 3-bet")
 			return
 		}
 	}
 
 	for _, element := range raisePushHands[position] {
 		if element == hand {
-			fmt.Println("raise push")
+			fmt.Println("RAISE and ALL-IN after 3-bet")
 			return
 		}
 	}
 
 	if position == "BB" {
-		fmt.Println("check fold")
+		fmt.Println("CHECK and FOLD after opponents raise")
 	} else {
-		fmt.Println("fold")
+		fmt.Println("FOLD")
 	}
 }
 
 func (strategy Strategy) Check() error {
-	hand := strategy.Table.Hero.Hand.FoldedNotification()
+	hand := strategy.Table.Hero.Hand.ShortNotification()
 
 	if hand == "" {
 		return errors.New("No hand provided")

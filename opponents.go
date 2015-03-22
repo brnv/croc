@@ -16,6 +16,7 @@ type Opponent struct {
 }
 
 var limpDigitOffsetsY = map[int]int{
+	1: 301,
 	2: 289,
 	3: 247,
 	4: 144,
@@ -27,6 +28,7 @@ var limpDigitOffsetsY = map[int]int{
 }
 
 var limpDigitOffsetsX = map[int]map[int]int{
+	1: map[int]int{0: 393, 1: 405, 2: 414},
 	2: map[int]int{0: 261, 1: 273, 2: 282},
 	3: map[int]int{0: 392, 1: 204, 2: 213},
 	4: map[int]int{0: 235, 1: 247, 2: 256},
