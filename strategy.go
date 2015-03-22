@@ -27,11 +27,11 @@ var positions = map[int]string{
 	9: "BU",
 }
 
-var latePositionsRaisePushHands = []string{"AA", "KK", "QQ", "JJ", "AK"}
+var latePositionsRaisePushHands = []string{"AA", "KK", "QQ", "JJ", "AK", "AKs"}
 
 var raisePushHands = map[string][]string{
 	"EP": []string{"AA", "KK", "QQ"},
-	"MP": []string{"AA", "KK", "QQ", "AK"},
+	"MP": []string{"AA", "KK", "QQ", "AK", "AKs"},
 	"CO": latePositionsRaisePushHands,
 	"BU": latePositionsRaisePushHands,
 	"SB": latePositionsRaisePushHands,
@@ -39,12 +39,13 @@ var raisePushHands = map[string][]string{
 }
 
 var latePositionsRaiseFoldHands = []string{
-	"TT", "99", "88", "77", "AQ", "AJ", "AT", "A9s", "KQ",
+	"TT", "99", "88", "77", "AQ", "AQs",
+	"AJ", "AJs", "AT", "ATs", "A9s", "KQ", "KQs",
 }
 
 var raiseFoldHands = map[string][]string{
-	"EP": []string{"JJ", "TT", "AK", "AQ", "AJs"},
-	"MP": []string{"JJ", "TT", "99", "88", "AQ", "AJ", "ATs"},
+	"EP": []string{"JJ", "TT", "AK", "AKs", "AQ", "AQs", "AJs"},
+	"MP": []string{"JJ", "TT", "99", "88", "AQ", "AQs", "AJ", "AJs", "ATs"},
 	"CO": latePositionsRaiseFoldHands,
 	"BU": latePositionsRaiseFoldHands,
 	"SB": latePositionsRaiseFoldHands,
@@ -53,21 +54,30 @@ var raiseFoldHands = map[string][]string{
 
 var allInHands = []string{"AA", "KK"}
 
-var latePositionsThreeBetAllInHands = []string{"QQ", "JJ", "AK"}
+var latePositionsThreeBetAllInHands = []string{"QQ", "JJ", "AK", "AKs"}
 var threeBetAllInHands = map[string][]string{
 	"EP": []string{"QQ"},
-	"MP": []string{"QQ", "AK"},
+	"MP": []string{"QQ", "AK", "AKs"},
 	"CO": latePositionsThreeBetAllInHands,
 	"BU": latePositionsThreeBetAllInHands,
 	"SB": latePositionsThreeBetAllInHands,
 	"BB": latePositionsThreeBetAllInHands,
 }
 
+var strategyPositions = map[string]string{
+	"EP": "EP",
+	"MP": "MP",
+	"CO": "later",
+	"BU": "later",
+	"SB": "later",
+	"BB": "later",
+}
+
 var latePositionsThreeBetFoldHands = []string{
-	"TT", "99", "88", "AQ", "AJ", "AT", "A9s",
+	"TT", "99", "88", "AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
 }
 var threeBetFoldHands = map[string][]string{
-	"MP": []string{"JJ", "TT", "99", "AQ", "AJ", "ATs"},
+	"MP": []string{"JJ", "TT", "99", "AQ", "AQs", "AJ", "AJs", "ATs"},
 	"CO": latePositionsThreeBetFoldHands,
 	"BU": latePositionsThreeBetFoldHands,
 	"SB": latePositionsThreeBetFoldHands,
@@ -133,7 +143,8 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and ALL-IN after 4-BET if opponent in %s", position,
+					"3-BET and ALL-IN after 4-BET if opponent in %s position",
+					strategyPositions[position],
 				)
 				return
 			}
@@ -145,7 +156,8 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and FOLD after 4-BET if opponent in %s", position,
+					"3-BET and FOLD after 4-BET if opponent in %s position",
+					strategyPositions[position],
 				)
 				return
 			}
