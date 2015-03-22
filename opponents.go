@@ -4,64 +4,90 @@ import "strconv"
 
 //@TODO: move to config
 var (
-	opponentsSamples          = "opponents/*"
-	opponentsCompareThreshold = 0.03
-	opponentsWidth            = 6
-	opponentsHeight           = 10
+	betSamples          = "bet_digits/*"
+	betCompareThreshold = 0.2
+	betDigitWidth       = 8
+	betDigitHeight      = 12
 )
 
-var opponents map[int]ImageSnippet
+type Opponent struct {
+	Position int
+	LimpSize int
+}
 
-func (image Image) OpponentsRecognize() string {
-	opponents := map[int]ImageSnippet{
-		2: ImageSnippet{
-			opponentsWidth, opponentsHeight, 92, 357,
+var limpDigitOffsetsY = map[int]int{
+	2: 289,
+	3: 247,
+	4: 144,
+	5: 126,
+	6: 115,
+	7: 145,
+	8: 250,
+	9: 289,
+}
+
+var limpDigitOffsetsX = map[int]map[int]int{
+	2: map[int]int{0: 261, 1: 273, 2: 282},
+	3: map[int]int{0: 392, 1: 204, 2: 213},
+	4: map[int]int{0: 235, 1: 247, 2: 256},
+	5: map[int]int{0: 337, 1: 349, 2: 358},
+	6: map[int]int{0: 445, 1: 457, 2: 466},
+	7: map[int]int{0: 535, 1: 547, 2: 556},
+	8: map[int]int{0: 577, 1: 589, 2: 598},
+	9: map[int]int{0: 514, 1: 526, 2: 535},
+}
+
+func (opponent Opponent) GetImageSnippets() []ImageSnippet {
+	return []ImageSnippet{
+		ImageSnippet{
+			Width:   betDigitWidth,
+			Height:  betDigitHeight,
+			OffsetX: limpDigitOffsetsX[opponent.Position][0],
+			OffsetY: limpDigitOffsetsY[opponent.Position],
 		},
-
-		3: ImageSnippet{
-			opponentsWidth, opponentsHeight, 0, 241,
+		ImageSnippet{
+			Width:   betDigitWidth,
+			Height:  betDigitHeight,
+			OffsetX: limpDigitOffsetsX[opponent.Position][1],
+			OffsetY: limpDigitOffsetsY[opponent.Position],
 		},
-
-		4: ImageSnippet{
-			opponentsWidth, opponentsHeight, 43, 128,
-		},
-
-		5: ImageSnippet{
-			opponentsWidth, opponentsHeight, 199, 72,
-		},
-
-		6: ImageSnippet{
-			opponentsWidth, opponentsHeight, 587, 72,
-		},
-
-		7: ImageSnippet{
-			opponentsWidth, opponentsHeight, 743, 128,
-		},
-
-		8: ImageSnippet{
-			opponentsWidth, opponentsHeight, 786, 241,
-		},
-
-		9: ImageSnippet{
-			opponentsWidth, opponentsHeight, 695, 357,
+		ImageSnippet{
+			Width:   betDigitWidth,
+			Height:  betDigitHeight,
+			OffsetX: limpDigitOffsetsX[opponent.Position][2],
+			OffsetY: limpDigitOffsetsY[opponent.Position],
 		},
 	}
+}
 
-	opponentsSeats := ""
+func (image Image) OpponentsRecognize() []Opponent {
+	opponents := []Opponent{}
+	for index := 1; index <= 9; index++ {
+		opponents = append(opponents, Opponent{
+			Position: index,
+		})
+	}
 
-	for seat, opponent := range opponents {
-		_, err := recognize(
-			image.Crop(opponent),
-			opponentsSamples,
-			opponentsCompareThreshold,
-		)
+	for index, opponent := range opponents {
+		for _, betDigit := range opponent.GetImageSnippets() {
+			img := image.Crop(betDigit)
 
-		if err != nil {
-			continue
+			recognized, err := recognize(
+				img,
+				betSamples,
+				betCompareThreshold,
+			)
+
+			if err != nil {
+				continue
+			}
+
+			recognizedInt, _ := strconv.Atoi(recognized)
+
+			opponents[index].LimpSize += recognizedInt
 		}
 
-		opponentsSeats += strconv.Itoa(seat)
 	}
 
-	return opponentsSeats
+	return opponents
 }

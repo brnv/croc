@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -12,6 +13,18 @@ type Strategy struct {
 	Table  Table
 	Action string
 	Bet    string
+}
+
+var positions = map[int]string{
+	1: "SB",
+	2: "BB",
+	3: "EP",
+	4: "EP",
+	5: "MP",
+	6: "MP",
+	7: "MP",
+	8: "CO",
+	9: "BU",
 }
 
 var latePositionsRaisePushHands = []string{"AA", "KK", "QQ", "JJ", "AK"}
@@ -38,6 +51,29 @@ var raiseFoldHands = map[string][]string{
 	"BB": latePositionsRaiseFoldHands,
 }
 
+var allInHands = []string{"AA", "KK"}
+
+var latePositionsThreeBetAllInHands = []string{"QQ", "JJ", "AK"}
+var threeBetAllInHands = map[string][]string{
+	"EP": []string{"QQ"},
+	"MP": []string{"QQ", "AK"},
+	"CO": latePositionsThreeBetAllInHands,
+	"BU": latePositionsThreeBetAllInHands,
+	"SB": latePositionsThreeBetAllInHands,
+	"BB": latePositionsThreeBetAllInHands,
+}
+
+var latePositionsThreeBetFoldHands = []string{
+	"TT", "99", "88", "AQ", "AJ", "AT", "A9s",
+}
+var threeBetFoldHands = map[string][]string{
+	"MP": []string{"JJ", "TT", "99", "AQ", "AJ", "ATs"},
+	"CO": latePositionsThreeBetFoldHands,
+	"BU": latePositionsThreeBetFoldHands,
+	"SB": latePositionsThreeBetFoldHands,
+	"BB": latePositionsThreeBetFoldHands,
+}
+
 func (strategy Strategy) Run() {
 	err := strategy.Check()
 
@@ -54,13 +90,67 @@ func (strategy Strategy) Run() {
 }
 
 func (strategy Strategy) Preflop() {
-	position := strategy.Table.Hero.Position
+	if strategy.OpponentsWereRaising() {
+		strategy.PreflopThreeBetStrategy()
+	} else {
+		strategy.PreflopRaiseStrategy()
+	}
+}
+
+func (strategy Strategy) OpponentsWereRaising() bool {
+	limpTotalSize := 0
+
+	for _, limper := range strategy.Table.Opponents {
+		limpTotalSize += limper.LimpSize
+
+	}
+
+	if limpTotalSize == strategy.Table.Pot {
+		return false
+	}
+
+	return true
+}
+
+func (strategy Strategy) PreflopThreeBetStrategy() {
 	hand := strategy.Table.Hero.Hand.FoldedNotification()
 
-	if hand == "" {
-		fmt.Println("no hand provided")
-		return
+	for _, card := range allInHands {
+		if hand == card {
+			fmt.Println("ALL-IN if many raises, 3-BET if one")
+			return
+		}
 	}
+
+	for position, cards := range threeBetAllInHands {
+		for _, card := range cards {
+			if hand == card {
+				fmt.Printf(
+					"3-BET and ALL-IN after 4-BET if opponent in %s", position,
+				)
+				return
+			}
+
+		}
+	}
+
+	for position, cards := range threeBetFoldHands {
+		for _, card := range cards {
+			if hand == card {
+				fmt.Printf(
+					"3-BET and FOLD after 4-BET if opponent in %s", position,
+				)
+				return
+			}
+
+		}
+	}
+}
+
+func (strategy Strategy) PreflopRaiseStrategy() {
+	position := positions[strategy.Table.Hero.Position]
+
+	hand := strategy.Table.Hero.Hand.FoldedNotification()
 
 	for _, element := range raiseFoldHands[position] {
 		if element == hand {
@@ -84,5 +174,11 @@ func (strategy Strategy) Preflop() {
 }
 
 func (strategy Strategy) Check() error {
+	hand := strategy.Table.Hero.Hand.FoldedNotification()
+
+	if hand == "" {
+		return errors.New("No hand provided")
+	}
+
 	return nil
 }

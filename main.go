@@ -27,23 +27,12 @@ var (
 )
 
 var (
-	importCmd           = "/bin/import png:%s"
-	compareCmd          = "/bin/compare -quiet -metric RMSE %s %s NULL:"
+	importCmd  = "/bin/import png:%s"
+	compareCmd = "/bin/compare -subimage-search " +
+		"-dissimilarity-threshold 1 -quiet -metric RMSE %s %s NULL:"
 	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
-	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\)$")
+	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\).*$")
 )
-
-var positions = map[int]string{
-	1: "SB",
-	2: "BB",
-	3: "EP",
-	4: "EP",
-	5: "MP",
-	6: "MP",
-	7: "MP",
-	8: "CO",
-	9: "BU",
-}
 
 const usage = `
 	Usage:
@@ -54,9 +43,9 @@ type Table struct {
 	Hero
 	Blinds    string
 	Ante      string
-	Pot       string
+	Pot       int
 	Board     string
-	Opponents string
+	Opponents []Opponent
 	Button    string
 }
 
@@ -68,7 +57,7 @@ type Hero struct {
 	Chips    string
 	Call     string
 	Hand     Hand
-	Position string
+	Position int
 }
 
 type ImageSnippet struct {
@@ -162,7 +151,7 @@ func main() {
 	}
 
 	wg := &sync.WaitGroup{}
-	wg.Add(5)
+	wg.Add(6)
 
 	go func() {
 		table.Hero.Hand = image.HandRecognize()
@@ -170,7 +159,12 @@ func main() {
 	}()
 
 	go func() {
-		table.Pot = strings.TrimLeft(image.PotRecognize(), "0")
+		table.Pot, _ = strconv.Atoi(strings.TrimLeft(image.PotRecognize(), "0"))
+		wg.Done()
+	}()
+
+	go func() {
+		table.Opponents = image.OpponentsRecognize()
 		wg.Done()
 	}()
 
@@ -215,9 +209,9 @@ func main() {
 	strategy.Run()
 }
 
-func (table Table) GetHeroPosition() string {
+func (table Table) GetHeroPosition() int {
 	buttonNum, _ := strconv.Atoi(table.Button)
-	return positions[len(positions)+1-buttonNum]
+	return len(positions) + 1 - buttonNum
 }
 
 func recognize(
