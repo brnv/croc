@@ -71,22 +71,38 @@ func (image Image) HandRecognize() Hand {
 	return hand
 }
 
-func (hand Hand) ShortNotification() string {
+var cardStrength = map[string]int{
+	"2": 2,
+	"3": 3,
+	"4": 4,
+	"5": 5,
+	"6": 6,
+	"7": 7,
+	"8": 8,
+	"9": 9,
+	"T": 10,
+	"J": 11,
+	"Q": 12,
+	"K": 13,
+	"A": 14,
+}
+
+func (hand Hand) ShortNotation() string {
 	if hand.CardLeft.Value == "" || hand.CardRight.Value == "" {
 		return ""
 	}
 
-	handShort := ""
+	short := ""
 
-	if hand.CardLeft.Value < hand.CardRight.Value {
-		handShort = fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
+	if cardStrength[hand.CardLeft.Value] > cardStrength[hand.CardRight.Value] {
+		short = fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
 	} else {
-		handShort = fmt.Sprintf("%s%s", hand.CardRight.Value, hand.CardLeft.Value)
+		short = fmt.Sprintf("%s%s", hand.CardRight.Value, hand.CardLeft.Value)
 	}
 
 	if hand.CardLeft.Suit == hand.CardRight.Suit {
-		handShort += "s"
+		short += "s"
 	}
 
-	return handShort
+	return short
 }

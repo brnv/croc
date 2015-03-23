@@ -94,7 +94,7 @@ func (strategy Strategy) Run() {
 
 	fmt.Printf("players position is %s\n", positions[strategy.Table.Hero.Position])
 
-	fmt.Printf("players hand is %s\n", strategy.Table.Hero.Hand.ShortNotification())
+	fmt.Printf("players hand is %s\n", strategy.Table.Hero.Hand.ShortNotation())
 
 	if strategy.Table.Board == "" {
 		strategy.Preflop()
@@ -130,7 +130,7 @@ func (strategy Strategy) OpponentsWereRaising() bool {
 func (strategy Strategy) PreflopThreeBetStrategy() {
 	fmt.Println("preflop 3-bet strategy decision is")
 
-	hand := strategy.Table.Hero.Hand.ShortNotification()
+	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	for _, card := range allInHands {
 		if hand == card {
@@ -173,7 +173,7 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 
 	position := positions[strategy.Table.Hero.Position]
 
-	hand := strategy.Table.Hero.Hand.ShortNotification()
+	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	for _, element := range raiseFoldHands[position] {
 		if element == hand {
@@ -197,7 +197,7 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 }
 
 func (strategy Strategy) Check() error {
-	hand := strategy.Table.Hero.Hand.ShortNotification()
+	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	if hand == "" {
 		return errors.New("No hand provided")
