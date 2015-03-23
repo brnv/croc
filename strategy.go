@@ -27,7 +27,7 @@ var positions = map[int]string{
 
 var noLimpPotSize = 3
 
-var laterPosition = "Later"
+var laterPosition = "LATER"
 var strategyPositions = map[string]string{
 	"EP": "EP",
 	"MP": "MP",
@@ -171,7 +171,7 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and ALL-IN after 4-BET if opponent in %s position",
+					"3-BET and ALL-IN after %s position opponent's 4-BET\n",
 					strategyPositions[position],
 				)
 				return
@@ -184,7 +184,7 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and FOLD after 4-BET if opponent in %s position",
+					"3-BET and FOLD after %s position opponent's 4-BET\n",
 					strategyPositions[position],
 				)
 				return
@@ -218,7 +218,8 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 	}
 
 	if position == "SB" {
-		fmt.Println("FOLD or LIMP")
+		fmt.Println("implement hand equity and decide to")
+		fmt.Println("LIMP or FOLD")
 		return
 	}
 
@@ -226,6 +227,8 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 		fmt.Println("CHECK")
 		return
 	}
+
+	fmt.Println("FOLD")
 }
 
 func (strategy Strategy) CheckInput() error {

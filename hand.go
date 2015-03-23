@@ -109,7 +109,7 @@ func (hand Hand) ShortNotation() string {
 
 func (hand Hand) String() string {
 	return fmt.Sprintf("%s%s%s%s",
-		hand.CardLeft.Value, hand.CardRight.Value,
-		hand.CardLeft.Suit, hand.CardRight.Suit,
+		hand.CardLeft.Value, hand.CardLeft.Suit,
+		hand.CardRight.Value, hand.CardRight.Suit,
 	)
 }
