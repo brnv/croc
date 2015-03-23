@@ -10,9 +10,7 @@ type MSSStrategy struct {
 }
 
 type Strategy struct {
-	Table  Table
-	Action string
-	Bet    string
+	Table Table
 }
 
 var positions = map[int]string{
@@ -27,74 +25,99 @@ var positions = map[int]string{
 	9: "BU",
 }
 
-var latePositionsRaisePushHands = []string{"AA", "KK", "QQ", "JJ", "AK", "AKs"}
+var noLimpPotSize = 3
 
-var raisePushHands = map[string][]string{
-	"EP": []string{"AA", "KK", "QQ"},
-	"MP": []string{"AA", "KK", "QQ", "AK", "AKs"},
-	"CO": latePositionsRaisePushHands,
-	"BU": latePositionsRaisePushHands,
-	"SB": latePositionsRaisePushHands,
-	"BB": latePositionsRaisePushHands,
-}
-
-var latePositionsRaiseFoldHands = []string{
-	"TT", "99", "88", "77", "AQ", "AQs",
-	"AJ", "AJs", "AT", "ATs", "A9s", "KQ", "KQs",
-}
-
-var raiseFoldHands = map[string][]string{
-	"EP": []string{"JJ", "TT", "AK", "AKs", "AQ", "AQs", "AJs"},
-	"MP": []string{"JJ", "TT", "99", "88", "AQ", "AQs", "AJ", "AJs", "ATs"},
-	"CO": latePositionsRaiseFoldHands,
-	"BU": latePositionsRaiseFoldHands,
-	"SB": latePositionsRaiseFoldHands,
-	"BB": latePositionsRaiseFoldHands,
-}
-
-var allInHands = []string{"AA", "KK"}
-
-var latePositionsThreeBetAllInHands = []string{"QQ", "JJ", "AK", "AKs"}
-var threeBetAllInHands = map[string][]string{
-	"EP": []string{"QQ"},
-	"MP": []string{"QQ", "AK", "AKs"},
-	"CO": latePositionsThreeBetAllInHands,
-	"BU": latePositionsThreeBetAllInHands,
-	"SB": latePositionsThreeBetAllInHands,
-	"BB": latePositionsThreeBetAllInHands,
-}
-
+var laterPosition = "Later"
 var strategyPositions = map[string]string{
 	"EP": "EP",
 	"MP": "MP",
-	"CO": "later",
-	"BU": "later",
-	"SB": "later",
-	"BB": "later",
+	"CO": laterPosition,
+	"BU": laterPosition,
+	"SB": laterPosition,
+	"BB": laterPosition,
 }
 
-var latePositionsThreeBetFoldHands = []string{
-	"TT", "99", "88", "AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+// hero position's raise hands
+var raisePushHandsLatePosition = []string{
+	"AA", "KK", "QQ", "JJ",
+	"AK", "AKs",
+}
+var raisePushHands = map[string][]string{
+	"EP": []string{
+		"AA", "KK", "QQ",
+	},
+	"MP": []string{
+		"AA", "KK", "QQ",
+		"AK", "AKs",
+	},
+	"CO": raisePushHandsLatePosition,
+	"BU": raisePushHandsLatePosition,
+	"SB": raisePushHandsLatePosition,
+	"BB": raisePushHandsLatePosition,
+}
+var raiseFoldHandsLatePosition = []string{
+	"TT", "99", "88", "77",
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+	"KQ", "KQs",
+}
+var raiseFoldHands = map[string][]string{
+	"EP": []string{
+		"JJ", "TT",
+		"AK", "AKs", "AQ", "AQs", "AJs",
+	},
+	"MP": []string{
+		"JJ", "TT", "99", "88",
+		"AQ", "AQs", "AJ", "AJs", "ATs",
+	},
+	"CO": raiseFoldHandsLatePosition,
+	"BU": raiseFoldHandsLatePosition,
+	"SB": raiseFoldHandsLatePosition,
+	"BB": raiseFoldHandsLatePosition,
+}
+
+// raiser position's 3-bet hands
+var allInHands = []string{
+	"AA", "KK",
+}
+var threeBetAllInHandsLatePosition = []string{
+	"QQ", "JJ",
+	"AK", "AKs",
+}
+var threeBetAllInHands = map[string][]string{
+	"EP": []string{"QQ"},
+	"MP": []string{"QQ", "AK", "AKs"},
+	"CO": threeBetAllInHandsLatePosition,
+	"BU": threeBetAllInHandsLatePosition,
+	"SB": threeBetAllInHandsLatePosition,
+	"BB": threeBetAllInHandsLatePosition,
+}
+var threeBetFoldHandsLatePosition = []string{
+	"TT", "99", "88",
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
 }
 var threeBetFoldHands = map[string][]string{
-	"MP": []string{"JJ", "TT", "99", "AQ", "AQs", "AJ", "AJs", "ATs"},
-	"CO": latePositionsThreeBetFoldHands,
-	"BU": latePositionsThreeBetFoldHands,
-	"SB": latePositionsThreeBetFoldHands,
-	"BB": latePositionsThreeBetFoldHands,
+	"MP": []string{
+		"JJ", "TT", "99",
+		"AQ", "AQs", "AJ", "AJs", "ATs",
+	},
+	"CO": threeBetFoldHandsLatePosition,
+	"BU": threeBetFoldHandsLatePosition,
+	"SB": threeBetFoldHandsLatePosition,
+	"BB": threeBetFoldHandsLatePosition,
 }
 
 func (strategy Strategy) Run() {
-	err := strategy.Check()
+	err := strategy.CheckInput()
 
 	if err != nil {
-		fmt.Println("bad input")
+		fmt.Println(err.Error())
 		return
 	}
 
-	fmt.Printf("players position is %s\n", positions[strategy.Table.Hero.Position])
-
-	fmt.Printf("players hand is %s\n", strategy.Table.Hero.Hand.ShortNotation())
+	fmt.Printf("Hero is %s with %s\n",
+		positions[strategy.Table.Hero.Position],
+		strategy.Table.Hero.Hand,
+	)
 
 	if strategy.Table.Board == "" {
 		strategy.Preflop()
@@ -104,27 +127,32 @@ func (strategy Strategy) Run() {
 }
 
 func (strategy Strategy) Preflop() {
+	if !strategy.PotIsRaised() {
+		heroPosition := strategy.Table.Hero.Position
 
-	if strategy.OpponentsWereRaising() {
-		strategy.PreflopThreeBetStrategy()
+		if strategyPositions[positions[heroPosition]] == laterPosition &&
+			strategy.Table.Pot == noLimpPotSize {
+			fmt.Println("implement steal strategy")
+		} else {
+			strategy.PreflopRaiseStrategy()
+		}
 	} else {
-		strategy.PreflopRaiseStrategy()
+		strategy.PreflopThreeBetStrategy()
 	}
 }
 
-func (strategy Strategy) OpponentsWereRaising() bool {
+func (strategy Strategy) PotIsRaised() bool {
 	limpTotalSize := 0
 
 	for _, limper := range strategy.Table.Opponents {
 		limpTotalSize += limper.LimpSize
-
 	}
 
-	if limpTotalSize == strategy.Table.Pot {
-		return false
+	if limpTotalSize != strategy.Table.Pot {
+		return true
 	}
 
-	return true
+	return false
 }
 
 func (strategy Strategy) PreflopThreeBetStrategy() {
@@ -134,7 +162,7 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 
 	for _, card := range allInHands {
 		if hand == card {
-			fmt.Println("ALL-IN if many raises, 3-BET if one")
+			fmt.Println("ALL-IN on many raises, 3-BET on one raise")
 			return
 		}
 	}
@@ -175,13 +203,6 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, element := range raiseFoldHands[position] {
-		if element == hand {
-			fmt.Println("RAISE and FOLD after 3-bet")
-			return
-		}
-	}
-
 	for _, element := range raisePushHands[position] {
 		if element == hand {
 			fmt.Println("RAISE and ALL-IN after 3-bet")
@@ -189,14 +210,25 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 		}
 	}
 
+	for _, element := range raiseFoldHands[position] {
+		if element == hand {
+			fmt.Println("RAISE and FOLD after 3-bet")
+			return
+		}
+	}
+
+	if position == "SB" {
+		fmt.Println("FOLD or LIMP")
+		return
+	}
+
 	if position == "BB" {
-		fmt.Println("CHECK and FOLD after opponents raise")
-	} else {
-		fmt.Println("FOLD")
+		fmt.Println("CHECK")
+		return
 	}
 }
 
-func (strategy Strategy) Check() error {
+func (strategy Strategy) CheckInput() error {
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	if hand == "" {
