@@ -106,6 +106,36 @@ var threeBetFoldHands = map[string][]string{
 	"BB": threeBetFoldHandsLatePosition,
 }
 
+// steal hands
+var stealAllInHands = []string{
+	"AA", "KK", "QQ", "JJ", "TT",
+	"AK", "AKs",
+}
+var stealFoldHandsBUandSB = []string{
+	"99", "88", "77", "66", "55", "44", "33", "22",
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
+	"A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+	"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
+	"QJ", "QJs", "QT", "QTs",
+	"JT", "JTs",
+}
+var stealFoldHands = map[string][]string{
+	"CO": []string{
+		"99", "88", "77", "66", "55",
+		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+		"KQ", "KQs", "KJs",
+		"QJs",
+	},
+	"BU": stealFoldHandsBUandSB,
+	"SB": stealFoldHandsBUandSB,
+}
+var reStealFoldHands = map[string][]string{
+	"BB": []string{
+		"99", "88",
+		"AQ", "AQs", "AJ", "AJs",
+	},
+}
+
 func (strategy Strategy) Run() {
 	err := strategy.CheckInput()
 
@@ -127,17 +157,66 @@ func (strategy Strategy) Run() {
 }
 
 func (strategy Strategy) Preflop() {
-	if !strategy.PotIsRaised() {
-		heroPosition := strategy.Table.Hero.Position
+	heroPosition := strategy.Table.Hero.Position
 
+	if !strategy.PotIsRaised() {
 		if strategyPositions[positions[heroPosition]] == laterPosition &&
 			strategy.Table.Pot == noLimpPotSize {
-			fmt.Println("implement steal strategy")
+			strategy.PreflopStealStrategy()
 		} else {
 			strategy.PreflopRaiseStrategy()
 		}
 	} else {
+		if strategyPositions[positions[heroPosition]] == laterPosition {
+			strategy.PreflopReStealStrategy()
+		}
 		strategy.PreflopThreeBetStrategy()
+	}
+}
+
+func (strategy Strategy) PreflopStealStrategy() {
+	fmt.Println("preflop steal strategy decision is")
+
+	position := positions[strategy.Table.Hero.Position]
+
+	hand := strategy.Table.Hero.Hand.ShortNotation()
+
+	for _, card := range stealAllInHands {
+		if hand == card {
+			fmt.Println("STEAL and ALL-IN on opponents resteal")
+			return
+		}
+	}
+
+	for _, card := range stealFoldHands[position] {
+		if hand == card {
+			fmt.Println("STEAL and FOLD on opponents resteal")
+			return
+		}
+	}
+
+	fmt.Println("FOLD")
+}
+
+func (strategy Strategy) PreflopReStealStrategy() {
+	fmt.Println("preflop re-steal strategy decision is")
+
+	position := positions[strategy.Table.Hero.Position]
+
+	hand := strategy.Table.Hero.Hand.ShortNotation()
+
+	for _, card := range stealAllInHands {
+		if hand == card {
+			fmt.Println("RESTEAL and ALL-IN on opponents resteal")
+			return
+		}
+	}
+
+	for _, card := range reStealFoldHands[position] {
+		if hand == card {
+			fmt.Println("RESTEAL and FOLD on opponents resteal")
+			return
+		}
 	}
 }
 
