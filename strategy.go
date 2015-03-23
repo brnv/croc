@@ -171,7 +171,7 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and ALL-IN after %s position opponent's 4-BET\n",
+					"3-BET and ALL-IN after %s position opponents 4-BET\n",
 					strategyPositions[position],
 				)
 				return
@@ -184,12 +184,11 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET and FOLD after %s position opponent's 4-BET\n",
+					"3-BET and FOLD after %s position opponents 4-BET\n",
 					strategyPositions[position],
 				)
 				return
 			}
-
 		}
 	}
 
