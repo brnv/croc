@@ -218,6 +218,8 @@ func (strategy Strategy) PreflopReStealStrategy() {
 			return
 		}
 	}
+
+	fmt.Println("FOLD")
 }
 
 func (strategy Strategy) PotIsRaised() bool {
