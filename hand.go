@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 //@TODO: move to config
 var (
@@ -18,54 +16,54 @@ var (
 type Card struct {
 	Value string
 	Suit  string
+}
+
+type HandCard struct {
+	Card
 	ImageSnippet
 }
 
 type Hand struct {
-	CardLeft  Card
-	CardRight Card
+	Cards []HandCard
 }
 
 func (image Image) HandRecognize() Hand {
 	hand := Hand{
-		CardLeft: Card{
-			ImageSnippet: ImageSnippet{
+		Cards: []HandCard{
+			HandCard{ImageSnippet: ImageSnippet{
 				Width:   cardWidth,
 				Height:  cardHeight,
 				OffsetX: handLeftCardOffsetX,
 				OffsetY: handCardOffsetY,
-			},
-		},
-		CardRight: Card{
-			ImageSnippet: ImageSnippet{
+			}},
+			HandCard{ImageSnippet: ImageSnippet{
 				Width:   cardWidth,
 				Height:  cardHeight,
 				OffsetX: handRightCardOffsetX,
 				OffsetY: handCardOffsetY,
-			},
-		},
-	}
+			}},
+		}}
 
 	recognized, err := recognize(
-		image.Crop(hand.CardLeft.ImageSnippet),
+		image.Crop(hand.Cards[0].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
 	if err == nil {
-		hand.CardLeft.Value = fmt.Sprintf("%c", recognized[0])
-		hand.CardLeft.Suit = fmt.Sprintf("%c", recognized[1])
+		hand.Cards[0].Value = fmt.Sprintf("%c", recognized[0])
+		hand.Cards[0].Suit = fmt.Sprintf("%c", recognized[1])
 	}
 
 	recognized, err = recognize(
-		image.Crop(hand.CardRight.ImageSnippet),
+		image.Crop(hand.Cards[1].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
 	if err == nil {
-		hand.CardRight.Value = fmt.Sprintf("%c", recognized[0])
-		hand.CardRight.Suit = fmt.Sprintf("%c", recognized[1])
+		hand.Cards[1].Value = fmt.Sprintf("%c", recognized[0])
+		hand.Cards[1].Suit = fmt.Sprintf("%c", recognized[1])
 	}
 
 	return hand
@@ -88,19 +86,19 @@ var cardStrength = map[string]int{
 }
 
 func (hand Hand) ShortNotation() string {
-	if hand.CardLeft.Value == "" || hand.CardRight.Value == "" {
+	if hand.Cards[0].Value == "" || hand.Cards[1].Value == "" {
 		return ""
 	}
 
 	short := ""
 
-	if cardStrength[hand.CardLeft.Value] > cardStrength[hand.CardRight.Value] {
-		short = fmt.Sprintf("%s%s", hand.CardLeft.Value, hand.CardRight.Value)
+	if cardStrength[hand.Cards[0].Value] > cardStrength[hand.Cards[1].Value] {
+		short = fmt.Sprintf("%s%s", hand.Cards[0].Value, hand.Cards[1].Value)
 	} else {
-		short = fmt.Sprintf("%s%s", hand.CardRight.Value, hand.CardLeft.Value)
+		short = fmt.Sprintf("%s%s", hand.Cards[1].Value, hand.Cards[0].Value)
 	}
 
-	if hand.CardLeft.Suit == hand.CardRight.Suit {
+	if hand.Cards[0].Suit == hand.Cards[1].Suit {
 		short += "s"
 	}
 
@@ -109,7 +107,147 @@ func (hand Hand) ShortNotation() string {
 
 func (hand Hand) String() string {
 	return fmt.Sprintf("%s%s%s%s",
-		hand.CardLeft.Value, hand.CardLeft.Suit,
-		hand.CardRight.Value, hand.CardRight.Suit,
+		hand.Cards[0].Value, hand.Cards[0].Suit,
+		hand.Cards[1].Value, hand.Cards[1].Suit,
 	)
+}
+
+type CompletedCombination struct {
+	OverPair bool
+	Three    bool
+
+	TopPair  bool
+	TwoPairs bool
+	Triplet  bool
+}
+
+func (combination CompletedCombination) String() string {
+	if combination.Triplet || combination.Three {
+		return "Three of a kind"
+	}
+
+	if combination.TwoPairs {
+		return "Two pairs"
+	}
+
+	if combination.OverPair {
+		return "Over pair"
+	}
+
+	if combination.TopPair {
+		return "Top pair"
+	}
+
+	return ""
+}
+
+type DrawCombination struct {
+	Oesd          bool //straight dras
+	Gotshot       bool
+	DoubleGotshot bool
+	FlushDraw     bool
+	MonsterDraw   bool
+}
+
+type IncompletedCombination struct {
+	OverCards bool
+}
+
+func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) bool {
+	strongestBoardCard := combination.GetStrontestBoardCard(board)
+
+	for _, handCard := range hand.Cards {
+		if strongestBoardCard == handCard.Value {
+			return true
+		}
+	}
+
+	return false
+
+}
+
+func (combination CompletedCombination) CheckOverPair(hand Hand, board Board) bool {
+	strongestBoardCard := combination.GetStrontestBoardCard(board)
+
+	for _, handCard := range hand.Cards {
+		if cardStrength[strongestBoardCard] > cardStrength[handCard.Value] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (combination CompletedCombination) CheckTwoPairs(hand Hand, board Board) bool {
+	pairsCount := 0
+
+	for _, handCard := range hand.Cards {
+		for _, boardCard := range board.Cards {
+			if handCard.Value == boardCard.Value {
+				pairsCount++
+				break
+			}
+		}
+	}
+
+	if pairsCount == 2 {
+		return true
+	}
+
+	return false
+}
+
+func (combination CompletedCombination) CheckThree(hand Hand, board Board) bool {
+	for _, boardCard := range board.Cards {
+		if boardCard.Value == hand.Cards[0].Value {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (combination CompletedCombination) CheckTriplet(hand Hand, board Board) bool {
+	count := 1
+	for _, handCard := range hand.Cards {
+		count = 1
+
+		for _, boardCard := range board.Cards {
+			if boardCard.Value == handCard.Value {
+				count++
+			}
+		}
+
+		if count == 3 {
+			return true
+		}
+	}
+	return false
+}
+
+func (combination CompletedCombination) GetStrontestBoardCard(board Board) string {
+	strongestBoardCard := board.Cards[0].Value
+
+	for _, boardCard := range board.Cards {
+		if cardStrength[boardCard.Value] > cardStrength[strongestBoardCard] {
+			strongestBoardCard = boardCard.Value
+		}
+	}
+
+	return strongestBoardCard
+}
+
+func (hand Hand) GetCompletedCombination(board Board) CompletedCombination {
+	combination := CompletedCombination{}
+
+	if hand.Cards[0].Value == hand.Cards[1].Value {
+		combination.OverPair = combination.CheckOverPair(hand, board)
+		combination.Three = combination.CheckThree(hand, board)
+	} else {
+		combination.TopPair = combination.CheckTopPair(hand, board)
+		combination.TwoPairs = combination.CheckTwoPairs(hand, board)
+		combination.Triplet = combination.CheckTriplet(hand, board)
+	}
+
+	return combination
 }

@@ -149,11 +149,22 @@ func (strategy Strategy) Run() {
 		strategy.Table.Hero.Hand,
 	)
 
-	if strategy.Table.Board == "" {
+	if len(strategy.Table.Board.Cards) == 0 {
 		strategy.Preflop()
 	} else {
-		fmt.Println("flop, turn or river strategy")
+		if len(strategy.Table.Board.Cards) == 6 {
+			strategy.Flop()
+		} else {
+			fmt.Println("turn or river strategy")
+		}
 	}
+}
+
+func (strategy Strategy) Flop() {
+	hero := strategy.Table.Hero
+	board := strategy.Table.Board
+	completedCombination := hero.Hand.GetCompletedCombination(board)
+	fmt.Printf("%s\n", completedCombination)
 }
 
 func (strategy Strategy) Preflop() {

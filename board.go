@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 //@TODO: move to config
 var (
 	boardOffsetY          = 181
@@ -7,21 +11,17 @@ var (
 )
 
 type Board struct {
-	Cards []ImageSnippet
+	Cards []Card
 }
 
-func (image Image) BoardRecognize() string {
-	board := Board{
-		Cards: []ImageSnippet{},
-	}
+func (image Image) BoardRecognize() Board {
+	board := Board{}
 
-	board.Cards = board.GetBoardImageSnippets(
+	boardCards := board.GetBoardImageSnippets(
 		[]int{264, 318, 372, 426, 480},
 	)
 
-	boardCards := ""
-
-	for _, boardCard := range board.Cards {
+	for _, boardCard := range boardCards {
 		card, err := recognize(
 			image.Crop(boardCard),
 			cardSamples,
@@ -32,10 +32,13 @@ func (image Image) BoardRecognize() string {
 			continue
 		}
 
-		boardCards += card
+		board.Cards = append(board.Cards, Card{
+			Value: fmt.Sprintf("%c", card[0]),
+			Suit:  fmt.Sprintf("%c", card[1]),
+		})
 	}
 
-	return boardCards
+	return board
 }
 
 func (board Board) GetBoardImageSnippets(offsets []int) []ImageSnippet {

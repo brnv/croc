@@ -28,7 +28,7 @@ var (
 
 var (
 	importCmd  = "/bin/import png:%s"
-	compareCmd = "/bin/compare -subimage-search " +
+	compareCmd = "/bin/compare " +
 		"-dissimilarity-threshold 1 -quiet -metric RMSE %s %s NULL:"
 	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\).*$")
@@ -44,7 +44,7 @@ type Table struct {
 	Blinds    string
 	Ante      string
 	Pot       int
-	Board     string
+	Board     Board
 	Opponents []Opponent
 	Button    string
 }
@@ -146,6 +146,11 @@ func main() {
 		}
 	}
 
+	if _, err := os.Stat(image.Path); os.IsNotExist(err) {
+		log.Error("no such file or directory: " + image.Path)
+		os.Exit(1)
+	}
+
 	table := Table{
 		Hero: Hero{},
 	}
@@ -229,13 +234,18 @@ func recognize(
 			return path.Base(sample), nil
 		}
 
-		errorLevel, _ := strconv.ParseFloat(
-			reCompareErrorLevel.FindStringSubmatch(err.Error())[1],
-			32,
-		)
+		compareErrorLevel := reCompareErrorLevel.FindStringSubmatch(err.Error())
 
-		if errorLevel < compareThreshold {
-			return path.Base(sample), nil
+		if len(compareErrorLevel) > 0 {
+			errorLevel, _ := strconv.ParseFloat(
+				compareErrorLevel[1],
+				32,
+			)
+
+			if errorLevel < compareThreshold {
+				return path.Base(sample), nil
+			}
+
 		}
 	}
 
