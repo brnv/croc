@@ -154,11 +154,45 @@ func (strategy Strategy) Run() {
 		if boardCardsNum == 3 {
 			strategy.Flop()
 		} else if boardCardsNum == 4 {
-			fmt.Println("turn strategy")
+			strategy.Turn()
 		} else if boardCardsNum == 5 {
-			fmt.Println("river strategy")
+			fmt.Println("river strategy decision is")
+			fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL")
+			fmt.Println("anything else: CHECK/FOLD")
 		}
 	}
+}
+
+func (strategy Strategy) Turn() {
+	fmt.Println("turn strategy decision is")
+
+	hero := strategy.Table.Hero
+	board := strategy.Table.Board
+
+	completedCombination := hero.Hand.GetCompletedCombination(board)
+
+	if completedCombination.String() != "" {
+		if completedCombination.OverPair {
+			fmt.Println("overpair: BET and ALL-IN on reraise or RERAISE opponents raise")
+			return
+		}
+
+		if completedCombination.Three ||
+			completedCombination.Triplet ||
+			completedCombination.TwoPairs {
+			fmt.Println("monster: BET and ALL-IN on reraise or RERAISE opponents raise")
+			return
+		}
+
+		if completedCombination.TopPair {
+			fmt.Println("top pair: C-BET and FOLD on reraise or FOLD on opponents raise")
+			return
+		}
+	}
+
+	fmt.Println("Monster draw: BET and ALL-IN on reraise or RERAISE opponents raise")
+	fmt.Println("anything else: CHECK/FOLD")
+	return
 }
 
 func (strategy Strategy) Flop() {
@@ -170,6 +204,8 @@ func (strategy Strategy) Flop() {
 }
 
 func (strategy Strategy) Postflop() {
+	fmt.Println("postflop strategy decision is")
+
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
@@ -177,22 +213,19 @@ func (strategy Strategy) Postflop() {
 
 	if completedCombination.String() != "" {
 		if completedCombination.OverPair {
-			fmt.Println("Hero hand is overpair")
-			fmt.Println("BET and ALL-IN on reraise or RERAISE opponents raise")
+			fmt.Println("overpair: BET and ALL-IN on reraise or RERAISE opponents raise")
 			return
 		}
 
 		if completedCombination.Three ||
 			completedCombination.Triplet ||
 			completedCombination.TwoPairs {
-			fmt.Println("Hero hand is monster")
-			fmt.Println("BET and ALL-IN on reraise or RERAISE opponents raise")
+			fmt.Println("monster: BET and ALL-IN on reraise or RERAISE opponents raise")
 			return
 		}
 
 		if completedCombination.TopPair {
-			fmt.Println("Hero hand is top pair")
-			fmt.Println("C-BET and FOLD on reraise or FOLD on opponents raise")
+			fmt.Println("top pair: C-BET and FOLD on reraise or FOLD on opponents raise")
 			return
 		}
 	}
@@ -201,7 +234,7 @@ func (strategy Strategy) Postflop() {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			fmt.Println("Hero hand is overcards")
+			fmt.Println("overcards")
 			fmt.Println("Dry board and 1 opponent: C-BET and FOLD on reraise or FOLD on opponents raise")
 			fmt.Println("Draw board or 2+ opponents: CHECK/FOLD")
 			return
@@ -212,7 +245,6 @@ func (strategy Strategy) Postflop() {
 	fmt.Println("gotshot, trash on 2+ opponents: CHECK/FOLD")
 	fmt.Println("anything else: C-BET and FOLD on reraise or FOLD on opponents raise")
 	return
-
 }
 
 func (strategy Strategy) Preflop() {
