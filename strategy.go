@@ -144,19 +144,18 @@ func (strategy Strategy) Run() {
 		return
 	}
 
-	fmt.Printf("Hero is %s with %s\n",
-		positions[strategy.Table.Hero.Position],
-		strategy.Table.Hero.Hand,
-	)
+	fmt.Printf("Hero have %s\n", strategy.Table.Hero.Hand)
 
 	if len(strategy.Table.Board.Cards) == 0 {
 		strategy.Preflop()
 	} else {
-		if len(strategy.Table.Board.Cards) == 3 {
+		boardCardsNum := len(strategy.Table.Board.Cards)
+
+		if boardCardsNum == 3 {
 			strategy.Flop()
-		} else if len(strategy.Table.Board.Cards) == 4 {
+		} else if boardCardsNum == 4 {
 			fmt.Println("turn strategy")
-		} else {
+		} else if boardCardsNum == 5 {
 			fmt.Println("river strategy")
 		}
 	}
@@ -186,6 +185,8 @@ func (strategy Strategy) Flop() {
 
 func (strategy Strategy) Preflop() {
 	heroPosition := strategy.Table.Hero.Position
+
+	fmt.Printf("Hero is %s", positions[heroPosition])
 
 	if !strategy.PotIsRaised() {
 		if strategyPositions[positions[heroPosition]] == laterPosition &&
