@@ -49,3 +49,15 @@ func (board Board) GetBoardImageSnippets(offsets []int) []ImageSnippet {
 		offsets,
 	)
 }
+
+func (board Board) GetStrontestBoardCard() string {
+	strongestBoardCard := board.Cards[0].Value
+
+	for _, boardCard := range board.Cards {
+		if cardStrength[boardCard.Value] > cardStrength[strongestBoardCard] {
+			strongestBoardCard = boardCard.Value
+		}
+	}
+
+	return strongestBoardCard
+}

@@ -123,19 +123,19 @@ type CompletedCombination struct {
 
 func (combination CompletedCombination) String() string {
 	if combination.Triplet || combination.Three {
-		return "Three of a kind"
+		return "three of a kind"
 	}
 
 	if combination.TwoPairs {
-		return "Two pairs"
+		return "two pairs"
 	}
 
 	if combination.OverPair {
-		return "Over pair"
+		return "over pair"
 	}
 
 	if combination.TopPair {
-		return "Top pair"
+		return "top pair"
 	}
 
 	return ""
@@ -149,12 +149,25 @@ type DrawCombination struct {
 	MonsterDraw   bool
 }
 
-type IncompletedCombination struct {
+type EmptyCombination struct {
 	OverCards bool
+	Trash     bool
+}
+
+func (combination EmptyCombination) String() string {
+	if combination.OverCards {
+		return "over cards"
+	}
+
+	if combination.Trash {
+		return "trash"
+	}
+
+	return ""
 }
 
 func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) bool {
-	strongestBoardCard := combination.GetStrontestBoardCard(board)
+	strongestBoardCard := board.GetStrontestBoardCard()
 
 	for _, handCard := range hand.Cards {
 		if strongestBoardCard == handCard.Value {
@@ -166,8 +179,8 @@ func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) boo
 
 }
 
-func (combination CompletedCombination) CheckOverPair(hand Hand, board Board) bool {
-	strongestBoardCard := combination.GetStrontestBoardCard(board)
+func checkOverCards(hand Hand, board Board) bool {
+	strongestBoardCard := board.GetStrontestBoardCard()
 
 	for _, handCard := range hand.Cards {
 		if cardStrength[strongestBoardCard] > cardStrength[handCard.Value] {
@@ -225,28 +238,28 @@ func (combination CompletedCombination) CheckTriplet(hand Hand, board Board) boo
 	return false
 }
 
-func (combination CompletedCombination) GetStrontestBoardCard(board Board) string {
-	strongestBoardCard := board.Cards[0].Value
-
-	for _, boardCard := range board.Cards {
-		if cardStrength[boardCard.Value] > cardStrength[strongestBoardCard] {
-			strongestBoardCard = boardCard.Value
-		}
-	}
-
-	return strongestBoardCard
-}
-
 func (hand Hand) GetCompletedCombination(board Board) CompletedCombination {
 	combination := CompletedCombination{}
 
 	if hand.Cards[0].Value == hand.Cards[1].Value {
-		combination.OverPair = combination.CheckOverPair(hand, board)
+		combination.OverPair = checkOverCards(hand, board)
 		combination.Three = combination.CheckThree(hand, board)
 	} else {
 		combination.TopPair = combination.CheckTopPair(hand, board)
 		combination.TwoPairs = combination.CheckTwoPairs(hand, board)
 		combination.Triplet = combination.CheckTriplet(hand, board)
+	}
+
+	return combination
+}
+
+func (hand Hand) GetEmptyCombination(board Board) EmptyCombination {
+	combination := EmptyCombination{}
+
+	if checkOverCards(hand, board) {
+		combination.OverCards = true
+	} else {
+		combination.Trash = true
 	}
 
 	return combination
