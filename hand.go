@@ -183,7 +183,7 @@ func checkOverCards(hand Hand, board Board) bool {
 	strongestBoardCard := board.GetStrontestBoardCard()
 
 	for _, handCard := range hand.Cards {
-		if cardStrength[strongestBoardCard] > cardStrength[handCard.Value] {
+		if cardStrength[strongestBoardCard] >= cardStrength[handCard.Value] {
 			return false
 		}
 	}
@@ -258,8 +258,6 @@ func (hand Hand) GetEmptyCombination(board Board) EmptyCombination {
 
 	if checkOverCards(hand, board) {
 		combination.OverCards = true
-	} else {
-		combination.Trash = true
 	}
 
 	return combination

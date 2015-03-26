@@ -162,25 +162,57 @@ func (strategy Strategy) Run() {
 }
 
 func (strategy Strategy) Flop() {
+	if strategy.PotIsRaised() {
+		strategy.Postflop()
+	} else {
+		fmt.Println("implement freeplay strategy")
+	}
+}
+
+func (strategy Strategy) Postflop() {
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 
 	if completedCombination.String() != "" {
-		fmt.Printf("Hero have %s\n", completedCombination)
-		return
-	}
+		if completedCombination.OverPair {
+			fmt.Println("Hero hand is overpair")
+			fmt.Println("BET and ALL-IN on reraise or RERAISE opponents raise")
+			return
+		}
 
-	drawCombination := ""
-	if drawCombination != "" {
-		fmt.Printf("Hero have %s\n", drawCombination)
-		return
+		if completedCombination.Three ||
+			completedCombination.Triplet ||
+			completedCombination.TwoPairs {
+			fmt.Println("Hero hand is monster")
+			fmt.Println("BET and ALL-IN on reraise or RERAISE opponents raise")
+			return
+		}
+
+		if completedCombination.TopPair {
+			fmt.Println("Hero hand is top pair")
+			fmt.Println("C-BET and FOLD on reraise or FOLD on opponents raise")
+			return
+		}
 	}
 
 	emptyCombination := hero.Hand.GetEmptyCombination(board)
 
-	fmt.Printf("Hero have %s\n", emptyCombination)
+	if emptyCombination.String() != "" {
+		if emptyCombination.OverCards {
+			fmt.Println("Hero hand is overcards")
+			fmt.Println("Dry board and 1 opponent: C-BET and FOLD on reraise or FOLD on opponents raise")
+			fmt.Println("Draw board or 2+ opponents: CHECK/FOLD")
+			return
+		}
+	}
+
+	fmt.Println("Monster draw: BET and ALL-IN on reraise or RERAISE opponents raise")
+	fmt.Println("gotshot, trash on 2+ opponents: CHECK/FOLD")
+	fmt.Println("anything else: C-BET and FOLD on reraise or FOLD on opponents raise")
+	return
+
 }
 
 func (strategy Strategy) Preflop() {
