@@ -186,7 +186,7 @@ func (strategy Strategy) Flop() {
 func (strategy Strategy) Preflop() {
 	heroPosition := strategy.Table.Hero.Position
 
-	fmt.Printf("Hero is %s", positions[heroPosition])
+	fmt.Printf("Hero is %s\n", positions[heroPosition])
 
 	if !strategy.PotIsRaised() {
 		if strategyPositions[positions[heroPosition]] == laterPosition &&
