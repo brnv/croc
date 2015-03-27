@@ -144,8 +144,6 @@ func (strategy Strategy) Run() {
 		return
 	}
 
-	fmt.Printf("Hero have %s\n", strategy.Table.Hero.Hand)
-
 	if len(strategy.Table.Board.Cards) == 0 {
 		strategy.Preflop()
 	} else {
@@ -187,8 +185,6 @@ func (strategy Strategy) PotIsRaised() bool {
 
 func (strategy Strategy) Preflop() {
 	heroPosition := strategy.Table.Hero.Position
-
-	fmt.Printf("Hero is %s\n", positions[heroPosition])
 
 	if !strategy.PotIsRaised() {
 		if strategyPositions[positions[heroPosition]] == laterPosition &&
