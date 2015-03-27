@@ -196,14 +196,6 @@ func (strategy Strategy) Turn() {
 }
 
 func (strategy Strategy) Flop() {
-	if strategy.PotIsRaised() {
-		strategy.Postflop()
-	} else {
-		fmt.Println("implement freeplay strategy")
-	}
-}
-
-func (strategy Strategy) Postflop() {
 	fmt.Println("postflop strategy decision is")
 
 	hero := strategy.Table.Hero
@@ -212,20 +204,17 @@ func (strategy Strategy) Postflop() {
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 
 	if completedCombination.String() != "" {
-		if completedCombination.OverPair {
-			fmt.Println("overpair: BET and ALL-IN on reraise or RERAISE opponents raise")
-			return
-		}
-
-		if completedCombination.Three ||
+		if completedCombination.OverPair ||
+			completedCombination.Three ||
 			completedCombination.Triplet ||
 			completedCombination.TwoPairs {
-			fmt.Println("monster: BET and ALL-IN on reraise or RERAISE opponents raise")
+			fmt.Println("BET/ALL-IN or RERAISE")
 			return
 		}
 
 		if completedCombination.TopPair {
-			fmt.Println("top pair: C-BET and FOLD on reraise or FOLD on opponents raise")
+			fmt.Println("C-BET/FOLD or FOLD")
+			fmt.Println("freeplay: CHECK/FOLD")
 			return
 		}
 	}
@@ -234,17 +223,17 @@ func (strategy Strategy) Postflop() {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			fmt.Println("overcards")
-			fmt.Println("Dry board and 1 opponent: C-BET and FOLD on reraise or FOLD on opponents raise")
-			fmt.Println("Draw board or 2+ opponents: CHECK/FOLD")
+			fmt.Println("1 opponent: C-BET/FOLD or FOLD")
+			fmt.Println("2+ opponents: CHECK/FOLD")
 			return
 		}
 	}
 
-	fmt.Println("Monster draw: BET and ALL-IN on reraise or RERAISE opponents raise")
-	fmt.Println("gotshot, trash on 2+ opponents: CHECK/FOLD")
-	fmt.Println("anything else: C-BET and FOLD on reraise or FOLD on opponents raise")
-	return
+	fmt.Println("monster draw: BET/ALL-IN or RERAISE")
+
+	fmt.Println("draws: C-BET/FOLD or FOLD, on freeplay: CHECK/FOLD")
+
+	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD")
 }
 
 func (strategy Strategy) Preflop() {
