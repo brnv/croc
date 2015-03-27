@@ -142,7 +142,7 @@ func (combination CompletedCombination) String() string {
 }
 
 type DrawCombination struct {
-	Oesd          bool //straight dras
+	Oesd          bool
 	Gotshot       bool
 	DoubleGotshot bool
 	FlushDraw     bool
