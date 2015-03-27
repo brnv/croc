@@ -172,26 +172,23 @@ func (strategy Strategy) Turn() {
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 
 	if completedCombination.String() != "" {
-		if completedCombination.OverPair {
-			fmt.Println("overpair: BET and ALL-IN on reraise or RERAISE opponents raise")
-			return
-		}
-
-		if completedCombination.Three ||
+		if completedCombination.OverPair ||
+			completedCombination.Three ||
 			completedCombination.Triplet ||
 			completedCombination.TwoPairs {
-			fmt.Println("monster: BET and ALL-IN on reraise or RERAISE opponents raise")
+			fmt.Println("BET/ALL-IN or RERAISE")
 			return
 		}
 
 		if completedCombination.TopPair {
-			fmt.Println("top pair: C-BET and FOLD on reraise or FOLD on opponents raise")
+			fmt.Println("C-BET/FOLD or FOLD")
+			fmt.Println("freeplay: CHECK/FOLD")
 			return
 		}
 	}
 
-	fmt.Println("Monster draw: BET and ALL-IN on reraise or RERAISE opponents raise")
-	fmt.Println("anything else: CHECK/FOLD")
+	fmt.Println("monster draw: BET/ALL-IN or RERAISE")
+	fmt.Println("draw: CHECK/FOLD")
 	return
 }
 
