@@ -25,7 +25,7 @@ var positions = map[int]string{
 	9: "BU",
 }
 
-var noLimpPotSize = 3
+var noLimpPotSize = 7
 
 var laterPosition = "LATER"
 var strategyPositions = map[string]string{
@@ -91,15 +91,17 @@ var threeBetAllInHands = map[string][]string{
 	"SB": threeBetAllInHandsLatePosition,
 	"BB": threeBetAllInHandsLatePosition,
 }
-var threeBetFoldHandsLatePosition = []string{
-	"TT", "99", "88",
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
-}
-var threeBetFoldHands = map[string][]string{
+var threeBetFoldMPHands = map[string][]string{
 	"MP": []string{
 		"JJ", "TT", "99",
 		"AQ", "AQs", "AJ", "AJs", "ATs",
 	},
+}
+var threeBetFoldHandsLatePosition = []string{
+	"TT", "99", "88",
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+}
+var threeBetFoldLATERHands = map[string][]string{
 	"CO": threeBetFoldHandsLatePosition,
 	"BU": threeBetFoldHandsLatePosition,
 	"SB": threeBetFoldHandsLatePosition,
@@ -299,20 +301,31 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET/ALL-IN after %s position opponents 4-BET\n",
+					"3-BET/ALL-IN if raiser >= %s\n",
 					strategyPositions[position],
 				)
 				return
 			}
-
 		}
 	}
 
-	for position, cards := range threeBetFoldHands {
+	for position, cards := range threeBetFoldMPHands {
 		for _, card := range cards {
 			if hand == card {
 				fmt.Printf(
-					"3-BET/FOLD after %s position opponents 4-BET\n",
+					"3-BET/FOLD if raiser >= %s\n",
+					strategyPositions[position],
+				)
+				return
+			}
+		}
+	}
+
+	for position, cards := range threeBetFoldLATERHands {
+		for _, card := range cards {
+			if hand == card {
+				fmt.Printf(
+					"3-BET/FOLD if raiser >= %s\n",
 					strategyPositions[position],
 				)
 				return
