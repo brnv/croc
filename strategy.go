@@ -204,7 +204,7 @@ func (strategy Strategy) Preflop() {
 }
 
 func (strategy Strategy) PreflopStealStrategy() {
-	fmt.Println("preflop steal")
+	fmt.Print("steal: ")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -228,7 +228,7 @@ func (strategy Strategy) PreflopStealStrategy() {
 }
 
 func (strategy Strategy) PreflopRaiseStrategy() {
-	fmt.Println("preflop raise")
+	fmt.Print("raise: ")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -262,7 +262,7 @@ func (strategy Strategy) PreflopRaiseStrategy() {
 }
 
 func (strategy Strategy) PreflopReStealStrategy() {
-	fmt.Println("preflop resteal")
+	fmt.Print("resteal: ")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -286,7 +286,7 @@ func (strategy Strategy) PreflopReStealStrategy() {
 }
 
 func (strategy Strategy) PreflopThreeBetStrategy() {
-	fmt.Println("preflop 3-bet")
+	fmt.Print("3-bet: ")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
@@ -337,8 +337,6 @@ func (strategy Strategy) PreflopThreeBetStrategy() {
 }
 
 func (strategy Strategy) Flop() {
-	fmt.Println("flop strategy")
-
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
@@ -378,8 +376,6 @@ func (strategy Strategy) Flop() {
 }
 
 func (strategy Strategy) Turn() {
-	fmt.Println("turn strategy")
-
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
@@ -407,7 +403,6 @@ func (strategy Strategy) Turn() {
 }
 
 func (strategy Strategy) River() {
-	fmt.Println("river strategy")
 	fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL")
 	fmt.Println("anything else: CHECK/FOLD")
 }
