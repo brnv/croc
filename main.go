@@ -2,14 +2,9 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
-	"path"
-	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -22,32 +17,10 @@ import (
 )
 
 var (
-	log        = logging.MustGetLogger("croc")
-	reWindowId = regexp.MustCompile("Window id: (0x[a-z0-9]+)\\s+.*")
-	reWindowX  = regexp.MustCompile("Absolute upper-left X:\\s+(\\d+)")
-	reWindowY  = regexp.MustCompile("Absolute upper-left Y:\\s+(\\d+)")
-)
+	log = logging.MustGetLogger("croc")
 
-var (
 	cmdRunner *runcmd.Local
-
-	windowInfoCmd = "/bin/xwininfo"
-
-	importCmd = "/bin/import -window %s png:%s"
-
-	compareCmd = "/bin/compare -dissimilarity-threshold 1 " +
-		"-quiet -metric RMSE %s %s NULL:"
-
-	convertCmd = "/bin/convert -crop %dx%d+%d+%d %s %s"
-
-	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\).*$")
 )
-
-type Window struct {
-	Id string
-	X  int
-	Y  int
-}
 
 type Table struct {
 	Hero
@@ -89,19 +62,6 @@ func (table Table) String() string {
 	myTpl.Execute(buf, table)
 
 	return buf.String()
-}
-
-func (image Image) Crop(snippet ImageSnippet) string {
-	croppedPath, _ := getTmpFilename()
-
-	command, _ := cmdRunner.Command(fmt.Sprintf(
-		convertCmd,
-		snippet.Width, snippet.Height, snippet.OffsetX, snippet.OffsetY,
-		image.Path, croppedPath),
-	)
-	_, _ = command.Run()
-
-	return croppedPath
 }
 
 func getImageSnippets(
@@ -238,97 +198,4 @@ func main() {
 func (table Table) GetHeroPosition() int {
 	buttonNum, _ := strconv.Atoi(table.Button)
 	return len(positions) + 1 - buttonNum
-}
-
-func recognize(
-	input string,
-	samplesFilepathPattern string,
-	compareThreshold float64,
-) (string, error) {
-	samples, _ := filepath.Glob(samplesFilepathPattern)
-
-	for _, sample := range samples {
-		command, _ := cmdRunner.Command(fmt.Sprintf(compareCmd, sample, input))
-
-		_, err := command.Run()
-		if err == nil {
-			return path.Base(sample), nil
-		}
-
-		compareErrorLevel := reCompareErrorLevel.FindStringSubmatch(err.Error())
-
-		if len(compareErrorLevel) > 0 {
-			errorLevel, _ := strconv.ParseFloat(
-				compareErrorLevel[1],
-				32,
-			)
-
-			if errorLevel < compareThreshold {
-				return path.Base(sample), nil
-			}
-
-		}
-	}
-
-	return "", errors.New(fmt.Sprintf("%s failed!", input))
-
-}
-
-func getWindowScreenshot(windowId string) (string, error) {
-	screenshot, err := getTmpFilename()
-	if err != nil {
-		return "", err
-	}
-
-	command, err := cmdRunner.Command(fmt.Sprintf(
-		importCmd, windowId, screenshot,
-	))
-
-	if err != nil {
-		return "", err
-	}
-
-	_, err = command.Run()
-	if err != nil {
-		return "", err
-	}
-
-	return screenshot, nil
-}
-
-func getWindow() (Window, error) {
-	window := Window{}
-
-	command, _ := cmdRunner.Command(windowInfoCmd)
-	output, err := command.Run()
-	if err != nil {
-		return window, err
-	}
-
-	matches := reWindowId.FindStringSubmatch(output[4])
-	if len(matches) != 0 {
-		window.Id = matches[1]
-	} else {
-		return window, errors.New("No window id found")
-	}
-
-	matches = reWindowX.FindStringSubmatch(output[6])
-	if len(matches) != 0 {
-		window.X, _ = strconv.Atoi(matches[1])
-	}
-
-	matches = reWindowY.FindStringSubmatch(output[7])
-	if len(matches) != 0 {
-		window.Y, _ = strconv.Atoi(matches[1])
-	}
-
-	return window, nil
-}
-
-func getTmpFilename() (string, error) {
-	file, err := ioutil.TempFile(os.TempDir(), "croc")
-	if err != nil {
-		return "", err
-	}
-	return file.Name(), nil
 }
