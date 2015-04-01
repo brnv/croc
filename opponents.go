@@ -10,9 +10,9 @@ var (
 	betDigitHeight      = 12
 )
 
-type Opponent struct {
+type Limper struct {
 	Position int
-	LimpSize int
+	BetSize  int
 }
 
 var limpDigitOffsetsY = map[int]int{
@@ -39,7 +39,7 @@ var limpDigitOffsetsX = map[int]map[int]int{
 	9: map[int]int{0: 514, 1: 526, 2: 535},
 }
 
-func (opponent Opponent) GetImageSnippets() []ImageSnippet {
+func (opponent Limper) GetImageSnippets() []ImageSnippet {
 	return []ImageSnippet{
 		ImageSnippet{
 			Width:   betDigitWidth,
@@ -62,10 +62,10 @@ func (opponent Opponent) GetImageSnippets() []ImageSnippet {
 	}
 }
 
-func (image Image) OpponentsRecognize() []Opponent {
-	opponents := []Opponent{}
+func (image Image) LimpersRecognize() []Limper {
+	opponents := []Limper{}
 	for index := 1; index <= 9; index++ {
-		opponents = append(opponents, Opponent{
+		opponents = append(opponents, Limper{
 			Position: index,
 		})
 	}
@@ -86,7 +86,7 @@ func (image Image) OpponentsRecognize() []Opponent {
 
 			recognizedInt, _ := strconv.Atoi(recognized)
 
-			opponents[index].LimpSize += recognizedInt
+			opponents[index].BetSize += recognizedInt
 		}
 
 	}

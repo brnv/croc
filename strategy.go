@@ -174,8 +174,8 @@ func (strategy Strategy) CheckInput() error {
 func (strategy Strategy) PotIsRaised() bool {
 	limpTotalSize := 0
 
-	for _, limper := range strategy.Table.Opponents {
-		limpTotalSize += limper.LimpSize
+	for _, limper := range strategy.Table.Limpers {
+		limpTotalSize += limper.BetSize
 	}
 
 	if limpTotalSize != strategy.Table.Pot {
