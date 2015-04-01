@@ -22,22 +22,32 @@ import (
 )
 
 var (
-	log       = logging.MustGetLogger("croc")
-	cmdRunner *runcmd.Local
+	log        = logging.MustGetLogger("croc")
+	reWindowId = regexp.MustCompile("Window id: (0x[a-z0-9]+)\\s+.*")
+	reWindowX  = regexp.MustCompile("Absolute upper-left X:\\s+(\\d+)")
+	reWindowY  = regexp.MustCompile("Absolute upper-left Y:\\s+(\\d+)")
 )
 
 var (
-	importCmd  = "/bin/import png:%s"
-	compareCmd = "/bin/compare " +
-		"-dissimilarity-threshold 1 -quiet -metric RMSE %s %s NULL:"
-	convertCmd          = "/bin/convert -crop %dx%d+%d+%d %s %s"
+	cmdRunner *runcmd.Local
+
+	windowInfoCmd = "/bin/xwininfo"
+
+	importCmd = "/bin/import -window %s png:%s"
+
+	compareCmd = "/bin/compare -dissimilarity-threshold 1 " +
+		"-quiet -metric RMSE %s %s NULL:"
+
+	convertCmd = "/bin/convert -crop %dx%d+%d+%d %s %s"
+
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\).*$")
 )
 
-const usage = `
-	Usage:
-	croc [<filepath>] [--call=CALL] [--blinds=BLINDS] [--ante=ANTE]
-`
+type Window struct {
+	Id string
+	X  int
+	Y  int
+}
 
 type Table struct {
 	Hero
@@ -66,14 +76,6 @@ type ImageSnippet struct {
 	OffsetX int
 	OffsetY int
 }
-
-const tableTpl = `
-	Hero hand: {{.Hero.Hand}}{{"\n"}}
-	Hero position: {{.Hero.Position}}{{"\n"}}
-	Hero chips: {{.Hero.Chips}}{{"\n"}}
-	Pot size: {{.Pot}}{{"\n"}}
-	Board: {{.Board}}{{"\n"}}
-`
 
 func (table Table) String() string {
 	myTpl := template.Must(
@@ -122,6 +124,19 @@ func getImageSnippets(
 	return imageSnippets
 }
 
+const tableTpl = `
+	Hero hand: {{.Hero.Hand}}{{"\n"}}
+	Hero position: {{.Hero.Position}}{{"\n"}}
+	Hero chips: {{.Hero.Chips}}{{"\n"}}
+	Pot size: {{.Pot}}{{"\n"}}
+	Board: {{.Board}}{{"\n"}}
+`
+
+const usage = `
+	Usage:
+	croc [<filepath>] [--call=CALL] [--blinds=BLINDS] [--ante=ANTE]
+`
+
 func main() {
 	runtime.GOMAXPROCS(4)
 
@@ -135,12 +150,18 @@ func main() {
 	}
 
 	image := Image{}
+	window := Window{}
 
 	args, _ := docopt.Parse(usage, nil, true, "croc", false)
 	if args["<filepath>"] != nil {
 		image.Path = args["<filepath>"].(string)
 	} else {
-		image.Path, err = makeScreenshot()
+		window, err = getWindow()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		image.Path, err = getWindowScreenshot(window.Id)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -253,13 +274,15 @@ func recognize(
 
 }
 
-func makeScreenshot() (string, error) {
+func getWindowScreenshot(windowId string) (string, error) {
 	screenshot, err := getTmpFilename()
 	if err != nil {
 		return "", err
 	}
 
-	command, err := cmdRunner.Command(fmt.Sprintf(importCmd, screenshot))
+	command, err := cmdRunner.Command(fmt.Sprintf(
+		importCmd, windowId, screenshot,
+	))
 
 	if err != nil {
 		return "", err
@@ -271,6 +294,35 @@ func makeScreenshot() (string, error) {
 	}
 
 	return screenshot, nil
+}
+
+func getWindow() (Window, error) {
+	window := Window{}
+
+	command, _ := cmdRunner.Command(windowInfoCmd)
+	output, err := command.Run()
+	if err != nil {
+		return window, err
+	}
+
+	matches := reWindowId.FindStringSubmatch(output[4])
+	if len(matches) != 0 {
+		window.Id = matches[1]
+	} else {
+		return window, errors.New("No window id found")
+	}
+
+	matches = reWindowX.FindStringSubmatch(output[6])
+	if len(matches) != 0 {
+		window.X, _ = strconv.Atoi(matches[1])
+	}
+
+	matches = reWindowY.FindStringSubmatch(output[7])
+	if len(matches) != 0 {
+		window.Y, _ = strconv.Atoi(matches[1])
+	}
+
+	return window, nil
 }
 
 func getTmpFilename() (string, error) {
