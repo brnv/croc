@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"os"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -30,7 +32,7 @@ const tableTpl = `
 
 const usage = `
 	Usage:
-	croc [<filepath>]`
+	croc [<filepath>] [-v]`
 
 func main() {
 	runtime.GOMAXPROCS(4)
@@ -115,7 +117,101 @@ func main() {
 		},
 	}
 
-	strategy.Run()
+	decision := strategy.Run()
+
+	//@TODO: remember decision for current window id
+	//@TODO: refactor all click logic
+
+	mouseX, mouseY := rememberMousePosition()
+
+	switch decision {
+	case "CHECK":
+		clickOnCheckButton(window)
+	case "FOLD":
+		clickOnFoldButton(window)
+	case "RAISE/FOLD":
+		clickOnRaiseButton(window)
+	case "RAISE/ALL-IN":
+		clickOnRaiseButton(window)
+	case "STEAL/FOLD":
+		clickOnStealButton(window)
+	case "STEAL/ALL-IN":
+		clickOnStealButton(window)
+	case "3-BET/FOLD if raiser >= EP":
+		clickOnThreeBetButton(window)
+	case "3-BET/ALL-IN if raiser >= EP":
+		clickOnThreeBetButton(window)
+
+	case "3-BET/FOLD if raiser >= MP":
+		clickOnThreeBetButton(window)
+	case "3-BET/ALL-IN if raiser >= MP":
+		clickOnThreeBetButton(window)
+
+	case "3-BET/FOLD if raiser >= LATER":
+		clickOnThreeBetButton(window)
+	case "3-BET/ALL-IN if raiser >= LATER":
+		clickOnThreeBetButton(window)
+	}
+
+	restoreMousePosition(mouseX, mouseY)
+
+	if args["-v"].(bool) != false {
+		fmt.Print(table)
+	}
+
+	fmt.Println(decision)
+}
+
+func clickOnCheckButton(window Window) {
+	click(window.X+560, window.Y+520)
+}
+
+func clickOnFoldButton(window Window) {
+	click(window.X+440, window.Y+520)
+}
+
+func clickOnRaiseButton(window Window) {
+	click(window.X+620, window.Y+440)
+	click(window.X+720, window.Y+520)
+}
+
+func clickOnStealButton(window Window) {
+	click(window.X+720, window.Y+520)
+}
+
+func clickOnThreeBetButton(window Window) {
+	click(window.X+560, window.Y+440)
+	click(window.X+720, window.Y+520)
+}
+
+var (
+	reMouseX = regexp.MustCompile("x:(\\d+)\\s")
+	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
+)
+
+func rememberMousePosition() (string, string) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf("/bin/xdotool getmouselocation"),
+	)
+	output, _ := command.Run()
+	mouseX := reMouseX.FindStringSubmatch(output[0])
+	mouseY := reMouseY.FindStringSubmatch(output[0])
+
+	return mouseX[1], mouseY[1]
+}
+
+func restoreMousePosition(x string, y string) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf("/bin/xdotool mousemove %s %s", x, y),
+	)
+	command.Run()
+}
+
+func click(x int, y int) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf("/bin/xdotool mousemove %d %d click 1", x, y),
+	)
+	command.Run()
 }
 
 type Table struct {
