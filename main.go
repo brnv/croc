@@ -122,38 +122,57 @@ func main() {
 	//@TODO: remember decision for current window id
 	//@TODO: refactor all click logic
 
-	mouseX, mouseY := rememberMousePosition()
+	if window.Id != "" {
+		mouseX, mouseY := rememberMousePosition()
 
-	switch decision {
-	case "CHECK":
-		clickOnCheckButton(window)
-	case "FOLD":
-		clickOnFoldButton(window)
-	case "RAISE/FOLD":
-		clickOnRaiseButton(window)
-	case "RAISE/ALL-IN":
-		clickOnRaiseButton(window)
-	case "STEAL/FOLD":
-		clickOnStealButton(window)
-	case "STEAL/ALL-IN":
-		clickOnStealButton(window)
-	case "3-BET/FOLD if raiser >= EP":
-		clickOnThreeBetButton(window)
-	case "3-BET/ALL-IN if raiser >= EP":
-		clickOnThreeBetButton(window)
+		switch decision {
+		case "CHECK":
+			clickOnCheckButton(window)
+		case "FOLD":
+			clickOnFoldButton(window)
 
-	case "3-BET/FOLD if raiser >= MP":
-		clickOnThreeBetButton(window)
-	case "3-BET/ALL-IN if raiser >= MP":
-		clickOnThreeBetButton(window)
+		case "RAISE/FOLD":
+			clickOnRaiseButton(window)
+		case "RAISE/ALL-IN":
+			clickOnRaiseButton(window)
 
-	case "3-BET/FOLD if raiser >= LATER":
-		clickOnThreeBetButton(window)
-	case "3-BET/ALL-IN if raiser >= LATER":
-		clickOnThreeBetButton(window)
+		case "STEAL/FOLD":
+			clickOnStealButton(window)
+		case "STEAL/ALL-IN":
+			clickOnStealButton(window)
+
+		case "3-BET/FOLD if raiser >= EP":
+			clickOnThreeBetButton(window)
+		case "3-BET/ALL-IN if raiser >= EP":
+			clickOnThreeBetButton(window)
+
+		case "3-BET/FOLD if raiser >= MP":
+			clickOnThreeBetButton(window)
+		case "3-BET/ALL-IN if raiser >= MP":
+			clickOnThreeBetButton(window)
+
+		case "3-BET/FOLD if raiser >= LATER":
+			clickOnThreeBetButton(window)
+		case "3-BET/ALL-IN if raiser >= LATER":
+			clickOnThreeBetButton(window)
+
+		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
+			clickOnThreeBetButton(window)
+		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= MP":
+			clickOnThreeBetButton(window)
+		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
+			clickOnThreeBetButton(window)
+
+		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
+			clickOnThreeBetButton(window)
+		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= MP":
+			clickOnThreeBetButton(window)
+		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
+			clickOnThreeBetButton(window)
+		}
+
+		restoreMousePosition(mouseX, mouseY)
 	}
-
-	restoreMousePosition(mouseX, mouseY)
 
 	if args["-v"].(bool) != false {
 		fmt.Print(table)

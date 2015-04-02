@@ -260,7 +260,7 @@ func (strategy Strategy) PreflopRaiseStrategy() string {
 	}
 
 	if position == "SB" {
-		return "LIMP or FOLD"
+		//return "LIMP or FOLD"
 	}
 
 	if position == "BB" {
