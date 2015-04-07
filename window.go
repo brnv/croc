@@ -25,6 +25,17 @@ type Window struct {
 	Y  int
 }
 
+func (window Window) Click(offsetX int, offsetY int) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf(
+			"/bin/xdotool mousemove %d %d click 1",
+			window.X+offsetX,
+			window.Y+offsetY,
+		),
+	)
+	command.Run()
+}
+
 func getWindow() (Window, error) {
 	window := Window{}
 

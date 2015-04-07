@@ -20,6 +20,9 @@ import (
 var (
 	log       = logging.MustGetLogger("croc")
 	cmdRunner *runcmd.Local
+
+	reMouseX = regexp.MustCompile("x:(\\d+)\\s")
+	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
 )
 
 const tableTpl = `
@@ -84,7 +87,8 @@ func main() {
 	fmt.Println("")
 
 	table := Table{
-		Hero: Hero{},
+		Hero:   Hero{},
+		Window: window,
 	}
 
 	wg := &sync.WaitGroup{}
@@ -133,55 +137,56 @@ func main() {
 	decision := strategy.Run()
 
 	//@TODO: remember decision for current window id
-	//@TODO: refactor all click logic
+	//@TODO: implement tasks logic for current situation
+	// to make program perform 2 steps decisions by itself
 
 	if window.Id != "" {
 		mouseX, mouseY := rememberMousePosition()
 
 		switch decision {
 		case "CHECK":
-			clickOnCheckButton(window)
+			table.ClickCheck()
 		case "FOLD":
-			clickOnFoldButton(window)
+			table.ClickFold()
 
 		case "RAISE/FOLD":
-			clickOnRaiseButton(window)
+			table.ClickRaise()
 		case "RAISE/ALL-IN":
-			clickOnRaiseButton(window)
+			table.ClickRaise()
 
 		case "STEAL/FOLD":
-			clickOnStealButton(window)
+			table.ClickSteal()
 		case "STEAL/ALL-IN":
-			clickOnStealButton(window)
+			table.ClickSteal()
 
 		case "3-BET/FOLD if raiser >= EP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "3-BET/ALL-IN if raiser >= EP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 
 		case "3-BET/FOLD if raiser >= MP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "3-BET/ALL-IN if raiser >= MP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 
 		case "3-BET/FOLD if raiser >= LATER":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "3-BET/ALL-IN if raiser >= LATER":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= MP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= MP":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
-			clickOnThreeBetButton(window)
+			table.ClickThreeBet()
 		}
 
 		restoreMousePosition(mouseX, mouseY)
@@ -193,33 +198,6 @@ func main() {
 
 	fmt.Println(decision)
 }
-
-func clickOnCheckButton(window Window) {
-	click(window.X+560, window.Y+520)
-}
-
-func clickOnFoldButton(window Window) {
-	click(window.X+440, window.Y+520)
-}
-
-func clickOnRaiseButton(window Window) {
-	click(window.X+620, window.Y+440)
-	click(window.X+720, window.Y+520)
-}
-
-func clickOnStealButton(window Window) {
-	click(window.X+720, window.Y+520)
-}
-
-func clickOnThreeBetButton(window Window) {
-	click(window.X+560, window.Y+440)
-	click(window.X+720, window.Y+520)
-}
-
-var (
-	reMouseX = regexp.MustCompile("x:(\\d+)\\s")
-	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
-)
 
 func rememberMousePosition() (string, string) {
 	command, _ := cmdRunner.Command(
@@ -239,19 +217,35 @@ func restoreMousePosition(x string, y string) {
 	command.Run()
 }
 
-func click(x int, y int) {
-	command, _ := cmdRunner.Command(
-		fmt.Sprintf("/bin/xdotool mousemove %d %d click 1", x, y),
-	)
-	command.Run()
-}
-
 type Table struct {
 	Hero
 	Board
 	Pot     int
 	Limpers []Limper
 	Button  string
+	Window  Window
+}
+
+func (table Table) ClickFold() {
+	table.Window.Click(440, 520)
+}
+
+func (table Table) ClickCheck() {
+	table.Window.Click(560, 520)
+}
+
+func (table Table) ClickRaise() {
+	table.Window.Click(620, 440)
+	table.Window.Click(720, 520)
+}
+
+func (table Table) ClickSteal() {
+	table.Window.Click(720, 520)
+}
+
+func (table Table) ClickThreeBet() {
+	table.Window.Click(560, 440)
+	table.Window.Click(720, 520)
 }
 
 type Image struct {
