@@ -14,8 +14,9 @@ var (
 	reWindowX  = regexp.MustCompile("Absolute upper-left X:\\s+(\\d+)")
 	reWindowY  = regexp.MustCompile("Absolute upper-left Y:\\s+(\\d+)")
 
-	windowInfoCmd = "/bin/xwininfo"
-	importCmd     = "/bin/import -window %s png:%s"
+	windowInfoCmd     = "/bin/xwininfo"
+	windowInfoByIdCmd = "/bin/xwininfo -id %s"
+	importCmd         = "/bin/import -window %s png:%s"
 )
 
 type Window struct {
@@ -51,6 +52,28 @@ func getWindow() (Window, error) {
 	}
 
 	return window, nil
+}
+
+func getWindowCoordinates(id string) (int, int) {
+	command, _ := cmdRunner.Command(fmt.Sprintf(windowInfoByIdCmd, id))
+	output, err := command.Run()
+	if err != nil {
+		return 0, 0
+	}
+
+	x, y := 0, 0
+
+	matches := reWindowX.FindStringSubmatch(output[2])
+	if len(matches) != 0 {
+		x, _ = strconv.Atoi(matches[1])
+	}
+
+	matches = reWindowY.FindStringSubmatch(output[3])
+	if len(matches) != 0 {
+		y, _ = strconv.Atoi(matches[1])
+	}
+
+	return x, y
 }
 
 func getWindowScreenshot(windowId string) (string, error) {

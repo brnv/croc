@@ -32,10 +32,10 @@ const tableTpl = `
 
 const usage = `
 	Usage:
-	croc [<filepath>] [-v]`
+	croc [<filepath>] [--wid=<window_id>] [-v]`
 
 func main() {
-	runtime.GOMAXPROCS(4)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	var err error
 
@@ -54,12 +54,17 @@ func main() {
 
 	if args["<filepath>"] != nil {
 		image.Path = args["<filepath>"].(string)
+	} else if args["--wid"] != nil {
+		window.Id = args["--wid"].(string)
+		window.X, window.Y = getWindowCoordinates(window.Id)
 	} else {
 		window, err = getWindow()
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
 
+	if image.Path == "" {
 		image.Path, err = getWindowScreenshot(window.Id)
 		if err != nil {
 			log.Fatal(err)
@@ -71,11 +76,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	if !image.CheckIfHeroTurn() {
+		fmt.Print(".")
+		return
+	}
+
+	fmt.Println("")
+
 	table := Table{
 		Hero: Hero{},
 	}
 
 	wg := &sync.WaitGroup{}
+
 	wg.Add(6)
 
 	go func() {
@@ -295,4 +308,22 @@ func getImageSnippets(
 func (table Table) GetHeroPosition() int {
 	buttonNum, _ := strconv.Atoi(table.Button)
 	return len(positions) + 1 - buttonNum
+}
+
+func (image Image) CheckIfHeroTurn() bool {
+	maxButton := ImageSnippet{
+		61, 23, 719, 432,
+	}
+
+	_, err := recognize(
+		image.Crop(maxButton),
+		"/tmp/croc/button_max",
+		0.05,
+	)
+
+	if err != nil {
+		return false
+	}
+
+	return true
 }
