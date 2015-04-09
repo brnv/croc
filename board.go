@@ -14,7 +14,7 @@ type Board struct {
 	Cards []Card
 }
 
-func (image Image) BoardRecognize() Board {
+func (table Table) BoardRecognize() Board {
 	board := Board{}
 
 	boardCards := board.GetBoardImageSnippets(
@@ -23,7 +23,7 @@ func (image Image) BoardRecognize() Board {
 
 	for _, boardCard := range boardCards {
 		card, err := recognize(
-			image.Crop(boardCard),
+			table.Image.Crop(boardCard),
 			cardSamples,
 			boardCompareThreshold,
 		)

@@ -2,9 +2,9 @@ package main
 
 //@TODO: move to config
 var (
-	callDigitSamples           = "call_digits/*"
-	callTypeSamples            = "call_types/*"
-	raiseTypeSamples           = "raise_types/*"
+	callDigitSamples           = "/tmp/croc/call_digits/*"
+	callTypeSamples            = "/tmp/croc/call_types/*"
+	raiseTypeSamples           = "/tmp/croc/raise_types/*"
 	callTypeWidth              = 10
 	callTypeHeight             = 16
 	callTypeOffsetX            = 557

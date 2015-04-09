@@ -4,7 +4,7 @@ import "fmt"
 
 //@TODO: move to config
 var (
-	cardSamples          = "cards/*"
+	cardSamples          = "/tmp/croc/cards/*"
 	cardWidth            = 46
 	cardHeight           = 30
 	handLeftCardOffsetX  = 346
@@ -27,7 +27,7 @@ type Hand struct {
 	Cards []HandCard
 }
 
-func (image Image) HandRecognize() Hand {
+func (table Table) HandRecognize() Hand {
 	hand := Hand{
 		Cards: []HandCard{
 			HandCard{ImageSnippet: ImageSnippet{
@@ -45,7 +45,7 @@ func (image Image) HandRecognize() Hand {
 		}}
 
 	recognized, err := recognize(
-		image.Crop(hand.Cards[0].ImageSnippet),
+		table.Image.Crop(hand.Cards[0].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
@@ -56,7 +56,7 @@ func (image Image) HandRecognize() Hand {
 	}
 
 	recognized, err = recognize(
-		image.Crop(hand.Cards[1].ImageSnippet),
+		table.Image.Crop(hand.Cards[1].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
@@ -86,6 +86,10 @@ var cardStrength = map[string]int{
 }
 
 func (hand Hand) ShortNotation() string {
+	if len(hand.Cards) == 0 {
+		return ""
+	}
+
 	if hand.Cards[0].Value == "" || hand.Cards[1].Value == "" {
 		return ""
 	}

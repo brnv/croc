@@ -2,8 +2,8 @@ package main
 
 //@TODO: move to config
 var (
-	chipsDigitSamples     = "chips_digits/*"
-	chipsTypeSamples      = "chips_types/*"
+	chipsDigitSamples     = "/tmp/croc/chips_digits/*"
+	chipsTypeSamples      = "/tmp/croc/chips_types/*"
 	chipsTypeWidth        = 12
 	chipsTypeHeight       = 13
 	chipsTypeOffsetX      = 353
@@ -17,14 +17,14 @@ type Chips struct {
 	Number
 }
 
-func (image Image) HeroChipsRecognize() string {
+func (table Table) HeroChipsRecognize() string {
 	chips := Chips{
 		Number: Number{
 			Digits: []ImageSnippet{},
 		},
 	}
 
-	chipsType, err := image.NumberTypeRecognize(
+	chipsType, err := table.Image.NumberTypeRecognize(
 		ImageSnippet{
 			Width:   chipsTypeWidth,
 			Height:  chipsTypeHeight,
@@ -50,7 +50,7 @@ func (image Image) HeroChipsRecognize() string {
 
 	for _, chipsDigit := range chips.Number.Digits {
 		digit, err := recognize(
-			image.Crop(chipsDigit),
+			table.Image.Crop(chipsDigit),
 			chipsDigitSamples,
 			chipsCompareThreshold,
 		)

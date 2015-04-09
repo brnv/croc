@@ -10,7 +10,8 @@ type MSSStrategy struct {
 }
 
 type Strategy struct {
-	Table Table
+	Table    *Table
+	Messages []string
 }
 
 var positions = map[int]string{
@@ -188,7 +189,8 @@ func (strategy Strategy) PotIsRaised() bool {
 }
 
 func (strategy Strategy) Preflop() string {
-	fmt.Println("preflop")
+	strategy.Messages = append(strategy.Messages, "preflop")
+
 	decision := ""
 
 	heroPosition := strategy.Table.Hero.Position
@@ -215,7 +217,7 @@ func (strategy Strategy) Preflop() string {
 }
 
 func (strategy Strategy) PreflopStealStrategy() string {
-	fmt.Println("steal")
+	strategy.Messages = append(strategy.Messages, "steal")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -241,7 +243,7 @@ func (strategy Strategy) PreflopStealStrategy() string {
 }
 
 func (strategy Strategy) PreflopRaiseStrategy() string {
-	fmt.Println("raise")
+	strategy.Messages = append(strategy.Messages, "raise")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -271,7 +273,7 @@ func (strategy Strategy) PreflopRaiseStrategy() string {
 }
 
 func (strategy Strategy) PreflopReStealStrategy() string {
-	fmt.Println("resteal")
+	strategy.Messages = append(strategy.Messages, "resteal")
 
 	position := positions[strategy.Table.Hero.Position]
 
@@ -293,7 +295,7 @@ func (strategy Strategy) PreflopReStealStrategy() string {
 }
 
 func (strategy Strategy) PreflopThreeBetStrategy() string {
-	fmt.Println("3-bet")
+	strategy.Messages = append(strategy.Messages, "3-bet")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 

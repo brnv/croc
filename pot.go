@@ -2,8 +2,8 @@ package main
 
 //@TODO: move to config
 var (
-	potDigitSamples     = "pot_digits/*"
-	potTypeSamples      = "pot_types/*"
+	potDigitSamples     = "/tmp/croc/pot_digits/*"
+	potTypeSamples      = "/tmp/croc/pot_types/*"
 	potTypeWidth        = 14
 	potTypeHeight       = 13
 	potTypeOffsetX      = 385
@@ -17,14 +17,14 @@ type Pot struct {
 	Number
 }
 
-func (image Image) PotRecognize() string {
+func (table Table) PotRecognize() string {
 	pot := Pot{
 		Number: Number{
 			Digits: []ImageSnippet{},
 		},
 	}
 
-	potType, err := image.NumberTypeRecognize(
+	potType, err := table.Image.NumberTypeRecognize(
 		ImageSnippet{
 			Width:   potTypeWidth,
 			Height:  potTypeHeight,
@@ -50,7 +50,7 @@ func (image Image) PotRecognize() string {
 
 	for _, potDigit := range pot.Number.Digits {
 		digit, err := recognize(
-			image.Crop(potDigit),
+			table.Image.Crop(potDigit),
 			potDigitSamples,
 			potCompareThreshold,
 		)

@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
 	"os"
 	"regexp"
 	"runtime"
@@ -13,7 +11,6 @@ import (
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
-	"github.com/seletskiy/tplutil"
 	"github.com/thearkit/runcmd"
 )
 
@@ -25,114 +22,119 @@ var (
 	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
 )
 
-const tableTpl = `
-	Hero hand: {{.Hero.Hand}}{{"\n"}}
-	Hero position: {{.Hero.Position}}{{"\n"}}
-	Hero chips: {{.Hero.Chips}}{{"\n"}}
-	Pot size: {{.Pot}}{{"\n"}}
-	Board: {{.Board}}{{"\n"}}
-`
-
-const usage = `
+const (
+	usage = `
 	Usage:
-	croc [<filepath>] [--wid=<window_id>] [-v]`
+	croc <filepath> [-v]
+	croc --wid=<window_id> [-v]`
+)
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-
-	var err error
-
 	logging.SetLevel(logging.NOTICE, "")
+
+	args, err := docopt.Parse(usage, nil, true, "croc", false)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	cmdRunner, err = runcmd.NewLocalRunner()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	image := Image{}
-
-	window := Window{}
-
-	args, _ := docopt.Parse(usage, nil, true, "croc", false)
+	table := Table{
+		Image:  Image{},
+		Hero:   Hero{},
+		Window: Window{},
+	}
 
 	if args["<filepath>"] != nil {
-		image.Path = args["<filepath>"].(string)
-	} else if args["--wid"] != nil {
-		window.Id = args["--wid"].(string)
-		window.X, window.Y = getWindowCoordinates(window.Id)
+		table.Image.Path = args["<filepath>"].(string)
 	} else {
-		window, err = getWindow()
-		if err != nil {
-			log.Fatal(err)
+		if args["--wid"] != nil {
+			table.Window.Id = args["--wid"].(string)
+		} else {
+			table.Window.InitId()
 		}
+
+		table.Image.Path = table.Window.Screenshot()
 	}
 
-	if image.Path == "" {
-		image.Path, err = getWindowScreenshot(window.Id)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if _, err := os.Stat(image.Path); os.IsNotExist(err) {
-		log.Error("no such file or directory: " + image.Path)
+	if !table.Check() {
+		log.Fatal(table.Errors)
 		os.Exit(1)
 	}
 
-	if !image.CheckIfHeroTurn() {
-		fmt.Print(".")
-		return
-	}
-
-	fmt.Println("")
-
-	table := Table{
-		Hero:   Hero{},
-		Window: window,
+	strategy := MSSStrategy{
+		Strategy: Strategy{
+			Table: &table,
+		},
 	}
 
 	wg := &sync.WaitGroup{}
 
-	wg.Add(6)
+	wg.Add(3)
 
 	go func() {
-		table.Hero.Hand = image.HandRecognize()
+		table.Hero.Hand = table.HandRecognize()
 		wg.Done()
 	}()
 
 	go func() {
-		table.Pot, _ = strconv.Atoi(strings.TrimLeft(image.PotRecognize(), "0"))
-		wg.Done()
-	}()
-
-	go func() {
-		table.Limpers = image.LimpersRecognize()
-		wg.Done()
-	}()
-
-	go func() {
-		table.Hero.Chips = strings.TrimLeft(image.HeroChipsRecognize(), "0")
-		wg.Done()
-	}()
-
-	go func() {
-		table.Board = image.BoardRecognize()
-		wg.Done()
-	}()
-
-	go func() {
-		table.Button = image.ButtonRecognize()
+		table.Button = table.ButtonRecognize()
 		table.Hero.Position = table.GetHeroPosition()
+		wg.Done()
+	}()
+
+	go func() {
+		table.Limpers = table.LimpersRecognize()
 		wg.Done()
 	}()
 
 	wg.Wait()
 
-	strategy := MSSStrategy{
-		Strategy: Strategy{
-			Table: table,
-		},
+	if table.FastFoldButtonIsVisible() {
+		decision := strategy.Run()
+
+		if decision == "FOLD" {
+			fmt.Println("\n")
+
+			if args["-v"].(bool) != false {
+				fmt.Println(strategy.Messages)
+				fmt.Println(table)
+			}
+
+			table.ClickFold()
+
+			fmt.Println("FAST FOLD")
+
+			os.Exit(0)
+		}
+
+		os.Exit(1)
+	} else if !table.HeroMoveIsPending() {
+		os.Exit(1)
 	}
+
+	wg.Add(3)
+
+	go func() {
+		table.Pot, _ = strconv.Atoi(strings.TrimLeft(table.PotRecognize(), "0"))
+		wg.Done()
+	}()
+
+	go func() {
+		table.Hero.Chips = strings.TrimLeft(table.HeroChipsRecognize(), "0")
+		wg.Done()
+	}()
+
+	go func() {
+		table.Board = table.BoardRecognize()
+		wg.Done()
+	}()
+
+	wg.Wait()
 
 	decision := strategy.Run()
 
@@ -140,7 +142,7 @@ func main() {
 	//@TODO: implement tasks logic for current situation
 	// to make program perform 2 steps decisions by itself
 
-	if window.Id != "" {
+	if table.Window.Id != "" {
 		mouseX, mouseY := rememberMousePosition()
 
 		switch decision {
@@ -192,8 +194,11 @@ func main() {
 		restoreMousePosition(mouseX, mouseY)
 	}
 
+	fmt.Println("\n")
+
 	if args["-v"].(bool) != false {
-		fmt.Print(table)
+		fmt.Println(strategy.Messages)
+		fmt.Println(table)
 	}
 
 	fmt.Println(decision)
@@ -215,109 +220,4 @@ func restoreMousePosition(x string, y string) {
 		fmt.Sprintf("/bin/xdotool mousemove %s %s", x, y),
 	)
 	command.Run()
-}
-
-type Table struct {
-	Hero
-	Board
-	Pot     int
-	Limpers []Limper
-	Button  string
-	Window  Window
-}
-
-func (table Table) ClickFold() {
-	table.Window.Click(440, 520)
-}
-
-func (table Table) ClickCheck() {
-	table.Window.Click(560, 520)
-}
-
-func (table Table) ClickRaise() {
-	table.Window.Click(620, 440)
-	table.Window.Click(720, 520)
-}
-
-func (table Table) ClickSteal() {
-	table.Window.Click(720, 520)
-}
-
-func (table Table) ClickThreeBet() {
-	table.Window.Click(560, 440)
-	table.Window.Click(720, 520)
-}
-
-type Image struct {
-	Path string
-}
-
-type Hero struct {
-	Chips    string
-	Hand     Hand
-	Position int
-}
-
-type ImageSnippet struct {
-	Width   int
-	Height  int
-	OffsetX int
-	OffsetY int
-}
-
-func (table Table) String() string {
-	myTpl := template.Must(
-		template.New("table").Parse(tplutil.Strip(
-			tableTpl,
-		)),
-	)
-
-	buf := bytes.NewBuffer([]byte{})
-
-	myTpl.Execute(buf, table)
-
-	return buf.String()
-}
-
-func getImageSnippets(
-	width int,
-	height int,
-	offsetY int,
-	offsets []int,
-) []ImageSnippet {
-	imageSnippets := make([]ImageSnippet, len(offsets))
-
-	for index, offset := range offsets {
-		imageSnippets[index] = ImageSnippet{
-			Width:   width,
-			Height:  height,
-			OffsetX: offset,
-			OffsetY: offsetY,
-		}
-	}
-
-	return imageSnippets
-}
-
-func (table Table) GetHeroPosition() int {
-	buttonNum, _ := strconv.Atoi(table.Button)
-	return len(positions) + 1 - buttonNum
-}
-
-func (image Image) CheckIfHeroTurn() bool {
-	maxButton := ImageSnippet{
-		61, 23, 719, 432,
-	}
-
-	_, err := recognize(
-		image.Crop(maxButton),
-		"/tmp/croc/button_max",
-		0.05,
-	)
-
-	if err != nil {
-		return false
-	}
-
-	return true
 }

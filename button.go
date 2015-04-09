@@ -6,7 +6,7 @@ import (
 
 //@TODO: move to config
 var (
-	buttonSamples          = "button/*"
+	buttonSamples          = "/tmp/croc/button/*"
 	buttonCompareThreshold = 0.05
 	buttonWidth            = 16
 	buttonHeight           = 13
@@ -14,7 +14,7 @@ var (
 
 var button map[int]ImageSnippet
 
-func (image Image) ButtonRecognize() string {
+func (table Table) ButtonRecognize() string {
 	button := map[int]ImageSnippet{
 		1: ImageSnippet{
 			buttonWidth, buttonHeight, 458, 329,
@@ -55,7 +55,7 @@ func (image Image) ButtonRecognize() string {
 
 	for seat, buttonPosition := range button {
 		_, err := recognize(
-			image.Crop(buttonPosition),
+			table.Image.Crop(buttonPosition),
 			buttonSamples,
 			buttonCompareThreshold,
 		)

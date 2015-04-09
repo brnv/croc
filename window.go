@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -25,7 +24,63 @@ type Window struct {
 	Y  int
 }
 
+func (window *Window) InitId() {
+	command, _ := cmdRunner.Command(windowInfoCmd)
+
+	output, _ := command.Run()
+
+	matches := reWindowId.FindStringSubmatch(output[4])
+	if len(matches) != 0 {
+		window.Id = matches[1]
+	}
+}
+
+func (window *Window) InitCoordinates() {
+	command, _ := cmdRunner.Command(fmt.Sprintf(
+		windowInfoByIdCmd, window.Id),
+	)
+
+	output, err := command.Run()
+	if err != nil {
+		return
+	}
+
+	matches := reWindowX.FindStringSubmatch(output[2])
+	if len(matches) != 0 {
+		window.X, _ = strconv.Atoi(matches[1])
+	}
+
+	matches = reWindowY.FindStringSubmatch(output[3])
+	if len(matches) != 0 {
+		window.Y, _ = strconv.Atoi(matches[1])
+	}
+}
+
+func (window Window) Screenshot() string {
+	screenshot, err := getTmpFilename()
+	if err != nil {
+		return ""
+	}
+
+	command, err := cmdRunner.Command(fmt.Sprintf(
+		importCmd, window.Id, screenshot,
+	))
+
+	if err != nil {
+		return ""
+	}
+
+	_, err = command.Run()
+	if err != nil {
+		return ""
+	}
+
+	return screenshot
+}
+
 func (window Window) Click(offsetX int, offsetY int) {
+	window.InitCoordinates()
+
 	command, _ := cmdRunner.Command(
 		fmt.Sprintf(
 			"/bin/xdotool mousemove %d %d click 1",
@@ -33,80 +88,8 @@ func (window Window) Click(offsetX int, offsetY int) {
 			window.Y+offsetY,
 		),
 	)
+
 	command.Run()
-}
-
-func getWindow() (Window, error) {
-	window := Window{}
-
-	command, _ := cmdRunner.Command(windowInfoCmd)
-	output, err := command.Run()
-	if err != nil {
-		return window, err
-	}
-
-	matches := reWindowId.FindStringSubmatch(output[4])
-	if len(matches) != 0 {
-		window.Id = matches[1]
-	} else {
-		return window, errors.New("No window id found")
-	}
-
-	matches = reWindowX.FindStringSubmatch(output[6])
-	if len(matches) != 0 {
-		window.X, _ = strconv.Atoi(matches[1])
-	}
-
-	matches = reWindowY.FindStringSubmatch(output[7])
-	if len(matches) != 0 {
-		window.Y, _ = strconv.Atoi(matches[1])
-	}
-
-	return window, nil
-}
-
-func getWindowCoordinates(id string) (int, int) {
-	command, _ := cmdRunner.Command(fmt.Sprintf(windowInfoByIdCmd, id))
-	output, err := command.Run()
-	if err != nil {
-		return 0, 0
-	}
-
-	x, y := 0, 0
-
-	matches := reWindowX.FindStringSubmatch(output[2])
-	if len(matches) != 0 {
-		x, _ = strconv.Atoi(matches[1])
-	}
-
-	matches = reWindowY.FindStringSubmatch(output[3])
-	if len(matches) != 0 {
-		y, _ = strconv.Atoi(matches[1])
-	}
-
-	return x, y
-}
-
-func getWindowScreenshot(windowId string) (string, error) {
-	screenshot, err := getTmpFilename()
-	if err != nil {
-		return "", err
-	}
-
-	command, err := cmdRunner.Command(fmt.Sprintf(
-		importCmd, windowId, screenshot,
-	))
-
-	if err != nil {
-		return "", err
-	}
-
-	_, err = command.Run()
-	if err != nil {
-		return "", err
-	}
-
-	return screenshot, nil
 }
 
 func getTmpFilename() (string, error) {

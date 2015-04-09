@@ -4,7 +4,7 @@ import "strconv"
 
 //@TODO: move to config
 var (
-	betSamples          = "bet_digits/*"
+	betSamples          = "/tmp/croc/bet_digits/*"
 	betCompareThreshold = 0.2
 	betDigitWidth       = 8
 	betDigitHeight      = 12
@@ -62,7 +62,7 @@ func (opponent Limper) GetImageSnippets() []ImageSnippet {
 	}
 }
 
-func (image Image) LimpersRecognize() []Limper {
+func (table Table) LimpersRecognize() []Limper {
 	opponents := []Limper{}
 	for index := 1; index <= 9; index++ {
 		opponents = append(opponents, Limper{
@@ -72,7 +72,7 @@ func (image Image) LimpersRecognize() []Limper {
 
 	for index, opponent := range opponents {
 		for _, betDigit := range opponent.GetImageSnippets() {
-			img := image.Crop(betDigit)
+			img := table.Image.Crop(betDigit)
 
 			recognized, err := recognize(
 				img,
