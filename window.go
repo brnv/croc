@@ -81,6 +81,10 @@ func (window Window) Screenshot() string {
 func (window Window) Click(offsetX int, offsetY int) {
 	window.InitCoordinates()
 
+	if window.X == 0 || window.Y == 0 {
+		return
+	}
+
 	command, _ := cmdRunner.Command(
 		fmt.Sprintf(
 			"/bin/xdotool mousemove %d %d click 1",
