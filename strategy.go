@@ -139,7 +139,7 @@ var reStealFoldHands = map[string][]string{
 	},
 }
 
-func (strategy Strategy) Run() string {
+func (strategy *Strategy) Run() string {
 	err := strategy.CheckInput()
 
 	if err != nil {
@@ -188,7 +188,7 @@ func (strategy Strategy) PotIsRaised() bool {
 	return false
 }
 
-func (strategy Strategy) Preflop() string {
+func (strategy *Strategy) Preflop() string {
 	strategy.Messages = append(strategy.Messages, "preflop")
 
 	decision := ""
@@ -216,7 +216,7 @@ func (strategy Strategy) Preflop() string {
 	return decision
 }
 
-func (strategy Strategy) PreflopStealStrategy() string {
+func (strategy *Strategy) PreflopStealStrategy() string {
 	strategy.Messages = append(strategy.Messages, "steal")
 
 	position := positions[strategy.Table.Hero.Position]
@@ -242,7 +242,7 @@ func (strategy Strategy) PreflopStealStrategy() string {
 	return "FOLD"
 }
 
-func (strategy Strategy) PreflopRaiseStrategy() string {
+func (strategy *Strategy) PreflopRaiseStrategy() string {
 	strategy.Messages = append(strategy.Messages, "raise")
 
 	position := positions[strategy.Table.Hero.Position]
@@ -272,7 +272,7 @@ func (strategy Strategy) PreflopRaiseStrategy() string {
 	return "FOLD"
 }
 
-func (strategy Strategy) PreflopReStealStrategy() string {
+func (strategy *Strategy) PreflopReStealStrategy() string {
 	strategy.Messages = append(strategy.Messages, "resteal")
 
 	position := positions[strategy.Table.Hero.Position]
@@ -294,7 +294,7 @@ func (strategy Strategy) PreflopReStealStrategy() string {
 	return "FOLD"
 }
 
-func (strategy Strategy) PreflopThreeBetStrategy() string {
+func (strategy *Strategy) PreflopThreeBetStrategy() string {
 	strategy.Messages = append(strategy.Messages, "3-bet")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()

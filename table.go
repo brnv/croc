@@ -11,11 +11,11 @@ import (
 
 const (
 	tableTpl = `
-	Hero hand: {{.Hero.Hand}}{{"\n"}}
-	Hero position: {{.Hero.Position}}{{"\n"}}
-	Hero chips: {{.Hero.Chips}}{{"\n"}}
-	Pot size: {{.Pot}}{{"\n"}}
-	Board: {{.Board}}{{"\n"}}`
+	hand {{.Hero.Hand}}, 
+	position {{.Hero.Position}}, 
+	chips {{.Hero.Chips}}, 
+	pot {{.Pot}}, 
+	board {{.Board}}`
 )
 
 type Table struct {
