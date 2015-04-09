@@ -79,6 +79,8 @@ func (window Window) Screenshot() string {
 }
 
 func (window Window) Click(offsetX int, offsetY int) {
+	mouseX, mouseY := rememberMousePosition()
+
 	window.InitCoordinates()
 
 	if window.X == 0 || window.Y == 0 {
@@ -94,6 +96,8 @@ func (window Window) Click(offsetX int, offsetY int) {
 	)
 
 	command.Run()
+
+	restoreMousePosition(mouseX, mouseY)
 }
 
 func getTmpFilename() (string, error) {
@@ -102,4 +106,22 @@ func getTmpFilename() (string, error) {
 		return "", err
 	}
 	return file.Name(), nil
+}
+
+func rememberMousePosition() (string, string) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf("/bin/xdotool getmouselocation"),
+	)
+	output, _ := command.Run()
+	mouseX := reMouseX.FindStringSubmatch(output[0])
+	mouseY := reMouseY.FindStringSubmatch(output[0])
+
+	return mouseX[1], mouseY[1]
+}
+
+func restoreMousePosition(x string, y string) {
+	command, _ := cmdRunner.Command(
+		fmt.Sprintf("/bin/xdotool mousemove %s %s", x, y),
+	)
+	command.Run()
 }

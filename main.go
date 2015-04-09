@@ -143,8 +143,6 @@ func main() {
 	// to make program perform 2 steps decisions by itself
 
 	if table.Window.Id != "" {
-		mouseX, mouseY := rememberMousePosition()
-
 		switch decision {
 		case "CHECK":
 			table.ClickCheck()
@@ -191,7 +189,6 @@ func main() {
 			table.ClickThreeBet()
 		}
 
-		restoreMousePosition(mouseX, mouseY)
 	}
 
 	fmt.Println("\n")
@@ -202,22 +199,4 @@ func main() {
 	}
 
 	fmt.Println(decision)
-}
-
-func rememberMousePosition() (string, string) {
-	command, _ := cmdRunner.Command(
-		fmt.Sprintf("/bin/xdotool getmouselocation"),
-	)
-	output, _ := command.Run()
-	mouseX := reMouseX.FindStringSubmatch(output[0])
-	mouseY := reMouseY.FindStringSubmatch(output[0])
-
-	return mouseX[1], mouseY[1]
-}
-
-func restoreMousePosition(x string, y string) {
-	command, _ := cmdRunner.Command(
-		fmt.Sprintf("/bin/xdotool mousemove %s %s", x, y),
-	)
-	command.Run()
 }
