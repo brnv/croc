@@ -356,13 +356,13 @@ func (strategy *Strategy) Flop() {
 			completedCombination.Three ||
 			completedCombination.Triplet ||
 			completedCombination.TwoPairs {
-			fmt.Println("BET/ALL-IN or RERAISE")
+			fmt.Println("BET/ALL-IN or RERAISE;")
 			return
 		}
 
 		if completedCombination.TopPair {
-			fmt.Println("C-BET/FOLD or FOLD")
-			fmt.Println("freeplay: CHECK/FOLD")
+			fmt.Println("C-BET/FOLD or FOLD;")
+			fmt.Println("freeplay: CHECK/FOLD;")
 			return
 		}
 	}
@@ -371,23 +371,23 @@ func (strategy *Strategy) Flop() {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			fmt.Println("overcards: 1 opponent: C-BET/FOLD or FOLD")
+			fmt.Println("overcards: 1 opponent: C-BET/FOLD or FOLD;")
 		}
 	}
 
-	fmt.Println("monster draw: BET/ALL-IN or RERAISE")
+	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
 
-	fmt.Println("draws: C-BET/FOLD or FOLD, on freeplay: CHECK/FOLD")
+	fmt.Println("draws: C-BET/FOLD or FOLD, on freeplay: CHECK/FOLD;")
 
 	fmt.Println(
 		fmt.Sprintf(
 			"draws: if win_size / call_size / " +
 				"[monster/3, flush/4, oesd/5, overcards/7, pair/8] > 1:" +
-				" CALL",
+				" CALL;",
 		),
 	)
 
-	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD")
+	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD;")
 }
 
 func (strategy *Strategy) Turn() {
@@ -402,26 +402,26 @@ func (strategy *Strategy) Turn() {
 			completedCombination.Three ||
 			completedCombination.Triplet ||
 			completedCombination.TwoPairs {
-			fmt.Println("BET/ALL-IN or RERAISE")
+			fmt.Println("BET/ALL-IN or RERAISE;")
 			return
 		}
 
 		if completedCombination.TopPair {
-			fmt.Println("C-BET/FOLD or FOLD")
-			fmt.Println("freeplay: CHECK/FOLD")
+			fmt.Println("C-BET/FOLD or FOLD;")
+			fmt.Println("freeplay: CHECK/FOLD;")
 			return
 		}
 	}
 
-	fmt.Println("monster draw: BET/ALL-IN or RERAISE")
+	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
 
-	fmt.Println("draw: CHECK/FOLD")
+	fmt.Println("draw: CHECK/FOLD;")
 
 	fmt.Println(
 		fmt.Sprintf(
 			"draws: if win_size / call_size / " +
 				"[monster/1, flush/2, oesd/2, overcards/3, pair/4] > 1:" +
-				" CALL",
+				" CALL;",
 		),
 	)
 
@@ -430,6 +430,6 @@ func (strategy *Strategy) Turn() {
 
 func (strategy *Strategy) River() {
 	strategy.Messages = append(strategy.Messages, "river")
-	fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL")
-	fmt.Println("anything else: CHECK/FOLD")
+	fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL;")
+	fmt.Println("anything else: CHECK/FOLD;")
 }
