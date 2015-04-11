@@ -117,17 +117,22 @@ var stealAllInHands = []string{
 var stealFoldHandsBUandSB = []string{
 	"99", "88", "77", "66", "55", "44", "33", "22",
 	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
-	"A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+	"A8", "A8s", "A7", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
 	"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
 	"QJ", "QJs", "QT", "QTs",
 	"JT", "JTs",
+	"T9", "T9s",
+	"98s",
+	"87s",
+	"76s",
 }
 var stealFoldHands = map[string][]string{
 	"CO": []string{
-		"99", "88", "77", "66", "55",
-		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
-		"KQ", "KQs", "KJs",
-		"QJs",
+		"99", "88", "77", "66", "55", "44", "33", "22",
+		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s", "A8s", "A7s",
+		"KQ", "KQs", "KJ", "KJs", "KTs",
+		"QJ", "QJs", "QTs",
+		"JTs",
 	},
 	"BU": stealFoldHandsBUandSB,
 	"SB": stealFoldHandsBUandSB,
