@@ -21,6 +21,16 @@ func (table Table) BoardRecognize() Board {
 		[]int{264, 318, 372, 426, 480},
 	)
 
+	_, err := recognize(
+		table.Image.Crop(boardCards[0]),
+		"/tmp/croc/first_board_card_empty",
+		0.05,
+	)
+
+	if err == nil {
+		return board
+	}
+
 	for _, boardCard := range boardCards {
 		card, err := recognize(
 			table.Image.Crop(boardCard),
