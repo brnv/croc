@@ -11,11 +11,9 @@ import (
 
 const (
 	tableTpl = `
-	hand {{.Hero.Hand}}, 
+	[hand {{.Hero.Hand}}, 
 	position {{.Hero.Position}}, 
-	chips {{.Hero.Chips}}, 
-	pot {{.Pot}}, 
-	board {{.Board}}`
+	pot {{.Pot}}]`
 )
 
 type Table struct {
@@ -127,12 +125,12 @@ func (table Table) HeroMoveIsPending() bool {
 
 func (table Table) FastFoldButtonIsVisible() bool {
 	fastFoldButton := ImageSnippet{
-		128, 51, 382, 490,
+		128, 25, 382, 490,
 	}
 
 	_, err := recognize(
 		table.Image.Crop(fastFoldButton),
-		"/tmp/croc/button_fast_fold",
+		"/tmp/croc/button_fast_fold_minimized",
 		0.05,
 	)
 

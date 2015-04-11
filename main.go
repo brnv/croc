@@ -102,6 +102,7 @@ func main() {
 
 			if args["-v"].(bool) != false {
 				fmt.Println(strategy.Messages)
+				table.Pot = -1
 				fmt.Println(table)
 			}
 
@@ -117,17 +118,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	wg.Add(3)
+	wg.Add(2)
 
 	go func() {
 		table.Pot, _ = strconv.Atoi(strings.TrimLeft(table.PotRecognize(), "0"))
 		wg.Done()
 	}()
 
-	go func() {
-		table.Hero.Chips = strings.TrimLeft(table.HeroChipsRecognize(), "0")
-		wg.Done()
-	}()
+	//go func() {
+	//    table.Hero.Chips = strings.TrimLeft(table.HeroChipsRecognize(), "0")
+	//    wg.Done()
+	//}()
 
 	go func() {
 		table.Board = table.BoardRecognize()

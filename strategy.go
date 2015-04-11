@@ -26,7 +26,7 @@ var positions = map[int]string{
 	9: "BU",
 }
 
-var noLimpPotSize = 7
+var noLimpPotSize = 3
 
 var laterPosition = "LATER"
 var strategyPositions = map[string]string{
@@ -341,7 +341,8 @@ func (strategy *Strategy) PreflopThreeBetStrategy() string {
 	return "FOLD"
 }
 
-func (strategy Strategy) Flop() {
+func (strategy *Strategy) Flop() {
+	strategy.Messages = append(strategy.Messages, "flop")
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
@@ -380,7 +381,8 @@ func (strategy Strategy) Flop() {
 	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD")
 }
 
-func (strategy Strategy) Turn() {
+func (strategy *Strategy) Turn() {
+	strategy.Messages = append(strategy.Messages, "turn")
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 
@@ -407,7 +409,8 @@ func (strategy Strategy) Turn() {
 	return
 }
 
-func (strategy Strategy) River() {
+func (strategy *Strategy) River() {
+	strategy.Messages = append(strategy.Messages, "river")
 	fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL")
 	fmt.Println("anything else: CHECK/FOLD")
 }
