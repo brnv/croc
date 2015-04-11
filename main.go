@@ -25,8 +25,7 @@ var (
 const (
 	usage = `
 	Usage:
-	croc <filepath> [-v]
-	croc --wid=<window_id> [-v]`
+	croc [<filepath>] [--wid=<window_id>]  [-v]`
 )
 
 func main() {
@@ -43,11 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	table := Table{
-		Image:  Image{},
-		Hero:   Hero{},
-		Window: Window{},
-	}
+	table := Table{}
 
 	if args["<filepath>"] != nil {
 		table.Image.Path = args["<filepath>"].(string)
@@ -66,15 +61,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	strategy := MSSStrategy{
-		Strategy: Strategy{
-			Table: &table,
-		},
+	strategy := Strategy{
+		Table: &table,
 	}
 
 	wg := &sync.WaitGroup{}
 
-	wg.Add(3)
+	wg.Add(5)
 
 	go func() {
 		table.Hero.Hand = table.HandRecognize()
@@ -92,17 +85,30 @@ func main() {
 		wg.Done()
 	}()
 
+	go func() {
+		table.Pot, _ = strconv.Atoi(
+			strings.TrimLeft(table.PotRecognize(), "0"),
+		)
+		wg.Done()
+	}()
+
+	go func() {
+		//table.Hero.Chips = strings.TrimLeft(
+		//    table.HeroChipsRecognize(), "0",
+		//)
+		wg.Done()
+	}()
+
 	wg.Wait()
 
 	if table.FastFoldButtonIsVisible() {
 		decision := strategy.Run()
 
 		if decision == "FOLD" {
-			fmt.Println("\n")
+			fmt.Print("\n")
 
 			if args["-v"].(bool) != false {
 				fmt.Println(strategy.Messages)
-				table.Pot = -1
 				fmt.Println(table)
 			}
 
@@ -118,24 +124,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	wg.Add(2)
-
-	go func() {
-		table.Pot, _ = strconv.Atoi(strings.TrimLeft(table.PotRecognize(), "0"))
-		wg.Done()
-	}()
-
-	//go func() {
-	//    table.Hero.Chips = strings.TrimLeft(table.HeroChipsRecognize(), "0")
-	//    wg.Done()
-	//}()
-
-	go func() {
-		table.Board = table.BoardRecognize()
-		wg.Done()
-	}()
-
-	wg.Wait()
+	table.Board = table.BoardRecognize()
 
 	decision := strategy.Run()
 
@@ -192,7 +181,7 @@ func main() {
 
 	}
 
-	fmt.Println("\n")
+	fmt.Print("\n")
 
 	if args["-v"].(bool) != false {
 		fmt.Println(strategy.Messages)

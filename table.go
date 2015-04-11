@@ -17,13 +17,13 @@ const (
 )
 
 type Table struct {
-	Image Image
+	Window Window
+	Image  Image
 	Hero
 	Board
-	Pot     int
 	Limpers []Limper
+	Pot     int
 	Button  string
-	Window  Window
 	Errors  []string
 }
 
@@ -141,7 +141,7 @@ func (table Table) FastFoldButtonIsVisible() bool {
 	return true
 }
 
-func (table Table) Check() bool {
+func (table *Table) Check() bool {
 	if _, err := os.Stat(table.Image.Path); os.IsNotExist(err) {
 		table.Errors = append(
 			table.Errors, "no such file or directory: "+table.Image.Path,

@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-type MSSStrategy struct {
-	Strategy
-}
-
 type Strategy struct {
 	Table    *Table
 	Messages []string
@@ -26,9 +22,11 @@ var positions = map[int]string{
 	9: "BU",
 }
 
-var noLimpPotSize = 3
+const (
+	noLimpPotSize = 3
+	laterPosition = "LATER"
+)
 
-var laterPosition = "LATER"
 var strategyPositions = map[string]string{
 	"EP": "EP",
 	"MP": "MP",
@@ -151,22 +149,22 @@ func (strategy *Strategy) Run() string {
 		return err.Error()
 	}
 
-	if len(strategy.Table.Board.Cards) != 0 {
-		boardCardsNum := len(strategy.Table.Board.Cards)
+	boardCardsCount := len(strategy.Table.Board.Cards)
 
-		if boardCardsNum == 3 {
-			strategy.Flop()
-			return ""
-		} else if boardCardsNum == 4 {
-			strategy.Turn()
-			return ""
-		} else if boardCardsNum == 5 {
-			strategy.River()
-			return ""
-		}
+	if boardCardsCount == 0 {
+		return strategy.Preflop()
 	}
 
-	return strategy.Preflop()
+	if boardCardsCount == 3 {
+		strategy.Flop()
+		return ""
+	} else if boardCardsCount == 4 {
+		strategy.Turn()
+		return ""
+	}
+
+	strategy.River()
+	return ""
 }
 
 func (strategy Strategy) CheckInput() error {
@@ -373,9 +371,7 @@ func (strategy *Strategy) Flop() {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			fmt.Println("1 opponent: C-BET/FOLD or FOLD")
-			fmt.Println("2+ opponents: CHECK/FOLD")
-			return
+			fmt.Println("overcards: 1 opponent: C-BET/FOLD or FOLD")
 		}
 	}
 
@@ -385,9 +381,9 @@ func (strategy *Strategy) Flop() {
 
 	fmt.Println(
 		fmt.Sprintf(
-			"draws: if win_size / call_size / "+
-				"[monster/3, flush/4, oesd/5, overcards/7, pair/8] > 1:"+
-				" CALL", strategy.Table.Pot,
+			"draws: if win_size / call_size / " +
+				"[monster/3, flush/4, oesd/5, overcards/7, pair/8] > 1:" +
+				" CALL",
 		),
 	)
 
@@ -423,9 +419,9 @@ func (strategy *Strategy) Turn() {
 
 	fmt.Println(
 		fmt.Sprintf(
-			"draws: if win_size / call_size / "+
-				"[monster/1, flush/2, oesd/2, overcards/3, pair/4] > 1:"+
-				" CALL", strategy.Table.Pot,
+			"draws: if win_size / call_size / " +
+				"[monster/1, flush/2, oesd/2, overcards/3, pair/4] > 1:" +
+				" CALL",
 		),
 	)
 
