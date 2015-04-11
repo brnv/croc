@@ -383,6 +383,14 @@ func (strategy *Strategy) Flop() {
 
 	fmt.Println("draws: C-BET/FOLD or FOLD, on freeplay: CHECK/FOLD")
 
+	fmt.Println(
+		fmt.Sprintf(
+			"draws: if win_size / call_size / "+
+				"[monster/3, flush/4, oesd/5, overcards/7, pair/8] > 1:"+
+				" CALL", strategy.Table.Pot,
+		),
+	)
+
 	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD")
 }
 
@@ -410,7 +418,17 @@ func (strategy *Strategy) Turn() {
 	}
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE")
+
 	fmt.Println("draw: CHECK/FOLD")
+
+	fmt.Println(
+		fmt.Sprintf(
+			"draws: if win_size / call_size / "+
+				"[monster/1, flush/2, oesd/2, overcards/3, pair/4] > 1:"+
+				" CALL", strategy.Table.Pot,
+		),
+	)
+
 	return
 }
 
