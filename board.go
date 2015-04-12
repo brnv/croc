@@ -23,6 +23,16 @@ func (table Table) BoardRecognize() Board {
 
 	_, err := recognize(
 		table.Image.Crop(boardCards[0]),
+		"/tmp/croc/first_board_card_empty_zoom",
+		0.05,
+	)
+
+	if err == nil {
+		return board
+	}
+
+	_, err = recognize(
+		table.Image.Crop(boardCards[0]),
 		"/tmp/croc/first_board_card_empty",
 		0.05,
 	)
