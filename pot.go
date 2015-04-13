@@ -1,5 +1,10 @@
 package main
 
+import (
+	"strconv"
+	"strings"
+)
+
 //@TODO: move to config
 var (
 	potDigitSamples     = "/tmp/croc/pot_digits/*"
@@ -17,7 +22,7 @@ type Pot struct {
 	Number
 }
 
-func (table Table) PotRecognize() string {
+func (table *Table) PotRecognize() {
 	pot := Pot{
 		Number: Number{
 			Digits: []ImageSnippet{},
@@ -36,7 +41,8 @@ func (table Table) PotRecognize() string {
 	)
 
 	if err != nil {
-		return err.Error()
+		table.Errors = append(table.Errors, err.Error())
+		return
 	}
 
 	switch potType {
@@ -56,12 +62,13 @@ func (table Table) PotRecognize() string {
 		)
 
 		if err != nil {
-			return err.Error()
+			table.Errors = append(table.Errors, err.Error())
+			return
 		}
 		potSize += digit
 	}
 
-	return potSize
+	table.Pot, _ = strconv.Atoi(strings.TrimLeft(potSize, "0"))
 }
 
 func (pot Pot) GetPotImageSnippets(offsets []int) []ImageSnippet {

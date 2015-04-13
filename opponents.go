@@ -62,15 +62,14 @@ func (opponent Limper) GetImageSnippets() []ImageSnippet {
 	}
 }
 
-func (table Table) LimpersRecognize() []Limper {
-	opponents := []Limper{}
+func (table *Table) LimpersRecognize() {
 	for index := 1; index <= 9; index++ {
-		opponents = append(opponents, Limper{
+		table.Limpers = append(table.Limpers, Limper{
 			Position: index,
 		})
 	}
 
-	for index, opponent := range opponents {
+	for index, opponent := range table.Limpers {
 		for _, betDigit := range opponent.GetImageSnippets() {
 			img := table.Image.Crop(betDigit)
 
@@ -86,10 +85,8 @@ func (table Table) LimpersRecognize() []Limper {
 
 			recognizedInt, _ := strconv.Atoi(recognized)
 
-			opponents[index].BetSize += recognizedInt
+			table.Limpers[index].BetSize += recognizedInt
 		}
 
 	}
-
-	return opponents
 }

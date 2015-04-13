@@ -5,8 +5,6 @@ import (
 	"os"
 	"regexp"
 	"runtime"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/docopt/docopt-go"
@@ -70,32 +68,28 @@ func main() {
 	wg.Add(5)
 
 	go func() {
-		table.Hero.Hand = table.HandRecognize()
+		table.HandRecognize()
 		wg.Done()
 	}()
 
 	go func() {
-		table.Button = table.ButtonRecognize()
-		table.Hero.Position = table.GetHeroPosition()
+		table.ButtonRecognize()
+		table.HeroPositionRecognize()
 		wg.Done()
 	}()
 
 	go func() {
-		table.Limpers = table.LimpersRecognize()
+		table.LimpersRecognize()
 		wg.Done()
 	}()
 
 	go func() {
-		table.Pot, _ = strconv.Atoi(
-			strings.TrimLeft(table.PotRecognize(), "0"),
-		)
+		table.PotRecognize()
 		wg.Done()
 	}()
 
 	go func() {
-		//table.Hero.Chips = strings.TrimLeft(
-		//    table.HeroChipsRecognize(), "0",
-		//)
+		//table.HeroChipsRecognize()
 		wg.Done()
 	}()
 
@@ -124,7 +118,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	table.Board = table.BoardRecognize()
+	table.BoardRecognize()
 
 	decision := strategy.Run()
 

@@ -1,5 +1,7 @@
 package main
 
+import "strings"
+
 //@TODO: move to config
 var (
 	chipsDigitSamples     = "/tmp/croc/chips_digits/*"
@@ -17,7 +19,7 @@ type Chips struct {
 	Number
 }
 
-func (table Table) HeroChipsRecognize() string {
+func (table *Table) HeroChipsRecognize() {
 	chips := Chips{
 		Number: Number{
 			Digits: []ImageSnippet{},
@@ -36,7 +38,8 @@ func (table Table) HeroChipsRecognize() string {
 	)
 
 	if err != nil {
-		return err.Error()
+		table.Errors = append(table.Errors, err.Error())
+		return
 	}
 
 	switch chipsType {
@@ -56,13 +59,14 @@ func (table Table) HeroChipsRecognize() string {
 		)
 
 		if err != nil {
-			return err.Error()
+			table.Errors = append(table.Errors, err.Error())
+			return
 		}
 
 		chipsCount += digit
 	}
 
-	return chipsCount
+	table.Hero.Chips = strings.TrimLeft(chipsCount, "0")
 }
 
 func (chips Chips) GetChipsImageSnippets(offsets []int) []ImageSnippet {

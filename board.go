@@ -14,10 +14,8 @@ type Board struct {
 	Cards []Card
 }
 
-func (table Table) BoardRecognize() Board {
-	board := Board{}
-
-	boardCards := board.GetBoardImageSnippets(
+func (table *Table) BoardRecognize() {
+	boardCards := table.Board.GetBoardImageSnippets(
 		[]int{264, 318, 372, 426, 480},
 	)
 
@@ -28,7 +26,7 @@ func (table Table) BoardRecognize() Board {
 	)
 
 	if err == nil {
-		return board
+		return
 	}
 
 	_, err = recognize(
@@ -38,7 +36,7 @@ func (table Table) BoardRecognize() Board {
 	)
 
 	if err == nil {
-		return board
+		return
 	}
 
 	for _, boardCard := range boardCards {
@@ -52,13 +50,11 @@ func (table Table) BoardRecognize() Board {
 			continue
 		}
 
-		board.Cards = append(board.Cards, Card{
+		table.Board.Cards = append(table.Board.Cards, Card{
 			Value: fmt.Sprintf("%c", card[0]),
 			Suit:  fmt.Sprintf("%c", card[1]),
 		})
 	}
-
-	return board
 }
 
 func (board Board) GetBoardImageSnippets(offsets []int) []ImageSnippet {

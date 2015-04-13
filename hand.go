@@ -27,8 +27,8 @@ type Hand struct {
 	Cards []HandCard
 }
 
-func (table Table) HandRecognize() Hand {
-	hand := Hand{
+func (table *Table) HandRecognize() {
+	table.Hero.Hand = Hand{
 		Cards: []HandCard{
 			HandCard{ImageSnippet: ImageSnippet{
 				Width:   cardWidth,
@@ -45,28 +45,26 @@ func (table Table) HandRecognize() Hand {
 		}}
 
 	recognized, err := recognize(
-		table.Image.Crop(hand.Cards[0].ImageSnippet),
+		table.Image.Crop(table.Hero.Hand.Cards[0].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
 	if err == nil {
-		hand.Cards[0].Value = fmt.Sprintf("%c", recognized[0])
-		hand.Cards[0].Suit = fmt.Sprintf("%c", recognized[1])
+		table.Hero.Hand.Cards[0].Value = fmt.Sprintf("%c", recognized[0])
+		table.Hero.Hand.Cards[0].Suit = fmt.Sprintf("%c", recognized[1])
 	}
 
 	recognized, err = recognize(
-		table.Image.Crop(hand.Cards[1].ImageSnippet),
+		table.Image.Crop(table.Hero.Hand.Cards[1].ImageSnippet),
 		cardSamples,
 		handCompareThreshold,
 	)
 
 	if err == nil {
-		hand.Cards[1].Value = fmt.Sprintf("%c", recognized[0])
-		hand.Cards[1].Suit = fmt.Sprintf("%c", recognized[1])
+		table.Hero.Hand.Cards[1].Value = fmt.Sprintf("%c", recognized[0])
+		table.Hero.Hand.Cards[1].Suit = fmt.Sprintf("%c", recognized[1])
 	}
-
-	return hand
 }
 
 var cardStrength = map[string]int{

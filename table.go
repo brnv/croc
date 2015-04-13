@@ -100,9 +100,10 @@ func getImageSnippets(
 	return imageSnippets
 }
 
-func (table Table) GetHeroPosition() int {
+func (table *Table) HeroPositionRecognize() {
 	buttonNum, _ := strconv.Atoi(table.Button)
-	return len(positions) + 1 - buttonNum
+
+	table.Hero.Position = len(positions) + 1 - buttonNum
 }
 
 func (table Table) HeroMoveIsPending() bool {

@@ -14,7 +14,7 @@ var (
 
 var button map[int]ImageSnippet
 
-func (table Table) ButtonRecognize() string {
+func (table *Table) ButtonRecognize() {
 	button := map[int]ImageSnippet{
 		1: ImageSnippet{
 			buttonWidth, buttonHeight, 458, 329,
@@ -64,8 +64,6 @@ func (table Table) ButtonRecognize() string {
 			continue
 		}
 
-		return strconv.Itoa(seat)
+		table.Button = strconv.Itoa(seat)
 	}
-
-	return ""
 }
