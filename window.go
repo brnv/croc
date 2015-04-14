@@ -16,6 +16,9 @@ var (
 	windowInfoCmd     = "/bin/xwininfo"
 	windowInfoByIdCmd = "/bin/xwininfo -id %s"
 	importCmd         = "/bin/import -window %s png:%s"
+
+	reMouseX = regexp.MustCompile("x:(\\d+)\\s")
+	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
 )
 
 type Window struct {

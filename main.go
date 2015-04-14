@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"runtime"
 	"sync"
 
@@ -15,15 +14,12 @@ import (
 var (
 	log       = logging.MustGetLogger("croc")
 	cmdRunner *runcmd.Local
-
-	reMouseX = regexp.MustCompile("x:(\\d+)\\s")
-	reMouseY = regexp.MustCompile("y:(\\d+)\\s")
 )
 
 const (
 	usage = `
 	Usage:
-	croc [<filepath>] [--wid=<window_id>]  [-v]`
+	croc [<filepath>] [--wid=<window_id>] [-v]`
 )
 
 func main() {
