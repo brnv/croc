@@ -144,19 +144,19 @@ func main() {
 			threeBetFold(table)
 
 		case "3-BET/ALL-IN if raiser >= EP":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
 
 		case "3-BET/FOLD if raiser >= MP":
 			threeBetFold(table)
 
 		case "3-BET/ALL-IN if raiser >= MP":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
 
 		case "3-BET/FOLD if raiser >= LATER":
 			threeBetFold(table)
 
 		case "3-BET/ALL-IN if raiser >= LATER":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
 
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
 			threeBetFold(table)
@@ -168,11 +168,14 @@ func main() {
 			threeBetFold(table)
 
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
+
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= MP":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
+
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
-			table.ClickThreeBet()
+			threeBetAllIn(table)
+
 		}
 	}
 
@@ -188,7 +191,7 @@ func main() {
 
 func raiseFold(table Table) {
 	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 
 	if _, err := os.Stat(flag); os.IsNotExist(err) {
@@ -201,7 +204,7 @@ func raiseFold(table Table) {
 
 func stealFold(table Table) {
 	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 
 	if _, err := os.Stat(flag); os.IsNotExist(err) {
@@ -214,7 +217,7 @@ func stealFold(table Table) {
 
 func threeBetFold(table Table) {
 	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 
 	if _, err := os.Stat(flag); os.IsNotExist(err) {
@@ -222,6 +225,29 @@ func threeBetFold(table Table) {
 		table.ClickThreeBet()
 	} else {
 		table.ClickFold()
+	}
+}
+
+func threeBetAllIn(table Table) {
+	flag := getTimeFlagname(
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+
+	if _, err := os.Stat(flag); !os.IsNotExist(err) {
+		table.ClickFold()
+		return
+	}
+
+	flag = getTimeFlagname(
+		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+
+	if _, err := os.Stat(flag); os.IsNotExist(err) {
+		createFlagFile(flag)
+		table.ClickThreeBet()
+	} else {
+		//@TODO: table.ClickAllIn()
+		table.ClickThreeBet()
 	}
 }
 
