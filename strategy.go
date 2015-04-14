@@ -113,7 +113,7 @@ var stealAllInHands = []string{
 	"AK", "AKs",
 }
 var stealFoldHandsBUandSB = []string{
-	"99", "88", "77", "66", "55", "44", "33", "22",
+	"JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
 	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
 	"A8", "A8s", "A7", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
 	"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
