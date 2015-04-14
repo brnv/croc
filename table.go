@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"os"
-	"strconv"
 	"text/template"
 
 	"github.com/seletskiy/tplutil"
@@ -22,10 +21,10 @@ type Table struct {
 	Image  Image
 	Hero
 	Board
-	Limpers []Limper
-	Pot     int
-	Button  string
-	Errors  []string
+	Limpers        []Limper
+	Pot            int
+	ButtonPosition int
+	Errors         []string
 }
 
 type Image struct {
@@ -102,9 +101,7 @@ func getImageSnippets(
 }
 
 func (table *Table) HeroPositionRecognize() {
-	buttonNum, _ := strconv.Atoi(table.Button)
-
-	table.Hero.Position = len(positions) + 1 - buttonNum
+	table.Hero.Position = len(positions) + 1 - table.ButtonPosition
 }
 
 func (table Table) HeroMoveIsPending() bool {

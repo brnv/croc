@@ -1,9 +1,5 @@
 package main
 
-import (
-	"strconv"
-)
-
 //@TODO: move to config
 var (
 	buttonSamples          = "/tmp/croc/button/*"
@@ -64,6 +60,8 @@ func (table *Table) ButtonRecognize() {
 			continue
 		}
 
-		table.Button = strconv.Itoa(seat)
+		table.ButtonPosition = seat
+
+		break
 	}
 }

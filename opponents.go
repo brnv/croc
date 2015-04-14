@@ -83,9 +83,9 @@ func (table *Table) LimpersRecognize() {
 				continue
 			}
 
-			recognizedInt, _ := strconv.Atoi(recognized)
+			betInteger, _ := strconv.Atoi(recognized)
 
-			table.Limpers[index].BetSize += recognizedInt
+			table.Limpers[index].BetSize += betInteger
 		}
 
 	}
