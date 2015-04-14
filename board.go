@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 //@TODO: move to config
 var (
 	boardOffsetY          = 181
@@ -40,20 +36,18 @@ func (table *Table) BoardRecognize() {
 	}
 
 	for _, boardCard := range boardCards {
-		card, err := recognize(
+
+		_, offset := getSampleOffsets(
+			"/tmp/croc/cards",
 			table.Image.Crop(boardCard),
-			cardSamples,
-			boardCompareThreshold,
 		)
 
-		if err != nil {
-			continue
+		if offset >= 0 {
+			table.Board.Cards = append(table.Board.Cards, Card{
+				Value: GetValueByOffset(offset),
+				Suit:  GetSuitByOffset(offset),
+			})
 		}
-
-		table.Board.Cards = append(table.Board.Cards, Card{
-			Value: fmt.Sprintf("%c", card[0]),
-			Suit:  fmt.Sprintf("%c", card[1]),
-		})
 	}
 }
 

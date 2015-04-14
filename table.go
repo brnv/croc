@@ -13,6 +13,7 @@ const (
 	tableTpl = `
 	[hand {{.Hero.Hand}}, 
 	position {{.Hero.Position}}, 
+	board {{.Board}}, 
 	pot {{.Pot}}]`
 )
 
