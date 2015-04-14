@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -16,6 +18,10 @@ var (
 	convertCmd = "/bin/convert -crop %dx%d+%d+%d %s %s"
 
 	reCompareErrorLevel = regexp.MustCompile("\\((.*)\\).*$")
+
+	subimageSearchCmd = "visgrep"
+
+	reSubimageOffsets = regexp.MustCompile("^(\\d+),(\\d+)")
 )
 
 func (image Image) Crop(snippet ImageSnippet) string {
@@ -62,4 +68,27 @@ func recognize(
 	}
 
 	return "", errors.New(fmt.Sprintf("%s failed!", input))
+}
+
+func getSampleOffsets(
+	image string,
+	subimage string,
+) (int, int) {
+	cmd := exec.Command(subimageSearchCmd, image, subimage)
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	cmd.Run()
+
+	offsets := reSubimageOffsets.FindStringSubmatch(out.String())
+
+	x, y := -1, -1
+
+	if len(offsets) == 3 {
+		x, _ = strconv.Atoi(offsets[1])
+		y, _ = strconv.Atoi(offsets[2])
+	}
+
+	return x, y
 }

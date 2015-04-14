@@ -8,7 +8,7 @@ var (
 	cardWidth            = 46
 	cardHeight           = 30
 	handLeftCardOffsetX  = 346
-	handRightCardOffsetX = 396
+	handRightCardOffsetX = 397
 	handCardOffsetY      = 341 // 9 players, 340 for 6 players
 	handCompareThreshold = 0.05
 )
@@ -44,27 +44,56 @@ func (table *Table) HandRecognize() {
 			}},
 		}}
 
-	recognized, err := recognize(
+	_, offset := getSampleOffsets(
+		"/tmp/croc/cards",
 		table.Image.Crop(table.Hero.Hand.Cards[0].ImageSnippet),
-		cardSamples,
-		handCompareThreshold,
 	)
 
-	if err == nil {
-		table.Hero.Hand.Cards[0].Value = fmt.Sprintf("%c", recognized[0])
-		table.Hero.Hand.Cards[0].Suit = fmt.Sprintf("%c", recognized[1])
+	if offset >= 0 {
+		table.Hero.Hand.Cards[0].Value = GetValueByOffset(offset)
+		table.Hero.Hand.Cards[0].Suit = GetSuitByOffset(offset)
 	}
 
-	recognized, err = recognize(
+	_, offset = getSampleOffsets(
+		"/tmp/croc/cards",
 		table.Image.Crop(table.Hero.Hand.Cards[1].ImageSnippet),
-		cardSamples,
-		handCompareThreshold,
 	)
 
-	if err == nil {
-		table.Hero.Hand.Cards[1].Value = fmt.Sprintf("%c", recognized[0])
-		table.Hero.Hand.Cards[1].Suit = fmt.Sprintf("%c", recognized[1])
+	if offset >= 0 {
+		table.Hero.Hand.Cards[1].Value = GetValueByOffset(offset)
+		table.Hero.Hand.Cards[1].Suit = GetSuitByOffset(offset)
 	}
+}
+
+func GetSuitByOffset(offset int) string {
+	return suitOffset[(offset/cardHeight)%4]
+}
+
+func GetValueByOffset(offset int) string {
+	return cardOffset[offset/cardHeight-(offset/cardHeight)%4]
+}
+
+var cardOffset = map[int]string{
+	0:  "2",
+	4:  "3",
+	8:  "4",
+	12: "5",
+	16: "6",
+	20: "7",
+	24: "8",
+	28: "9",
+	32: "T",
+	36: "J",
+	40: "Q",
+	44: "K",
+	48: "A",
+}
+
+var suitOffset = map[int]string{
+	0: "c",
+	1: "d",
+	2: "h",
+	3: "s",
 }
 
 var cardStrength = map[string]int{
