@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
@@ -118,48 +119,53 @@ func main() {
 
 	decision := strategy.Run()
 
-	//@TODO: remember decision for current window id
-	//@TODO: implement tasks logic for current situation
-	// to make program perform 2 steps decisions by itself
-
 	if table.Window.Id != "" {
 		switch decision {
+
 		case "CHECK":
 			table.ClickCheck()
+
 		case "FOLD":
 			table.ClickFold()
 
 		case "RAISE/FOLD":
-			table.ClickRaise()
+			raiseFold(table)
+
 		case "RAISE/ALL-IN":
 			table.ClickRaise()
 
 		case "STEAL/FOLD":
-			table.ClickSteal()
+			stealFold(table)
+
 		case "STEAL/ALL-IN":
 			table.ClickSteal()
 
 		case "3-BET/FOLD if raiser >= EP":
-			table.ClickThreeBet()
+			threeBetFold(table)
+
 		case "3-BET/ALL-IN if raiser >= EP":
 			table.ClickThreeBet()
 
 		case "3-BET/FOLD if raiser >= MP":
-			table.ClickThreeBet()
+			threeBetFold(table)
+
 		case "3-BET/ALL-IN if raiser >= MP":
 			table.ClickThreeBet()
 
 		case "3-BET/FOLD if raiser >= LATER":
-			table.ClickThreeBet()
+			threeBetFold(table)
+
 		case "3-BET/ALL-IN if raiser >= LATER":
 			table.ClickThreeBet()
 
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
-			table.ClickThreeBet()
+			threeBetFold(table)
+
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= MP":
-			table.ClickThreeBet()
+			threeBetFold(table)
+
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
-			table.ClickThreeBet()
+			threeBetFold(table)
 
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
 			table.ClickThreeBet()
@@ -168,7 +174,6 @@ func main() {
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
 			table.ClickThreeBet()
 		}
-
 	}
 
 	fmt.Print("\n")
@@ -179,4 +184,52 @@ func main() {
 	}
 
 	fmt.Println(decision)
+}
+
+func raiseFold(table Table) {
+	flag := getTimeFlagname(
+		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+
+	if _, err := os.Stat(flag); os.IsNotExist(err) {
+		createFlagFile(flag)
+		table.ClickRaise()
+	} else {
+		table.ClickFold()
+	}
+}
+
+func stealFold(table Table) {
+	flag := getTimeFlagname(
+		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+
+	if _, err := os.Stat(flag); os.IsNotExist(err) {
+		createFlagFile(flag)
+		table.ClickSteal()
+	} else {
+		table.ClickFold()
+	}
+}
+
+func threeBetFold(table Table) {
+	flag := getTimeFlagname(
+		fmt.Sprintf("/tmp/croc-raise-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+
+	if _, err := os.Stat(flag); os.IsNotExist(err) {
+		createFlagFile(flag)
+		table.ClickThreeBet()
+	} else {
+		table.ClickFold()
+	}
+}
+
+func createFlagFile(name string) {
+	os.Create(name)
+}
+
+func getTimeFlagname(basename string) string {
+	timeNow := time.Now().Unix()
+	return fmt.Sprintf("%s-%d", basename, timeNow-timeNow%60)
 }
