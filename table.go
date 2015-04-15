@@ -44,34 +44,37 @@ type ImageSnippet struct {
 	OffsetY int
 }
 
-func (table Table) ClickFold() {
+func (table Table) Fold() {
 	table.Window.Click(400, 505)
 }
 
-func (table Table) ClickCheck() {
+func (table Table) Check() {
 	table.Window.Click(540, 505)
 }
 
-func (table Table) ClickRaise() {
+func (table Table) Raise() {
 	table.Window.Click(680, 440)
 	table.Window.Click(680, 505)
 }
 
-func (table Table) ClickSteal() {
+func (table Table) Steal() {
 	table.Window.Click(680, 440)
 	table.Window.Click(680, 505)
 }
 
-func (table Table) ClickThreeBet() {
+func (table Table) ThreeBet() {
 	table.Window.Click(680, 440)
 	table.Window.Click(680, 505)
 }
 
-func (table Table) ClickFastFoldToAnyBet() {
+func (table Table) AllIn() {
+	table.Window.Click(760, 440)
+	table.Window.Click(680, 505)
+}
+
+func (table Table) FastFoldToAnyBet() {
 	table.Window.Click(12, 396)
 }
-
-//@TODO:all in 760 440
 
 func (table Table) String() string {
 	myTpl := template.Must(
@@ -111,7 +114,7 @@ func (table *Table) HeroPositionRecognize() {
 	table.Hero.Position = len(positions) + 1 - table.ButtonPosition
 }
 
-func (table Table) HeroMoveIsPending() bool {
+func (table Table) HeroMoveInProgress() bool {
 	maxButton := ImageSnippet{
 		15, 23, 765, 493,
 	}
@@ -147,7 +150,7 @@ func (table Table) FoldButtonIsVisible() bool {
 	return true
 }
 
-func (table *Table) Check() bool {
+func (table *Table) Validate() bool {
 	if _, err := os.Stat(table.Image.Path); os.IsNotExist(err) {
 		table.Errors = append(
 			table.Errors, "no such file or directory: "+table.Image.Path,
@@ -161,7 +164,7 @@ func (table *Table) Check() bool {
 	return true
 }
 
-func (table Table) FastFoldToAnyBetIsUnchecked() bool {
+func (table Table) FastFoldToAnyBetIsChecked() bool {
 	fastFoldCheckbox := ImageSnippet{
 		65, 18, 5, 386,
 	}
@@ -173,8 +176,8 @@ func (table Table) FastFoldToAnyBetIsUnchecked() bool {
 	)
 
 	if err != nil {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }

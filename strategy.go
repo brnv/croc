@@ -6,7 +6,7 @@ import (
 )
 
 type Strategy struct {
-	Table    *Table
+	Table    Table
 	Messages []string
 }
 

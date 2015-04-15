@@ -51,14 +51,12 @@ func main() {
 		table.Image.Path = table.Window.Screenshot()
 	}
 
-	if !table.Check() {
+	if !table.Validate() {
 		log.Fatal(table.Errors)
 		os.Exit(1)
 	}
 
-	strategy := Strategy{
-		Table: &table,
-	}
+	strategy := Strategy{}
 
 	wg := &sync.WaitGroup{}
 
@@ -92,20 +90,27 @@ func main() {
 
 	wg.Wait()
 
+	strategy.Table = table
+
 	decision := strategy.Run()
 
-	if decision == "FOLD" {
-
-		if !table.FoldButtonIsVisible() &&
-			table.FastFoldToAnyBetIsUnchecked() {
-
-			table.ClickFastFoldToAnyBet()
+	if !table.FoldButtonIsVisible() && decision == "FOLD" {
+		if !table.FastFoldToAnyBetIsChecked() {
+			table.FastFoldToAnyBet()
+		} else {
+			os.Exit(1)
 		}
+	}
 
-	} else if !table.HeroMoveIsPending() {
+	if !table.HeroMoveInProgress() && decision != "FOLD" {
 		os.Exit(1)
-	} else {
+	}
+
+	if table.HeroMoveInProgress() && decision != "FOLD" {
 		table.BoardRecognize()
+
+		strategy.Table = table
+
 		decision = strategy.Run()
 	}
 
@@ -114,65 +119,51 @@ func main() {
 		switch decision {
 
 		case "CHECK":
-			table.ClickCheck()
+			table.Check()
 
 		case "FOLD":
-			if table.FastFoldToAnyBetIsUnchecked() {
-				table.ClickFold()
+			if !table.FastFoldToAnyBetIsChecked() {
+				table.Fold()
 			}
 
 		case "RAISE/FOLD":
 			raiseFold(table)
-
-		case "RAISE/ALL-IN":
-			table.ClickRaise()
-
 		case "STEAL/FOLD":
 			stealFold(table)
-
-		case "STEAL/ALL-IN":
-			table.ClickSteal()
-
 		case "3-BET/FOLD if raiser >= EP":
 			threeBetFold(table)
-
-		case "3-BET/ALL-IN if raiser >= EP":
-			threeBetAllIn(table)
-
 		case "3-BET/FOLD if raiser >= MP":
 			threeBetFold(table)
-
-		case "3-BET/ALL-IN if raiser >= MP":
-			threeBetAllIn(table)
-
 		case "3-BET/FOLD if raiser >= LATER":
 			threeBetFold(table)
-
-		case "3-BET/ALL-IN if raiser >= LATER":
-			threeBetAllIn(table)
-
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
 			threeBetFold(table)
-
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= MP":
 			threeBetFold(table)
-
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
 			threeBetFold(table)
 
+		case "RAISE/ALL-IN":
+			raiseAllIn(table)
+		case "STEAL/ALL-IN":
+			stealAllIn(table)
+		case "3-BET/ALL-IN if raiser >= EP":
+			threeBetAllIn(table)
+		case "3-BET/ALL-IN if raiser >= MP":
+			threeBetAllIn(table)
+		case "3-BET/ALL-IN if raiser >= LATER":
+			threeBetAllIn(table)
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
 			threeBetAllIn(table)
-
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= MP":
 			threeBetAllIn(table)
-
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
 			threeBetAllIn(table)
 
 		}
 	}
 
-	fmt.Print("\n")
+	fmt.Println()
 
 	if args["-v"].(bool) != false {
 		fmt.Println(strategy.Messages)
@@ -183,54 +174,59 @@ func main() {
 }
 
 func raiseFold(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+	table.Raise()
 
-	if _, err := os.Stat(flag); os.IsNotExist(err) {
+	if !table.FastFoldToAnyBetIsChecked() {
+		table.FastFoldToAnyBet()
+	}
+}
+
+func raiseAllIn(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
-		table.ClickRaise()
+		table.Raise()
 	} else {
-		table.ClickFold()
+		table.AllIn()
 	}
 }
 
 func stealFold(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+	table.Steal()
 
-	if !checkFlagFile(flag) {
+	if !table.FastFoldToAnyBetIsChecked() {
+		table.FastFoldToAnyBet()
+	}
+}
+
+func stealAllIn(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
-		table.ClickSteal()
+		table.Steal()
 	} else {
-		table.ClickFold()
+		table.AllIn()
 	}
 }
 
 func threeBetFold(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+	table.ThreeBet()
 
-	if !checkFlagFile(flag) {
-		createFlagFile(flag)
-		table.ClickThreeBet()
-	} else {
-		table.ClickFold()
+	if !table.FastFoldToAnyBetIsChecked() {
+		table.FastFoldToAnyBet()
 	}
 }
 
 func threeBetAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if !checkFlagFile(flag) {
-		table.ClickFold()
-		return
-	}
-
-	flag = fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !checkFlagFile(flag) {
+	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
-		table.ClickThreeBet()
+		table.ThreeBet()
 	} else {
-		//@TODO: table.ClickAllIn()
-		table.ClickThreeBet()
+		table.AllIn()
 	}
 }
 
@@ -238,7 +234,7 @@ func createFlagFile(name string) {
 	os.Create(name)
 }
 
-func checkFlagFile(flag string) bool {
+func flagFileIsOk(flag string) bool {
 	file, err := os.Stat(flag)
 
 	if os.IsNotExist(err) {
