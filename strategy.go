@@ -109,7 +109,7 @@ var threeBetFoldLATERHands = map[string][]string{
 
 // steal hands
 var stealAllInHands = []string{
-	"AA", "KK", "QQ",
+	"AA", "KK", "QQ", "JJ",
 	"AK", "AKs",
 }
 var stealFoldHandsBUandSB = []string{
@@ -126,7 +126,7 @@ var stealFoldHandsBUandSB = []string{
 }
 var stealFoldHands = map[string][]string{
 	"CO": []string{
-		"99", "88", "77", "66", "55", "44", "33", "22",
+		"TT", "99", "88", "77", "66", "55", "44", "33", "22",
 		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s", "A8s", "A7s",
 		"KQ", "KQs", "KJ", "KJs", "KTs",
 		"QJ", "QJs", "QTs",
