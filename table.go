@@ -45,26 +45,29 @@ type ImageSnippet struct {
 }
 
 func (table Table) ClickFold() {
-	table.Window.Click(440, 520)
+	table.Window.Click(400, 505)
 }
 
 func (table Table) ClickCheck() {
-	table.Window.Click(560, 520)
+	table.Window.Click(540, 505)
 }
 
 func (table Table) ClickRaise() {
-	table.Window.Click(620, 440)
-	table.Window.Click(720, 520)
+	table.Window.Click(680, 440)
+	table.Window.Click(680, 505)
 }
 
 func (table Table) ClickSteal() {
-	table.Window.Click(720, 520)
+	table.Window.Click(680, 440)
+	table.Window.Click(680, 505)
 }
 
 func (table Table) ClickThreeBet() {
-	table.Window.Click(560, 440)
-	table.Window.Click(720, 520)
+	table.Window.Click(680, 440)
+	table.Window.Click(680, 505)
 }
+
+//@TODO:all in 760 440
 
 func (table Table) String() string {
 	myTpl := template.Must(
