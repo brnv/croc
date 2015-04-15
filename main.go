@@ -92,41 +92,34 @@ func main() {
 
 	wg.Wait()
 
-	if table.FastFoldButtonIsVisible() {
-		decision := strategy.Run()
-
-		if decision == "FOLD" {
-			fmt.Print("\n")
-
-			if args["-v"].(bool) != false {
-				fmt.Println(strategy.Messages)
-				fmt.Println(table)
-			}
-
-			table.ClickFold()
-
-			fmt.Println("FAST FOLD")
-
-			os.Exit(0)
-		}
-
-		os.Exit(1)
-	} else if !table.HeroMoveIsPending() {
-		os.Exit(1)
-	}
-
-	table.BoardRecognize()
-
 	decision := strategy.Run()
 
+	if decision == "FOLD" {
+
+		if !table.FoldButtonIsVisible() &&
+			table.FastFoldToAnyBetIsUnchecked() {
+
+			table.ClickFastFoldToAnyBet()
+		}
+
+	} else if !table.HeroMoveIsPending() {
+		os.Exit(1)
+	} else {
+		table.BoardRecognize()
+		decision = strategy.Run()
+	}
+
 	if table.Window.Id != "" {
+
 		switch decision {
 
 		case "CHECK":
 			table.ClickCheck()
 
 		case "FOLD":
-			table.ClickFold()
+			if table.FastFoldToAnyBetIsUnchecked() {
+				table.ClickFold()
+			}
 
 		case "RAISE/FOLD":
 			raiseFold(table)

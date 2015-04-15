@@ -67,6 +67,10 @@ func (table Table) ClickThreeBet() {
 	table.Window.Click(680, 505)
 }
 
+func (table Table) ClickFastFoldToAnyBet() {
+	table.Window.Click(12, 396)
+}
+
 //@TODO:all in 760 440
 
 func (table Table) String() string {
@@ -125,14 +129,14 @@ func (table Table) HeroMoveIsPending() bool {
 	return true
 }
 
-func (table Table) FastFoldButtonIsVisible() bool {
+func (table Table) FoldButtonIsVisible() bool {
 	fastFoldButton := ImageSnippet{
-		128, 25, 382, 490,
+		15, 23, 382, 490,
 	}
 
 	_, err := recognize(
 		table.Image.Crop(fastFoldButton),
-		"/tmp/croc/button_fast_fold_minimized",
+		"/tmp/croc/fold_button_top_left_corner",
 		0.05,
 	)
 
@@ -151,6 +155,24 @@ func (table *Table) Check() bool {
 	}
 
 	if len(table.Errors) != 0 {
+		return false
+	}
+
+	return true
+}
+
+func (table Table) FastFoldToAnyBetIsUnchecked() bool {
+	fastFoldCheckbox := ImageSnippet{
+		65, 18, 5, 386,
+	}
+
+	_, err := recognize(
+		table.Image.Crop(fastFoldCheckbox),
+		"/tmp/croc/fast_fold_checkbox",
+		0.05,
+	)
+
+	if err != nil {
 		return false
 	}
 
