@@ -147,6 +147,8 @@ func main() {
 			raiseAllIn(table)
 		case "STEAL/ALL-IN":
 			stealAllIn(table)
+		case "3-BET/ALL-IN":
+			threeBetAllIn(table)
 		case "3-BET/ALL-IN if raiser >= EP":
 			threeBetAllIn(table)
 		case "3-BET/ALL-IN if raiser >= MP":

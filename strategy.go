@@ -304,7 +304,8 @@ func (strategy *Strategy) PreflopThreeBetStrategy() string {
 
 	for _, card := range allInHands {
 		if hand == card {
-			return "ALL-IN on 2+ raises or 3-BET on 1"
+			//return "ALL-IN on 2+ raises or 3-BET on 1"
+			return "3-BET/ALL-IN"
 		}
 	}
 
@@ -345,6 +346,8 @@ func (strategy *Strategy) PreflopThreeBetStrategy() string {
 }
 
 func (strategy *Strategy) Flop() {
+	fmt.Println("FLOP")
+
 	strategy.Messages = append(strategy.Messages, "flop")
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
