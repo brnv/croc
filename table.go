@@ -109,12 +109,12 @@ func (table *Table) HeroPositionRecognize() {
 
 func (table Table) HeroMoveIsPending() bool {
 	maxButton := ImageSnippet{
-		61, 23, 719, 432,
+		15, 23, 765, 493,
 	}
 
 	_, err := recognize(
 		table.Image.Crop(maxButton),
-		"/tmp/croc/button_max",
+		"/tmp/croc/raise_button_top_right_corner",
 		0.05,
 	)
 
