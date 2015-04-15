@@ -190,9 +190,7 @@ func main() {
 }
 
 func raiseFold(table Table) {
-	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
 	if _, err := os.Stat(flag); os.IsNotExist(err) {
 		createFlagFile(flag)
@@ -203,11 +201,9 @@ func raiseFold(table Table) {
 }
 
 func stealFold(table Table) {
-	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if _, err := os.Stat(flag); os.IsNotExist(err) {
+	if !checkFlagFile(flag) {
 		createFlagFile(flag)
 		table.ClickSteal()
 	} else {
@@ -216,11 +212,9 @@ func stealFold(table Table) {
 }
 
 func threeBetFold(table Table) {
-	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if _, err := os.Stat(flag); os.IsNotExist(err) {
+	if !checkFlagFile(flag) {
 		createFlagFile(flag)
 		table.ClickThreeBet()
 	} else {
@@ -229,20 +223,16 @@ func threeBetFold(table Table) {
 }
 
 func threeBetAllIn(table Table) {
-	flag := getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if _, err := os.Stat(flag); !os.IsNotExist(err) {
+	if !checkFlagFile(flag) {
 		table.ClickFold()
 		return
 	}
 
-	flag = getTimeFlagname(
-		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
+	flag = fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if _, err := os.Stat(flag); os.IsNotExist(err) {
+	if !checkFlagFile(flag) {
 		createFlagFile(flag)
 		table.ClickThreeBet()
 	} else {
@@ -255,7 +245,16 @@ func createFlagFile(name string) {
 	os.Create(name)
 }
 
-func getTimeFlagname(basename string) string {
-	timeNow := time.Now().Unix()
-	return fmt.Sprintf("%s-%d", basename, timeNow-timeNow%60)
+func checkFlagFile(flag string) bool {
+	file, err := os.Stat(flag)
+
+	if os.IsNotExist(err) {
+		return false
+	}
+
+	if file.ModTime().Unix() < time.Now().Unix()-60 {
+		return false
+	}
+
+	return true
 }
