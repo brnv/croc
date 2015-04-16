@@ -103,7 +103,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if table.HeroMoveInProgress() && decision != "FOLD" {
+	if table.HeroMoveInProgress() {
 		table.BoardRecognize()
 
 		strategy = Strategy{}
@@ -149,6 +149,9 @@ func main() {
 		case "3-BET/ALL-IN if raiser >= MP":
 			threeBetAllIn(table)
 		case "3-BET/ALL-IN if raiser >= LATER":
+			threeBetAllIn(table)
+
+		case "RESTEAL/ALL-IN\n3-BET/ALL-IN":
 			threeBetAllIn(table)
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
 			threeBetAllIn(table)

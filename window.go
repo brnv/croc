@@ -90,13 +90,17 @@ func (window Window) Click(offsetX int, offsetY int) {
 		return
 	}
 
-	command, _ := cmdRunner.Command(
-		fmt.Sprintf(
-			"/bin/xdotool mousemove %d %d click 1",
-			window.X+offsetX,
-			window.Y+offsetY,
-		),
+	xdotoolCmd := fmt.Sprintf(
+		"/bin/xdotool mousemove %d %d click 1",
+		window.X+offsetX,
+		window.Y+offsetY,
 	)
+
+	command, err := cmdRunner.Command(xdotoolCmd)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	command.Run()
 

@@ -206,6 +206,7 @@ func (strategy *Strategy) Preflop() string {
 		if strategyPositions[positions[heroPosition]] == laterPosition {
 			decision += fmt.Sprintf("%s\n", strategy.PreflopReStealStrategy())
 		}
+
 		if decision == "FOLD\n" {
 			decision = strategy.PreflopThreeBetStrategy()
 		} else {
