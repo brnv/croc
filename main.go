@@ -21,6 +21,8 @@ const (
 	usage = `
 	Usage:
 	croc [<filepath>] [--wid=<window_id>] [-v]`
+
+	potSaneLimitForThreeBet = 20
 )
 
 func main() {
@@ -155,6 +157,9 @@ func main() {
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
 			threeBetAllIn(table)
 
+		case "BET/ALL-IN":
+			betAllIn(table)
+
 		}
 	}
 
@@ -212,8 +217,6 @@ func stealAllIn(table Table) {
 	}
 }
 
-const potSaneLimitForThreeBet = 20
-
 func threeBetFold(table Table) {
 	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
@@ -231,6 +234,17 @@ func threeBetAllIn(table Table) {
 	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
 		table.ThreeBet()
+	} else {
+		table.AllIn()
+	}
+}
+
+func betAllIn(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if !flagFileIsOk(flag) {
+		createFlagFile(flag)
+		table.Bet()
 	} else {
 		table.AllIn()
 	}

@@ -72,6 +72,11 @@ func (table Table) AllIn() {
 	table.Window.Click(680, 505)
 }
 
+func (table Table) Bet() {
+	table.Window.Click(630, 440)
+	table.Window.Click(680, 505)
+}
+
 func (table Table) FastFoldToAnyBet() {
 	table.Window.Click(12, 396)
 }
