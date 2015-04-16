@@ -139,6 +139,13 @@ func main() {
 		case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
 			threeBetFold(table)
 
+		case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= EP":
+			threeBetFold(table)
+		case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= MP":
+			threeBetFold(table)
+		case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= LATER":
+			threeBetFold(table)
+
 		case "RAISE/ALL-IN":
 			raiseAllIn(table)
 		case "STEAL/ALL-IN":
