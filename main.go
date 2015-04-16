@@ -125,6 +125,7 @@ func main() {
 			raiseFold(table)
 		case "STEAL/FOLD":
 			stealFold(table)
+
 		case "3-BET/FOLD if raiser >= EP":
 			threeBetFold(table)
 		case "3-BET/FOLD if raiser >= MP":
@@ -179,48 +180,41 @@ func main() {
 	fmt.Println(decision)
 }
 
-func raiseFold(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
-
+func performTwoActions(firstAction func(), secondAction func(), flag string) {
 	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
-		table.Raise()
+		firstAction()
 	} else {
-		table.Fold()
+		secondAction()
 	}
+}
+
+func raiseFold(table Table) {
+	performTwoActions(
+		table.Raise, table.Fold,
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func raiseAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.Raise()
-	} else {
-		table.AllIn()
-	}
+	performTwoActions(
+		table.Raise, table.AllIn,
+		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func stealFold(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.Steal()
-	} else {
-		table.Fold()
-	}
+	performTwoActions(
+		table.Steal, table.Fold,
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func stealAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.Steal()
-	} else {
-		table.AllIn()
-	}
+	performTwoActions(
+		table.Steal, table.AllIn,
+		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func threeBetFold(table Table) {
@@ -235,36 +229,24 @@ func threeBetFold(table Table) {
 }
 
 func threeBetAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.ThreeBet()
-	} else {
-		table.AllIn()
-	}
+	performTwoActions(
+		table.ThreeBet, table.AllIn,
+		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func flopBetAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-flop-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.Bet()
-	} else {
-		table.AllIn()
-	}
+	performTwoActions(
+		table.Bet, table.AllIn,
+		fmt.Sprintf("/tmp/croc-flop-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func turnBetAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) {
-		createFlagFile(flag)
-		table.Bet()
-	} else {
-		table.AllIn()
-	}
+	performTwoActions(
+		table.Bet, table.AllIn,
+		fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func createFlagFile(name string) {
