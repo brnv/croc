@@ -22,7 +22,7 @@ const (
 	Usage:
 	croc [<filepath>] [--wid=<window_id>] [-v]`
 
-	potSaneLimitForThreeBet = 20
+	potSaneLimitForThreeBet = 18
 )
 
 func main() {
@@ -175,6 +175,7 @@ func main() {
 	if args["-v"].(bool) != false {
 		fmt.Println(strategy.Messages)
 		fmt.Println(table)
+		fmt.Println(table.Image.Path)
 	}
 
 	fmt.Println(decision)
