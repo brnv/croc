@@ -56,8 +56,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	strategy := Strategy{}
-
 	wg := &sync.WaitGroup{}
 
 	wg.Add(5)
@@ -90,16 +88,13 @@ func main() {
 
 	wg.Wait()
 
-	strategy.Table = table
+	strategy := Strategy{}
 
+	strategy.Table = table
 	decision := strategy.Run()
 
 	if !table.FoldButtonIsVisible() && decision == "FOLD" {
-		if !table.FastFoldToAnyBetIsChecked() {
-			table.FastFoldToAnyBet()
-		} else {
-			os.Exit(1)
-		}
+		os.Exit(1)
 	}
 
 	if !table.HeroMoveInProgress() && decision != "FOLD" {
@@ -109,8 +104,9 @@ func main() {
 	if table.HeroMoveInProgress() && decision != "FOLD" {
 		table.BoardRecognize()
 
-		strategy.Table = table
+		strategy = Strategy{}
 
+		strategy.Table = table
 		decision = strategy.Run()
 	}
 
@@ -120,11 +116,8 @@ func main() {
 
 		case "CHECK":
 			table.Check()
-
 		case "FOLD":
-			if !table.FastFoldToAnyBetIsChecked() {
-				table.Fold()
-			}
+			table.Fold()
 
 		case "RAISE/FOLD":
 			raiseFold(table)
@@ -176,10 +169,13 @@ func main() {
 }
 
 func raiseFold(table Table) {
-	table.Raise()
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if !table.FastFoldToAnyBetIsChecked() {
-		table.FastFoldToAnyBet()
+	if !flagFileIsOk(flag) {
+		createFlagFile(flag)
+		table.Raise()
+	} else {
+		table.Fold()
 	}
 }
 
@@ -195,10 +191,13 @@ func raiseAllIn(table Table) {
 }
 
 func stealFold(table Table) {
-	table.Steal()
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
-	if !table.FastFoldToAnyBetIsChecked() {
-		table.FastFoldToAnyBet()
+	if !flagFileIsOk(flag) {
+		createFlagFile(flag)
+		table.Steal()
+	} else {
+		table.Fold()
 	}
 }
 
@@ -213,11 +212,16 @@ func stealAllIn(table Table) {
 	}
 }
 
-func threeBetFold(table Table) {
-	table.ThreeBet()
+const potSaneLimitForThreeBet = 20
 
-	if !table.FastFoldToAnyBetIsChecked() {
-		table.FastFoldToAnyBet()
+func threeBetFold(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if !flagFileIsOk(flag) && table.Pot <= potSaneLimitForThreeBet {
+		createFlagFile(flag)
+		table.ThreeBet()
+	} else {
+		table.Fold()
 	}
 }
 
