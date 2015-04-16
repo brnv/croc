@@ -44,10 +44,16 @@ func main() {
 		if args["--wid"] != nil {
 			table.Window.Id = args["--wid"].(string)
 		} else {
-			table.Window.InitId()
+			err = table.Window.ManualSelect()
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 
-		table.Image.Path = table.Window.Screenshot()
+		table.Image.Path, err = table.Window.TakeScreenshot()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if !table.Validate() {

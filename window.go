@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -27,15 +28,23 @@ type Window struct {
 	Y  int
 }
 
-func (window *Window) InitId() {
+func (window *Window) ManualSelect() error {
 	command, _ := cmdRunner.Command(windowInfoCmd)
 
-	output, _ := command.Run()
+	output, err := command.Run()
+
+	if err != nil {
+		return err
+	}
 
 	matches := reWindowId.FindStringSubmatch(output[4])
 	if len(matches) != 0 {
 		window.Id = matches[1]
+	} else {
+		return errors.New("Can't obtain window id")
 	}
+
+	return nil
 }
 
 func (window *Window) InitCoordinates() {
@@ -59,10 +68,10 @@ func (window *Window) InitCoordinates() {
 	}
 }
 
-func (window Window) Screenshot() string {
+func (window Window) TakeScreenshot() (string, error) {
 	screenshot, err := getTmpFilename()
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	command, err := cmdRunner.Command(fmt.Sprintf(
@@ -70,15 +79,15 @@ func (window Window) Screenshot() string {
 	))
 
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	_, err = command.Run()
 	if err != nil {
-		return ""
+		return "", err
 	}
 
-	return screenshot
+	return screenshot, nil
 }
 
 func (window Window) Click(offsetX int, offsetY int) {
