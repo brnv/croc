@@ -355,7 +355,7 @@ func (strategy *Strategy) Flop() string {
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
 		//"BET/ALL-IN or RERAISE"
-		return "BET/ALL-IN"
+		return "FLOP BET/ALL-IN"
 	}
 
 	//@TODO: automate below logic
@@ -403,7 +403,7 @@ func (strategy *Strategy) Turn() string {
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
 		//"BET/ALL-IN or RERAISE"
-		return "BET/ALL-IN"
+		return "TURN BET/ALL-IN"
 	}
 
 	//@TODO: automate below logic

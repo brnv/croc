@@ -160,8 +160,11 @@ func main() {
 		case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
 			threeBetAllIn(table)
 
-		case "BET/ALL-IN":
-			betAllIn(table)
+		case "FLOP BET/ALL-IN":
+			flopBetAllIn(table)
+
+		case "TURN BET/ALL-IN":
+			turnBetAllIn(table)
 
 		}
 	}
@@ -242,8 +245,19 @@ func threeBetAllIn(table Table) {
 	}
 }
 
-func betAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-bet-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+func flopBetAllIn(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-flop-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if !flagFileIsOk(flag) {
+		createFlagFile(flag)
+		table.Bet()
+	} else {
+		table.AllIn()
+	}
+}
+
+func turnBetAllIn(table Table) {
+	flag := fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id)
 
 	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
