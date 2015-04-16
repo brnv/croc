@@ -243,7 +243,7 @@ func threeBetAllIn(table Table) {
 }
 
 func betAllIn(table Table) {
-	flag := fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id)
+	flag := fmt.Sprintf("/tmp/croc-bet-allin-%s-%s", table.Hero.Hand, table.Window.Id)
 
 	if !flagFileIsOk(flag) {
 		createFlagFile(flag)
