@@ -92,13 +92,13 @@ var threeBetAllInHands = map[string][]string{
 }
 var threeBetFoldMPHands = map[string][]string{
 	"MP": []string{
-		"JJ", "TT", "99",
-		"AQ", "AQs", "AJ", "AJs", "ATs",
+		"JJ", "TT", "99", "88",
+		"AQ", "AQs", "AJs",
 	},
 }
 var threeBetFoldHandsLatePosition = []string{
-	"TT", "99", "88",
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+	"TT", "99", "88", "77",
+	"AQ", "AQs", "AJ", "AJs", "ATs",
 }
 var threeBetFoldLATERHands = map[string][]string{
 	"CO": threeBetFoldHandsLatePosition,
