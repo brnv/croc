@@ -102,19 +102,7 @@ func main() {
 	}
 
 	if table.HeroMoveInProgress() {
-		wg.Add(2)
-
-		go func() {
-			table.BoardRecognize()
-			wg.Done()
-		}()
-
-		go func() {
-			table.HeroChipsRecognize()
-			wg.Done()
-		}()
-
-		wg.Wait()
+		table.BoardRecognize()
 
 		strategy = Strategy{}
 
