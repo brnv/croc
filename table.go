@@ -308,8 +308,10 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "CHECK/FOLD":
 		table.CheckFold()
 
-	case "C-BET/FOLD":
-		table.ContBetFold()
+	case "FLOP C-BET/FOLD":
+		table.ContBetFold("flop")
+	case "TURN C-BET/FOLD":
+		table.ContBetFold("turn")
 
 	case "FLOP UNKNOWN":
 		table.WaitCheckFold("flop")
@@ -338,10 +340,14 @@ func (table Table) WaitCheckFold(street string) {
 	}
 }
 
-func (table Table) ContBetFold() {
+func (table Table) ContBetFold(street string) {
 	performTwoActions(
 		table.ContBet, table.Fold,
-		fmt.Sprintf("/tmp/croc-c-bet-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+		fmt.Sprintf(
+			"/tmp/croc-%s-c-bet-fold-%s-%s",
+			street,
+			table.Hero.Hand,
+			table.Window.Id),
 	)
 }
 

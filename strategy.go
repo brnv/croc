@@ -368,13 +368,13 @@ func (strategy *Strategy) Flop() string {
 			// assuming we are on freeplay
 			return "FLOP CHECK/FOLD"
 		} else if strategy.Table.Pot <= 35 {
-			return "C-BET/FOLD"
+			return "FLOP C-BET/FOLD"
 		}
 	}
 
 	for _, card := range contBetPairs {
 		if hand == card && strategy.Table.Pot <= 35 {
-			return "C-BET/FOLD"
+			return "FLOP C-BET/FOLD"
 		}
 	}
 
@@ -382,8 +382,8 @@ func (strategy *Strategy) Flop() string {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			if strategy.Table.Pot <= 35 {
-				return "C-BET/FOLD"
+			if strategy.Table.Pot <= 8 {
+				return "FLOP C-BET/FOLD"
 			}
 		}
 	}
@@ -438,7 +438,7 @@ func (strategy *Strategy) Turn() string {
 			return "CHECK/FOLD"
 		}
 
-		return "C-BET/FOLD"
+		return "TURN C-BET/FOLD"
 	}
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
