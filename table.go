@@ -236,8 +236,9 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "FOLD":
 		table.HeroChipsRecognize()
 
-		if table.Hero.Chips >= sitOutTopChipsAmount ||
-			table.Hero.Chips <= sitOutBottomChipsAmount {
+		if table.Chips != 0 &&
+			(table.Hero.Chips >= sitOutTopChipsAmount ||
+				table.Hero.Chips <= sitOutBottomChipsAmount) {
 			table.SitOut()
 		} else {
 			table.Fold()
