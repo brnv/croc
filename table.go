@@ -17,7 +17,7 @@ const (
 	board {{.Board}}, 
 	pot {{.Pot}}]`
 
-	potSaneLimitForThreeBet = 18
+	potSaneLimitForThreeBet = 17
 )
 
 type Table struct {
