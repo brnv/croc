@@ -311,14 +311,20 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "C-BET/FOLD":
 		table.ContBetFold()
 
-	case "UNKNOWN":
-		table.WaitCheckFold()
+	case "FLOP UNKNOWN":
+		table.WaitCheckFold("flop")
+	case "TURN UNKNOWN":
+		table.WaitCheckFold("turn")
+	case "RIVER UNKNOWN":
+		table.WaitCheckFold("river")
+
 	}
 }
 
-func (table Table) WaitCheckFold() {
+func (table Table) WaitCheckFold(street string) {
 	flag := fmt.Sprintf(
-		"/tmp/croc-user-wait-check-fold-%s-%s",
+		"/tmp/croc-%s-wait-check-fold-%s-%s",
+		street,
 		table.Hero.Hand,
 		table.Window.Id,
 	)

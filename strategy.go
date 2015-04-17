@@ -404,7 +404,7 @@ func (strategy *Strategy) Flop() string {
 
 	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD;")
 
-	return "UNKNOWN"
+	return "FLOP UNKNOWN"
 }
 
 func (strategy *Strategy) Turn() string {
@@ -453,7 +453,7 @@ func (strategy *Strategy) Turn() string {
 		),
 	)
 
-	return "UNKNOWN"
+	return "TURN UNKNOWN"
 }
 
 func (strategy *Strategy) River() string {
@@ -476,5 +476,5 @@ func (strategy *Strategy) River() string {
 	fmt.Println("monster: BET/RAISE or BET/CALL;")
 	fmt.Println("anything else: CHECK/FOLD;")
 
-	return "UNKNOWN"
+	return "RIVER UNKNOWN"
 }
