@@ -98,7 +98,7 @@ var threeBetFoldMPHands = map[string][]string{
 }
 var threeBetFoldHandsLatePosition = []string{
 	"TT", "99", "88", "77",
-	"AQ", "AQs", "AJ", "AJs", "ATs",
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs",
 }
 var threeBetFoldLATERHands = map[string][]string{
 	"CO": threeBetFoldHandsLatePosition,
@@ -138,7 +138,7 @@ var stealFoldHands = map[string][]string{
 var reStealFoldHands = map[string][]string{
 	"BB": []string{
 		"99", "88",
-		"AQ", "AQs", "AJ", "AJs",
+		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
 	},
 }
 
