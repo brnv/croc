@@ -19,7 +19,8 @@ const (
 	pot {{.Pot}}]`
 
 	potSaneLimitForThreeBet = 17
-	sitOutChipsAmount       = 230
+	sitOutTopChipsAmount    = 230
+	sitOutBottomChipsAmount = 50
 )
 
 type Table struct {
@@ -235,7 +236,8 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "FOLD":
 		table.HeroChipsRecognize()
 
-		if table.Hero.Chips >= sitOutChipsAmount {
+		if table.Hero.Chips >= sitOutTopChipsAmount ||
+			table.Hero.Chips <= sitOutBottomChipsAmount {
 			table.SitOut()
 		} else {
 			table.Fold()
