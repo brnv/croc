@@ -1,5 +1,6 @@
 package main
 
+import "strconv"
 import "strings"
 
 //@TODO: move to config
@@ -66,7 +67,7 @@ func (table *Table) HeroChipsRecognize() {
 		chipsCount += digit
 	}
 
-	table.Hero.Chips = strings.TrimLeft(chipsCount, "0")
+	table.Hero.Chips, _ = strconv.Atoi(strings.TrimLeft(chipsCount, "0"))
 }
 
 func (chips Chips) GetChipsImageSnippets(offsets []int) []ImageSnippet {

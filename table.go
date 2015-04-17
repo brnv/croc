@@ -15,9 +15,11 @@ const (
 	[hand {{.Hero.Hand}}, 
 	position {{.Hero.Position}}, 
 	board {{.Board}}, 
+	chips {{.Hero.Chips}}, 
 	pot {{.Pot}}]`
 
 	potSaneLimitForThreeBet = 17
+	sitOutChipsAmount       = 230
 )
 
 type Table struct {
@@ -36,7 +38,7 @@ type Image struct {
 }
 
 type Hero struct {
-	Chips    string
+	Chips    int
 	Hand     Hand
 	Position int
 }
@@ -48,12 +50,24 @@ type ImageSnippet struct {
 	OffsetY int
 }
 
+func (table Table) SitOut() {
+	table.Window.Click(12, 410)
+	table.Fold()
+}
+
 func (table Table) Fold() {
 	table.Window.Click(400, 505)
 }
 
 func (table Table) Check() {
-	table.Window.Click(540, 505)
+	if table.CheckButtonIsVisible() {
+		table.Window.Click(540, 505)
+	}
+}
+
+func (table Table) Call() {
+	// same button
+	table.Check()
 }
 
 func (table Table) Raise() {
@@ -83,6 +97,11 @@ func (table Table) Bet() {
 
 func (table Table) FastFoldToAnyBet() {
 	table.Window.Click(12, 396)
+}
+
+func (table Table) ContBet() {
+	table.Window.Click(600, 440)
+	table.Window.Click(680, 505)
 }
 
 func (table Table) String() string {
@@ -131,6 +150,24 @@ func (table Table) HeroMoveInProgress() bool {
 	_, err := recognize(
 		table.Image.Crop(maxButton),
 		"/tmp/croc/raise_button_top_right_corner",
+		0.05,
+	)
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (table Table) CheckButtonIsVisible() bool {
+	fastFoldButton := ImageSnippet{
+		120, 23, 522, 494,
+	}
+
+	_, err := recognize(
+		table.Image.Crop(fastFoldButton),
+		"/tmp/croc/button_check",
 		0.05,
 	)
 
@@ -196,6 +233,12 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "CHECK":
 		table.Check()
 	case "FOLD":
+		if table.Hero.Chips >= sitOutChipsAmount {
+			table.SitOut()
+		} else {
+			table.Fold()
+		}
+	case "RESTEAL/FOLD\nFOLD":
 		table.Fold()
 
 	case "RAISE/FOLD":
@@ -250,7 +293,59 @@ func (table Table) PerformAutomatedActions(decision string) {
 
 	case "TURN BET/ALL-IN":
 		table.TurnBetAllIn()
+
+	case "RIVER BET/CALL":
+		table.RiverBetCall()
+
+	case "FLOP CHECK/FOLD":
+		table.FlopCheckFold()
+
+	case "CHECK/FOLD":
+		table.CheckFold()
+
+	case "C-BET/FOLD":
+		table.ContBetFold()
+
+	case "UNKNOWN":
+		table.WaitCheckFold()
 	}
+}
+
+func (table Table) WaitCheckFold() {
+	flag := fmt.Sprintf(
+		"/tmp/croc-user-wait-check-fold-%s-%s",
+		table.Hero.Hand,
+		table.Window.Id,
+	)
+
+	file, err := os.Stat(flag)
+
+	if os.IsNotExist(err) {
+		createFlagFile(flag)
+	} else if file.ModTime().Unix() < time.Now().Unix()-10 {
+		table.CheckFold()
+	}
+}
+
+func (table Table) ContBetFold() {
+	performTwoActions(
+		table.ContBet, table.Fold,
+		fmt.Sprintf("/tmp/croc-c-bet-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) FlopCheckFold() {
+	performTwoActions(
+		table.Check, table.Fold,
+		fmt.Sprintf("/tmp/croc-flop-check-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) CheckFold() {
+	performTwoActions(
+		table.Check, table.Fold,
+		fmt.Sprintf("/tmp/croc-check-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func (table Table) RaiseFold() {
@@ -293,6 +388,12 @@ func (table Table) ThreeBetFold() {
 }
 
 func (table Table) ThreeBetAllIn() {
+	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
+
+	if flagFileIsOk(flag) {
+		table.Fold()
+	}
+
 	performTwoActions(
 		table.ThreeBet, table.AllIn,
 		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
@@ -310,6 +411,13 @@ func (table Table) TurnBetAllIn() {
 	performTwoActions(
 		table.Bet, table.AllIn,
 		fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) RiverBetCall() {
+	performTwoActions(
+		table.Bet, table.Call,
+		fmt.Sprintf("/tmp/croc-river-call-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 }
 

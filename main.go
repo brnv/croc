@@ -63,7 +63,7 @@ func main() {
 
 	wg := &sync.WaitGroup{}
 
-	wg.Add(5)
+	wg.Add(4)
 
 	go func() {
 		table.HandRecognize()
@@ -86,11 +86,6 @@ func main() {
 		wg.Done()
 	}()
 
-	go func() {
-		//table.HeroChipsRecognize()
-		wg.Done()
-	}()
-
 	wg.Wait()
 
 	strategy := Strategy{}
@@ -107,7 +102,19 @@ func main() {
 	}
 
 	if table.HeroMoveInProgress() {
-		table.BoardRecognize()
+		wg.Add(2)
+
+		go func() {
+			table.BoardRecognize()
+			wg.Done()
+		}()
+
+		go func() {
+			table.HeroChipsRecognize()
+			wg.Done()
+		}()
+
+		wg.Wait()
 
 		strategy = Strategy{}
 

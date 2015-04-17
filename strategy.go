@@ -142,6 +142,10 @@ var reStealFoldHands = map[string][]string{
 	},
 }
 
+var contBetPairs = []string{
+	"JJ", "TT",
+}
+
 func (strategy *Strategy) Run() string {
 	err := strategy.CheckInput()
 
@@ -349,6 +353,7 @@ func (strategy *Strategy) Flop() string {
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 	completedCombination := hero.Hand.GetCompletedCombination(board)
+	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	if completedCombination.OverPair ||
 		completedCombination.Three ||
@@ -358,21 +363,32 @@ func (strategy *Strategy) Flop() string {
 		return "FLOP BET/ALL-IN"
 	}
 
-	//@TODO: automate below logic
-
 	if completedCombination.TopPair {
-		fmt.Println("C-BET/FOLD or FOLD;")
-		fmt.Println("freeplay: CHECK/FOLD;")
-		return ""
+		if strategy.Table.Pot <= 10 {
+			// assuming we are on freeplay
+			return "FLOP CHECK/FOLD"
+		} else if strategy.Table.Pot <= 35 {
+			return "C-BET/FOLD"
+		}
+	}
+
+	for _, card := range contBetPairs {
+		if hand == card && strategy.Table.Pot <= 35 {
+			return "C-BET/FOLD"
+		}
 	}
 
 	emptyCombination := hero.Hand.GetEmptyCombination(board)
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			fmt.Println("overcards: 1 opponent: C-BET/FOLD or FOLD;")
+			if strategy.Table.Pot <= 35 {
+				return "C-BET/FOLD"
+			}
 		}
 	}
+
+	//@TODO: automate below logic
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
 
@@ -388,7 +404,7 @@ func (strategy *Strategy) Flop() string {
 
 	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD;")
 
-	return ""
+	return "UNKNOWN"
 }
 
 func (strategy *Strategy) Turn() string {
@@ -406,12 +422,23 @@ func (strategy *Strategy) Turn() string {
 		return "TURN BET/ALL-IN"
 	}
 
+	emptyCombination := hero.Hand.GetEmptyCombination(board)
+
+	if emptyCombination.String() != "" {
+		if emptyCombination.OverCards {
+			return "CHECK/FOLD"
+		}
+	}
+
 	//@TODO: automate below logic
 
 	if completedCombination.TopPair {
-		fmt.Println("C-BET/FOLD or FOLD;")
-		fmt.Println("freeplay: CHECK/FOLD;")
-		return ""
+		if strategy.Table.Pot <= 10 {
+			// assuming we are on freeplay
+			return "CHECK/FOLD"
+		}
+
+		return "C-BET/FOLD"
 	}
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
@@ -426,16 +453,28 @@ func (strategy *Strategy) Turn() string {
 		),
 	)
 
-	return ""
+	return "UNKNOWN"
 }
 
 func (strategy *Strategy) River() string {
 	fmt.Println("RIVER")
 
+	hero := strategy.Table.Hero
+	board := strategy.Table.Board
+	completedCombination := hero.Hand.GetCompletedCombination(board)
+
+	if completedCombination.OverPair ||
+		completedCombination.Three ||
+		completedCombination.Triplet ||
+		completedCombination.TopPair ||
+		completedCombination.TwoPairs {
+		return "RIVER BET/CALL"
+	}
+
 	//@TODO: automate this logic
 
-	fmt.Println("monster, overpair, top pair: BET/RAISE or BET/CALL;")
+	fmt.Println("monster: BET/RAISE or BET/CALL;")
 	fmt.Println("anything else: CHECK/FOLD;")
 
-	return ""
+	return "UNKNOWN"
 }
