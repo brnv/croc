@@ -359,8 +359,7 @@ func (strategy *Strategy) Flop() string {
 		completedCombination.Three ||
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
-		//"BET/ALL-IN or RERAISE"
-		return "FLOP BET/ALL-IN"
+		return "FLOP UNKNOWN"
 	}
 
 	if completedCombination.TopPair {
@@ -382,7 +381,7 @@ func (strategy *Strategy) Flop() string {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			if strategy.Table.Pot <= 8 {
+			if strategy.Table.Pot <= 15 {
 				return "FLOP C-BET/FOLD"
 			}
 		}
@@ -419,7 +418,8 @@ func (strategy *Strategy) Turn() string {
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
 		//"BET/ALL-IN or RERAISE"
-		return "TURN BET/ALL-IN"
+		//return "TURN BET/ALL-IN"
+		return "TURN UNKNOWN"
 	}
 
 	emptyCombination := hero.Hand.GetEmptyCombination(board)
@@ -468,7 +468,7 @@ func (strategy *Strategy) River() string {
 		completedCombination.Triplet ||
 		completedCombination.TopPair ||
 		completedCombination.TwoPairs {
-		return "RIVER BET/CALL"
+		return "RIVER UNKNOWN"
 	}
 
 	//@TODO: automate this logic
