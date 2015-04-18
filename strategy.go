@@ -366,7 +366,7 @@ func (strategy *Strategy) FlopDecision() string {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
-			if strategy.Table.Pot <= 15 {
+			if strategy.Table.Pot <= 16 {
 				return "FLOP C-BET/FOLD"
 			}
 		}
