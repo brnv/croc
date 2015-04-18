@@ -17,10 +17,6 @@ const (
 	board {{.Board}}, 
 	chips {{.Hero.Chips}}, 
 	pot {{.Pot}}]`
-
-	potSaneLimitForThreeBet = 17
-	sitOutTopChipsAmount    = 230
-	sitOutBottomChipsAmount = 50
 )
 
 type Table struct {
@@ -219,10 +215,17 @@ func (table Table) FastFoldToAnyBetIsChecked() bool {
 	return false
 }
 
+const (
+	sitOutTopChipsAmount    = 230
+	sitOutBottomChipsAmount = 50
+)
+
 func (table Table) PerformAutomatedActions(decision string) {
 	switch decision {
+
 	case "CHECK":
 		table.Check()
+
 	case "FOLD":
 		table.HeroChipsRecognize()
 
@@ -233,14 +236,15 @@ func (table Table) PerformAutomatedActions(decision string) {
 		} else {
 			table.Fold()
 		}
+
 	case "RAISE/ALL-IN":
 		table.RaiseAllIn()
-	case "RAISE/MANUAL":
-		table.RaisePlayerMove()
+
 	case "RAISE/FOLD":
 		table.RaiseFold()
-	case "3-BET/FOLD":
-		table.ThreeBetFold()
+
+	case "RAISE/MANUAL":
+		table.RaisePlayerMove()
 
 	case "FLOP CHECK/FOLD":
 		table.FlopCheckFold()
@@ -250,15 +254,7 @@ func (table Table) PerformAutomatedActions(decision string) {
 
 	case "FLOP C-BET/FOLD":
 		table.ContBetFold("flop")
-	case "TURN C-BET/FOLD":
-		table.ContBetFold("turn")
 
-	case "MANUAL FLOP":
-		table.WaitCheckFold("flop")
-	case "MANUAL TURN":
-		table.WaitCheckFold("turn")
-	case "MANUAL RIVER":
-		table.WaitCheckFold("river")
 	}
 }
 
@@ -297,23 +293,6 @@ func (table Table) WaitFold() {
 	}
 }
 
-func (table Table) WaitCheckFold(street string) {
-	flag := fmt.Sprintf(
-		"/tmp/croc-%s-wait-check-fold-%s-%s",
-		street,
-		table.Hero.Hand,
-		table.Window.Id,
-	)
-
-	file, err := os.Stat(flag)
-
-	if os.IsNotExist(err) {
-		createFlagFile(flag)
-	} else if file.ModTime().Unix() < time.Now().Unix()-10 {
-		table.CheckFold()
-	}
-}
-
 func (table Table) ContBetFold(street string) {
 	performTwoActions(
 		table.ContBet, table.Fold,
@@ -338,18 +317,6 @@ func (table Table) CheckFold() {
 		fmt.Sprintf("/tmp/croc-check-fold-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 }
-
-func (table Table) ThreeBetFold() {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if !flagFileIsOk(flag) && table.Pot <= potSaneLimitForThreeBet {
-		createFlagFile(flag)
-		table.Raise()
-	} else {
-		table.Fold()
-	}
-}
-
 func performTwoActions(firstAction func(), secondAction func(), flag string) {
 	if !flagFileIsOk(flag) {
 		createFlagFile(flag)

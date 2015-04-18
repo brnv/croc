@@ -45,35 +45,35 @@ func (strategy *Strategy) Run() string {
 	boardCardsCount := len(strategy.Table.Board.Cards)
 
 	if boardCardsCount == 0 {
-		return strategy.Preflop()
+		return strategy.PreflopDecision()
 	}
 
 	if boardCardsCount == 3 {
-		return strategy.Flop()
+		return strategy.FlopDecision()
 	} else if boardCardsCount == 4 {
-		return strategy.Turn()
+		return strategy.TurnDecision()
 	}
 
-	return strategy.River()
+	return strategy.RiverDecision()
 }
 
-func (strategy *Strategy) Preflop() string {
+func (strategy *Strategy) PreflopDecision() string {
 	strategy.Messages = append(strategy.Messages, "preflop")
 
 	if strategy.PreflopRaiseSituation() {
-		return strategy.PreflopRaiseStrategy()
+		return strategy.PreflopRaiseDecision()
 	}
 
 	if strategy.PreflopStealSituation() {
-		return strategy.PreflopStealStrategy()
+		return strategy.PreflopStealDecision()
 	}
 
 	if strategy.PreflopThreeBetSituation() {
-		return strategy.PreflopThreeBetStrategy()
+		return strategy.PreflopThreeBetDecision()
 	}
 
 	if strategy.PreflopRestealSituation() {
-		return strategy.PreflopRestealStrategy()
+		return strategy.PreflopRestealDecision()
 	}
 
 	return "MANUAL"
@@ -165,7 +165,7 @@ var raiseFoldHands = map[string][]string{
 	"BB": raiseFoldHandsLatePosition,
 }
 
-func (strategy *Strategy) PreflopRaiseStrategy() string {
+func (strategy *Strategy) PreflopRaiseDecision() string {
 	strategy.Messages = append(strategy.Messages, "raise")
 
 	position := positions[strategy.Table.Hero.Position]
@@ -225,7 +225,7 @@ var stealFoldHands = map[string][]string{
 	"SB": stealFoldHandsBUandSB,
 }
 
-func (strategy *Strategy) PreflopStealStrategy() string {
+func (strategy *Strategy) PreflopStealDecision() string {
 	strategy.Messages = append(strategy.Messages, "steal")
 
 	position := positions[strategy.Table.Hero.Position]
@@ -262,7 +262,7 @@ var restealFoldHands = []string{
 	"99", "88",
 }
 
-func (strategy *Strategy) PreflopRestealStrategy() string {
+func (strategy *Strategy) PreflopRestealDecision() string {
 	strategy.Messages = append(strategy.Messages, "resteal")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
@@ -293,7 +293,9 @@ var threeBetFoldMPHands = []string{
 	"TT", "99", "88", "77",
 }
 
-func (strategy *Strategy) PreflopThreeBetStrategy() string {
+const potSaneLimitForThreeBet = 18
+
+func (strategy *Strategy) PreflopThreeBetDecision() string {
 	strategy.Messages = append(strategy.Messages, "3-bet")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
@@ -304,6 +306,10 @@ func (strategy *Strategy) PreflopThreeBetStrategy() string {
 		}
 	}
 
+	if strategy.Table.Pot > potSaneLimitForThreeBet {
+		return "MANUAL"
+	}
+
 	for _, card := range raiseWaitPlayerHands {
 		if hand == card {
 			return "RAISE/MANUAL"
@@ -312,7 +318,7 @@ func (strategy *Strategy) PreflopThreeBetStrategy() string {
 
 	for _, card := range threeBetFoldMPHands {
 		if hand == card {
-			return "3-BET/FOLD"
+			return "RAISE/FOLD"
 		}
 	}
 
@@ -323,7 +329,7 @@ var contBetPairs = []string{
 	"JJ", "TT",
 }
 
-func (strategy *Strategy) Flop() string {
+func (strategy *Strategy) FlopDecision() string {
 	strategy.Messages = append(strategy.Messages, "flop")
 
 	hero := strategy.Table.Hero
@@ -335,12 +341,11 @@ func (strategy *Strategy) Flop() string {
 		completedCombination.Three ||
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
-		return "MANUAL FLOP"
+		return "MANUAL"
 	}
 
 	if completedCombination.TopPair {
 		if strategy.Table.Pot <= 10 {
-			// assuming we are on freeplay
 			return "FLOP CHECK/FOLD"
 		} else if strategy.Table.Pot <= 35 {
 			return "FLOP C-BET/FOLD"
@@ -379,10 +384,10 @@ func (strategy *Strategy) Flop() string {
 
 	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD;")
 
-	return "MANUAL FLOP"
+	return "MANUAL"
 }
 
-func (strategy *Strategy) Turn() string {
+func (strategy *Strategy) TurnDecision() string {
 	strategy.Messages = append(strategy.Messages, "turn")
 
 	hero := strategy.Table.Hero
@@ -393,7 +398,7 @@ func (strategy *Strategy) Turn() string {
 		completedCombination.Three ||
 		completedCombination.Triplet ||
 		completedCombination.TwoPairs {
-		return "MANUAL TURN"
+		return "MANUAL"
 	}
 
 	emptyCombination := hero.Hand.GetEmptyCombination(board)
@@ -412,7 +417,7 @@ func (strategy *Strategy) Turn() string {
 			return "CHECK/FOLD"
 		}
 
-		return "TURN C-BET/FOLD"
+		return "MANUAL"
 	}
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
@@ -427,10 +432,10 @@ func (strategy *Strategy) Turn() string {
 		),
 	)
 
-	return "MANUAL TURN"
+	return "MANUAL"
 }
 
-func (strategy *Strategy) River() string {
+func (strategy *Strategy) RiverDecision() string {
 	strategy.Messages = append(strategy.Messages, "river")
 
 	hero := strategy.Table.Hero
@@ -442,7 +447,7 @@ func (strategy *Strategy) River() string {
 		completedCombination.Triplet ||
 		completedCombination.TopPair ||
 		completedCombination.TwoPairs {
-		return "MANUAL RIVER"
+		return "MANUAL"
 	}
 
 	//@TODO: automate this logic
@@ -450,7 +455,7 @@ func (strategy *Strategy) River() string {
 	fmt.Println("monster: BET/RAISE or BET/CALL;")
 	fmt.Println("anything else: CHECK/FOLD;")
 
-	return "MANUAL RIVER"
+	return "MANUAL"
 }
 
 func (strategy Strategy) CheckInput() error {
