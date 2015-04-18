@@ -271,6 +271,9 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= LATER":
 		table.ThreeBetFold()
 
+	case "RAISE/WAIT PLAYER":
+		table.RaiseWaitPlayer()
+
 	case "RAISE/ALL-IN":
 		table.RaiseAllIn()
 	case "STEAL/ALL-IN":
@@ -321,6 +324,13 @@ func (table Table) PerformAutomatedActions(decision string) {
 		table.WaitCheckFold("river")
 
 	}
+}
+
+func (table Table) RaiseWaitPlayer() {
+	performTwoActions(
+		table.Raise, func() {},
+		fmt.Sprintf("/tmp/croc-wait-player-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func (table Table) WaitCheckFold(street string) {

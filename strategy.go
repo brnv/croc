@@ -36,44 +36,6 @@ var strategyPositions = map[string]string{
 	"BB": laterPosition,
 }
 
-// hero position's raise hands
-var raisePushHandsLatePosition = []string{
-	"AA", "KK", "QQ", "JJ",
-	"AK", "AKs",
-}
-var raisePushHands = map[string][]string{
-	"EP": []string{
-		"AA", "KK", "QQ",
-	},
-	"MP": []string{
-		"AA", "KK", "QQ",
-		"AK", "AKs",
-	},
-	"CO": raisePushHandsLatePosition,
-	"BU": raisePushHandsLatePosition,
-	"SB": raisePushHandsLatePosition,
-	"BB": raisePushHandsLatePosition,
-}
-var raiseFoldHandsLatePosition = []string{
-	"TT", "99", "88", "77",
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
-	"KQ", "KQs",
-}
-var raiseFoldHands = map[string][]string{
-	"EP": []string{
-		"JJ", "TT",
-		"AK", "AKs", "AQ", "AQs", "AJs",
-	},
-	"MP": []string{
-		"JJ", "TT", "99", "88",
-		"AQ", "AQs", "AJ", "AJs", "ATs",
-	},
-	"CO": raiseFoldHandsLatePosition,
-	"BU": raiseFoldHandsLatePosition,
-	"SB": raiseFoldHandsLatePosition,
-	"BB": raiseFoldHandsLatePosition,
-}
-
 // raiser position's 3-bet hands
 var allInHands = []string{
 	"AA", "KK",
@@ -247,6 +209,32 @@ func (strategy *Strategy) PreflopStealStrategy() string {
 	return "FOLD"
 }
 
+var pushHands = []string{
+	"AA", "KK",
+}
+var raiseWaitPlayerHands = []string{
+	"QQ", "JJ", "AK", "AKs",
+}
+var raiseFoldHandsLatePosition = []string{
+	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
+	"KQ", "KQs",
+	"TT", "99", "88", "77",
+}
+var raiseFoldHands = map[string][]string{
+	"EP": []string{
+		"AK", "AKs", "AQ", "AQs", "AJs",
+		"TT",
+	},
+	"MP": []string{
+		"AQ", "AQs", "AJ", "AJs", "ATs",
+		"TT", "99", "88",
+	},
+	"CO": raiseFoldHandsLatePosition,
+	"BU": raiseFoldHandsLatePosition,
+	"SB": raiseFoldHandsLatePosition,
+	"BB": raiseFoldHandsLatePosition,
+}
+
 func (strategy *Strategy) PreflopRaiseStrategy() string {
 	strategy.Messages = append(strategy.Messages, "raise")
 
@@ -254,9 +242,15 @@ func (strategy *Strategy) PreflopRaiseStrategy() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, element := range raisePushHands[position] {
-		if element == hand {
+	for _, card := range pushHands {
+		if hand == card {
 			return "RAISE/ALL-IN"
+		}
+	}
+
+	for _, card := range raiseWaitPlayerHands {
+		if hand == card {
+			return "RAISE/WAIT PLAYER"
 		}
 	}
 
@@ -264,10 +258,6 @@ func (strategy *Strategy) PreflopRaiseStrategy() string {
 		if element == hand {
 			return "RAISE/FOLD"
 		}
-	}
-
-	if position == "SB" {
-		//return "LIMP or FOLD"
 	}
 
 	if position == "BB" {
