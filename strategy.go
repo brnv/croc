@@ -337,18 +337,33 @@ func (strategy *Strategy) FlopDecision() string {
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	if completedCombination.OverPair ||
-		completedCombination.Three ||
-		completedCombination.Triplet ||
-		completedCombination.TwoPairs {
+	if completedCombination.OverPair {
+		strategy.Messages = append(strategy.Messages, "overpair")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.Three || completedCombination.Triplet {
+		strategy.Messages = append(strategy.Messages, "three")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.TwoPairs {
+		strategy.Messages = append(strategy.Messages, "two pairs")
+
 		return "MANUAL"
 	}
 
 	if completedCombination.StrongTopPair {
+		strategy.Messages = append(strategy.Messages, "strong top pair")
+
 		return "MANUAL"
 	}
 
 	if completedCombination.TopPair {
+		strategy.Messages = append(strategy.Messages, "top pair")
+
 		if strategy.Table.Pot <= 10 {
 			return "FLOP CHECK/FOLD"
 		} else if strategy.Table.Pot <= 35 {
@@ -358,6 +373,8 @@ func (strategy *Strategy) FlopDecision() string {
 
 	for _, card := range contBetPairs {
 		if hand == card && strategy.Table.Pot <= 35 {
+			strategy.Messages = append(strategy.Messages, "pair")
+
 			return "FLOP C-BET/FOLD"
 		}
 	}
@@ -366,6 +383,8 @@ func (strategy *Strategy) FlopDecision() string {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
+			strategy.Messages = append(strategy.Messages, "overcards")
+
 			if strategy.Table.Pot <= 16 {
 				return "FLOP C-BET/FOLD"
 			}
@@ -398,10 +417,36 @@ func (strategy *Strategy) TurnDecision() string {
 	board := strategy.Table.Board
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 
-	if completedCombination.OverPair ||
-		completedCombination.Three ||
-		completedCombination.Triplet ||
-		completedCombination.TwoPairs {
+	if completedCombination.OverPair {
+		strategy.Messages = append(strategy.Messages, "overpair")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.Three || completedCombination.Triplet {
+		strategy.Messages = append(strategy.Messages, "three")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.TwoPairs {
+		strategy.Messages = append(strategy.Messages, "two pairs")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.StrongTopPair {
+		strategy.Messages = append(strategy.Messages, "strong top pair")
+
+		return "MANUAL"
+	}
+
+	if completedCombination.TopPair {
+		strategy.Messages = append(strategy.Messages, "top pair")
+		if strategy.Table.Pot <= 10 {
+			return "CHECK/FOLD"
+		}
+
 		return "MANUAL"
 	}
 
@@ -409,20 +454,12 @@ func (strategy *Strategy) TurnDecision() string {
 
 	if emptyCombination.String() != "" {
 		if emptyCombination.OverCards {
+			strategy.Messages = append(strategy.Messages, "overcards")
 			return "CHECK/FOLD"
 		}
 	}
 
 	//@TODO: automate below logic
-
-	if completedCombination.TopPair {
-		if strategy.Table.Pot <= 10 {
-			// assuming we are on freeplay
-			return "CHECK/FOLD"
-		}
-
-		return "MANUAL"
-	}
 
 	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
 

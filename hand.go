@@ -214,17 +214,15 @@ func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) boo
 func (combination CompletedCombination) CheckStrongTopPair(hand Hand, board Board) bool {
 	strongestBoardCard := board.GetStrontestBoardCard()
 
-	if strongestBoardCard == "A" {
-		if hand.Cards[0].Value == strongestBoardCard {
-			if cardStrength[hand.Cards[1].Value] >= cardStrength["J"] {
-				return true
-			}
+	if hand.Cards[0].Value == strongestBoardCard {
+		if cardStrength[hand.Cards[1].Value] >= cardStrength["J"] {
+			return true
 		}
+	}
 
-		if hand.Cards[1].Value == strongestBoardCard {
-			if cardStrength[hand.Cards[0].Value] >= cardStrength["J"] {
-				return true
-			}
+	if hand.Cards[1].Value == strongestBoardCard {
+		if cardStrength[hand.Cards[0].Value] >= cardStrength["J"] {
+			return true
 		}
 	}
 
