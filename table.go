@@ -76,16 +76,6 @@ func (table Table) Raise() {
 	table.Window.Click(680, 505)
 }
 
-func (table Table) Steal() {
-	table.Window.Click(680, 440)
-	table.Window.Click(680, 505)
-}
-
-func (table Table) ThreeBet() {
-	table.Window.Click(680, 440)
-	table.Window.Click(680, 505)
-}
-
 func (table Table) AllIn() {
 	table.Window.Click(760, 440)
 	table.Window.Click(680, 505)
@@ -243,67 +233,14 @@ func (table Table) PerformAutomatedActions(decision string) {
 		} else {
 			table.Fold()
 		}
-	case "RESTEAL/FOLD\nFOLD":
-		table.Fold()
-
-	case "RAISE/FOLD":
-		table.RaiseFold()
-	case "STEAL/FOLD":
-		table.StealFold()
-
-	case "3-BET/FOLD if raiser >= EP":
-		table.ThreeBetFold()
-	case "3-BET/FOLD if raiser >= MP":
-		table.ThreeBetFold()
-	case "3-BET/FOLD if raiser >= LATER":
-		table.ThreeBetFold()
-	case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= EP":
-		table.ThreeBetFold()
-	case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= MP":
-		table.ThreeBetFold()
-	case "RESTEAL/FOLD\n3-BET/FOLD if raiser >= LATER":
-		table.ThreeBetFold()
-
-	case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= EP":
-		table.ThreeBetFold()
-	case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= MP":
-		table.ThreeBetFold()
-	case "RESTEAL/ALL-IN\n3-BET/FOLD if raiser >= LATER":
-		table.ThreeBetFold()
-
-	case "RAISE/WAIT PLAYER":
-		table.RaiseWaitPlayer()
-
 	case "RAISE/ALL-IN":
 		table.RaiseAllIn()
-	case "STEAL/ALL-IN":
-		table.StealAllIn()
-	case "3-BET/ALL-IN":
-		table.ThreeBetAllIn()
-	case "3-BET/ALL-IN if raiser >= EP":
-		table.ThreeBetAllIn()
-	case "3-BET/ALL-IN if raiser >= MP":
-		table.ThreeBetAllIn()
-	case "3-BET/ALL-IN if raiser >= LATER":
-		table.ThreeBetAllIn()
-
-	case "RESTEAL/ALL-IN\n3-BET/ALL-IN":
-		table.ThreeBetAllIn()
-	case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= EP":
-		table.ThreeBetAllIn()
-	case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= MP":
-		table.ThreeBetAllIn()
-	case "RESTEAL/ALL-IN\n3-BET/ALL-IN if raiser >= LATER":
-		table.ThreeBetAllIn()
-
-	case "FLOP BET/ALL-IN":
-		table.FlopBetAllIn()
-
-	case "TURN BET/ALL-IN":
-		table.TurnBetAllIn()
-
-	case "RIVER BET/CALL":
-		table.RiverBetCall()
+	case "RAISE/MANUAL":
+		table.RaisePlayerMove()
+	case "RAISE/FOLD":
+		table.RaiseFold()
+	case "3-BET/FOLD":
+		table.ThreeBetFold()
 
 	case "FLOP CHECK/FOLD":
 		table.FlopCheckFold()
@@ -316,21 +253,48 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "TURN C-BET/FOLD":
 		table.ContBetFold("turn")
 
-	case "FLOP UNKNOWN":
+	case "MANUAL FLOP":
 		table.WaitCheckFold("flop")
-	case "TURN UNKNOWN":
+	case "MANUAL TURN":
 		table.WaitCheckFold("turn")
-	case "RIVER UNKNOWN":
+	case "MANUAL RIVER":
 		table.WaitCheckFold("river")
-
 	}
 }
 
-func (table Table) RaiseWaitPlayer() {
+func (table Table) RaiseAllIn() {
 	performTwoActions(
-		table.Raise, func() {},
-		fmt.Sprintf("/tmp/croc-wait-player-%s-%s", table.Hero.Hand, table.Window.Id),
+		table.Raise, table.AllIn,
+		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
+}
+func (table Table) RaisePlayerMove() {
+	performTwoActions(
+		table.Raise, table.WaitFold,
+		fmt.Sprintf("/tmp/croc-wait-player-move-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+func (table Table) RaiseFold() {
+	performTwoActions(
+		table.Raise, table.Fold,
+		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) WaitFold() {
+	flag := fmt.Sprintf(
+		"/tmp/croc-wait-fold-%s-%s",
+		table.Hero.Hand,
+		table.Window.Id,
+	)
+
+	file, err := os.Stat(flag)
+
+	if os.IsNotExist(err) {
+		createFlagFile(flag)
+	} else if file.ModTime().Unix() < time.Now().Unix()-20 {
+		table.Fold()
+	}
 }
 
 func (table Table) WaitCheckFold(street string) {
@@ -375,77 +339,15 @@ func (table Table) CheckFold() {
 	)
 }
 
-func (table Table) RaiseFold() {
-	performTwoActions(
-		table.Raise, table.Fold,
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) RaiseAllIn() {
-	performTwoActions(
-		table.Raise, table.AllIn,
-		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) StealFold() {
-	performTwoActions(
-		table.Steal, table.Fold,
-		fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) StealAllIn() {
-	performTwoActions(
-		table.Steal, table.AllIn,
-		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
 func (table Table) ThreeBetFold() {
 	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
 
 	if !flagFileIsOk(flag) && table.Pot <= potSaneLimitForThreeBet {
 		createFlagFile(flag)
-		table.ThreeBet()
+		table.Raise()
 	} else {
 		table.Fold()
 	}
-}
-
-func (table Table) ThreeBetAllIn() {
-	flag := fmt.Sprintf("/tmp/croc-fold-%s-%s", table.Hero.Hand, table.Window.Id)
-
-	if flagFileIsOk(flag) {
-		table.Fold()
-	}
-
-	performTwoActions(
-		table.ThreeBet, table.AllIn,
-		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) FlopBetAllIn() {
-	performTwoActions(
-		table.Bet, table.AllIn,
-		fmt.Sprintf("/tmp/croc-flop-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) TurnBetAllIn() {
-	performTwoActions(
-		table.Bet, table.AllIn,
-		fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
-}
-
-func (table Table) RiverBetCall() {
-	performTwoActions(
-		table.Bet, table.Call,
-		fmt.Sprintf("/tmp/croc-river-call-%s-%s", table.Hero.Hand, table.Window.Id),
-	)
 }
 
 func performTwoActions(firstAction func(), secondAction func(), flag string) {
