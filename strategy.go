@@ -344,6 +344,10 @@ func (strategy *Strategy) FlopDecision() string {
 		return "MANUAL"
 	}
 
+	if completedCombination.StrongTopPair {
+		return "MANUAL"
+	}
+
 	if completedCombination.TopPair {
 		if strategy.Table.Pot <= 10 {
 			return "FLOP CHECK/FOLD"

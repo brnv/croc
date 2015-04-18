@@ -147,9 +147,10 @@ type CompletedCombination struct {
 	OverPair bool
 	Three    bool
 
-	TopPair  bool
-	TwoPairs bool
-	Triplet  bool
+	TopPair       bool
+	StrongTopPair bool
+	TwoPairs      bool
+	Triplet       bool
 }
 
 func (combination CompletedCombination) String() string {
@@ -203,6 +204,27 @@ func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) boo
 	for _, handCard := range hand.Cards {
 		if strongestBoardCard == handCard.Value {
 			return true
+		}
+	}
+
+	return false
+
+}
+
+func (combination CompletedCombination) CheckStrongTopPair(hand Hand, board Board) bool {
+	strongestBoardCard := board.GetStrontestBoardCard()
+
+	if strongestBoardCard == "A" {
+		if hand.Cards[0].Value == strongestBoardCard {
+			if cardStrength[hand.Cards[1].Value] >= cardStrength["J"] {
+				return true
+			}
+		}
+
+		if hand.Cards[1].Value == strongestBoardCard {
+			if cardStrength[hand.Cards[0].Value] >= cardStrength["J"] {
+				return true
+			}
 		}
 	}
 
@@ -277,6 +299,7 @@ func (hand Hand) GetCompletedCombination(board Board) CompletedCombination {
 		combination.Three = combination.CheckThree(hand, board)
 	} else {
 		combination.TopPair = combination.CheckTopPair(hand, board)
+		combination.StrongTopPair = combination.CheckStrongTopPair(hand, board)
 		combination.TwoPairs = combination.CheckTwoPairs(hand, board)
 		combination.Triplet = combination.CheckTriplet(hand, board)
 	}
