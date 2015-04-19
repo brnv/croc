@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -21,7 +22,7 @@ var (
 
 	subimageSearchCmd = "visgrep"
 
-	reSubimageOffsets = regexp.MustCompile("^(\\d+),(\\d+)")
+	reSubimageOffset = regexp.MustCompile("^(\\d+),(\\d+)")
 )
 
 func (image Image) Crop(snippet ImageSnippet) string {
@@ -70,7 +71,7 @@ func recognize(
 	return "", errors.New(fmt.Sprintf("%s failed!", input))
 }
 
-func getSampleOffsets(
+func getSubimageOffset(
 	image string,
 	subimage string,
 ) (int, int) {
@@ -81,14 +82,35 @@ func getSampleOffsets(
 
 	cmd.Run()
 
-	offsets := reSubimageOffsets.FindStringSubmatch(out.String())
+	offset := reSubimageOffset.FindStringSubmatch(out.String())
 
 	x, y := -1, -1
 
-	if len(offsets) == 3 {
-		x, _ = strconv.Atoi(offsets[1])
-		y, _ = strconv.Atoi(offsets[2])
+	if len(offset) == 3 {
+		x, _ = strconv.Atoi(offset[1])
+		y, _ = strconv.Atoi(offset[2])
 	}
 
 	return x, y
+}
+
+func getSubimageManyOffsets(
+	image string,
+	subimage string,
+) []string {
+	cmd := exec.Command(subimageSearchCmd, image, subimage)
+
+	var outBuffer bytes.Buffer
+	cmd.Stdout = &outBuffer
+
+	cmd.Run()
+
+	out := make([]string, 0)
+
+	out = append(out, strings.Split(
+		strings.Trim(outBuffer.String(), "\n"),
+		"\n")...,
+	)
+
+	return out
 }

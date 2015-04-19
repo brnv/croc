@@ -37,7 +37,7 @@ func (table *Table) BoardRecognize() {
 
 	for _, boardCard := range boardCards {
 
-		_, offset := getSampleOffsets(
+		_, offset := getSubimageOffset(
 			"/tmp/croc/cards",
 			table.Image.Crop(boardCard),
 		)

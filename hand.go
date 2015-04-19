@@ -44,7 +44,7 @@ func (table *Table) HandRecognize() {
 			}},
 		}}
 
-	_, offset := getSampleOffsets(
+	_, offset := getSubimageOffset(
 		"/tmp/croc/cards",
 		table.Image.Crop(table.Hero.Hand.Cards[0].ImageSnippet),
 	)
@@ -54,7 +54,7 @@ func (table *Table) HandRecognize() {
 		table.Hero.Hand.Cards[0].Suit = GetSuitByOffset(offset)
 	}
 
-	_, offset = getSampleOffsets(
+	_, offset = getSubimageOffset(
 		"/tmp/croc/cards",
 		table.Image.Crop(table.Hero.Hand.Cards[1].ImageSnippet),
 	)
