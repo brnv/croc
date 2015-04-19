@@ -143,23 +143,62 @@ var pushHands = []string{
 }
 var raiseWaitPlayerHands = []string{
 	"AK", "AKs",
-	"QQ", "JJ",
+	"QQ", "JJ", "TT", "99",
 }
+
 var raiseFoldHandsLatePosition = []string{
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s",
-	"KQ", "KQs",
-	"TT", "99", "88", "77",
+	"AQ", "AQs", "AJs",
+
+	"AJ", "KQ",
+	"KQs", "KJs", "ATs",
+	"88", "77",
+
+	"AT", "A9", "A8",
+	"KJ", "QJ", "KT",
+
+	"A9s", "A8s", "A7s", "A6s", "A5s",
+	"KTs", "K9s", "QJs", "QTs", "JTs",
+	"T9s",
+	"66", "55", "44", "33", "22",
+
+	"A7", "A6", "A5", "A4", "A3", "A2",
+	"K9", "K8",
+	"QT", "Q9",
+	"JT",
+	"T9", "98",
+
+	"A4s", "A3s", "A2s",
+	"K8s", "K7s", "K6s",
+	"Q9s", "Q8s", "J9s",
+	"98s", "87s", "76s", "65s",
 }
+
 var raiseFoldHands = map[string][]string{
 	"EP": []string{
 		"AQ", "AQs", "AJs",
-		"TT",
 	},
 	"MP": []string{
-		"AQ", "AQs", "AJ", "AJs", "ATs",
-		"TT", "99", "88",
+		"AQ", "AQs", "AJs",
+
+		"AJ", "KQ",
+		"KQs", "KJs", "ATs",
+		"88", "77",
 	},
-	"CO": raiseFoldHandsLatePosition,
+	"CO": []string{
+		"AQ", "AQs", "AJs",
+
+		"AJ", "KQ",
+		"KQs", "KJs", "ATs",
+		"88", "77",
+
+		"AT", "A9", "A8",
+		"KJ", "QJ", "KT",
+
+		"A9s", "A8s", "A7s", "A6s", "A5s",
+		"KTs", "K9s", "QJs", "QTs", "JTs",
+		"T9s",
+		"66", "55", "44", "33", "22",
+	},
 	"BU": raiseFoldHandsLatePosition,
 	"SB": raiseFoldHandsLatePosition,
 	"BB": raiseFoldHandsLatePosition,
