@@ -19,14 +19,14 @@ type Opponent struct {
 
 // visgrep offsets
 var opponentsOffets = map[int]string{
-	1: "",
+	1: "501,36 -1",
 	2: "657,92 -1",
 	3: "700,205 -1",
 	4: "609,321 -1",
 	5: "hero position, not used",
 	6: "157,321 -1",
-	7: "",
-	8: "",
+	7: "65,205 -1",
+	8: "108,92 -1",
 	9: "264,36 -1",
 }
 
@@ -113,7 +113,12 @@ func (table *Table) OpponentsRecognize() {
 			table.Opponents[index].Limper = true
 		}
 
-		if table.Opponents[index].ChipsInPot == 0 {
+	}
+}
+
+func (table *Table) RaisersRecognize() {
+	for index, opponent := range table.Opponents {
+		if opponent.ChipsInPot == 0 {
 			table.Opponents[index].Raiser = true
 		}
 	}

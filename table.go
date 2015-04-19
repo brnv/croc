@@ -17,6 +17,8 @@ const (
 	board {{.Board}}, 
 	chips {{.Hero.Chips}}, 
 	pot {{.Pot}}]`
+
+	playersCount = 9
 )
 
 type Table struct {
@@ -129,7 +131,7 @@ func (table Table) GetButtonRelativePosition(offset int) int {
 	if table.ButtonPosition < offset {
 		return offset - table.ButtonPosition
 	} else {
-		return 9 + offset - table.ButtonPosition
+		return playersCount + offset - table.ButtonPosition
 	}
 }
 
@@ -138,11 +140,11 @@ func (table *Table) HeroPositionRecognize() {
 }
 
 func (table Table) GetFirstRaiserPosition() int {
-	lowestIndex := 9
+	lowestIndex := playersCount + 1
 
-	for opponentIndex, opponent := range table.Opponents {
-		if opponent.Raiser && opponentIndex < lowestIndex {
-			lowestIndex = opponentIndex
+	for _, opponent := range table.Opponents {
+		if opponent.Raiser && opponent.Index < lowestIndex {
+			lowestIndex = opponent.Index
 		}
 	}
 
@@ -366,11 +368,22 @@ func flagFileIsOk(flag string) bool {
 	return true
 }
 
+const bigBlindAmount = 2
+
 func (table Table) PotIsRaised() bool {
+	limpTotalSize := 0
+
 	for _, opponent := range table.Opponents {
-		if opponent.Raiser {
-			return true
-		}
+		limpTotalSize += opponent.ChipsInPot
+	}
+
+	if positions[table.Hero.Position] == "BB" {
+		limpTotalSize += bigBlindAmount
+	}
+
+	if limpTotalSize != table.Pot &&
+		limpTotalSize+1 != table.Pot {
+		return true
 	}
 
 	return false

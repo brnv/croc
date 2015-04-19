@@ -124,6 +124,9 @@ func (strategy Strategy) PreflopThreeBetSituation() bool {
 	return false
 }
 
+var callHands = []string{
+	"99", "88", "77", "66", "55", "44", "33", "22",
+}
 var pushHands = []string{
 	"AA", "KK",
 }
@@ -131,13 +134,11 @@ var raiseWaitPlayerHands = []string{
 	"AK", "AKs",
 	"QQ", "JJ", "TT", "99",
 }
-
 var raiseFoldHandsLatePosition = []string{
 	"AQ", "AQs", "AJs",
 
 	"AJ", "KQ",
 	"KQs", "KJs", "ATs",
-	"88", "77",
 
 	"AT", "A9", "A8",
 	"KJ", "QJ", "KT",
@@ -145,7 +146,6 @@ var raiseFoldHandsLatePosition = []string{
 	"A9s", "A8s", "A7s", "A6s", "A5s",
 	"KTs", "K9s", "QJs", "QTs", "JTs",
 	"T9s",
-	"66", "55", "44", "33", "22",
 
 	"A7", "A6", "A5", "A4", "A3", "A2",
 	"K9", "K8",
@@ -158,7 +158,6 @@ var raiseFoldHandsLatePosition = []string{
 	"Q9s", "Q8s", "J9s",
 	"98s", "87s", "76s", "65s",
 }
-
 var raiseFoldHands = map[string][]string{
 	"EP": []string{
 		"AQ", "AQs", "AJs",
@@ -168,14 +167,12 @@ var raiseFoldHands = map[string][]string{
 
 		"AJ", "KQ",
 		"KQs", "KJs", "ATs",
-		"88", "77",
 	},
 	"CO": []string{
 		"AQ", "AQs", "AJs",
 
 		"AJ", "KQ",
 		"KQs", "KJs", "ATs",
-		"88", "77",
 
 		"AT", "A9", "A8",
 		"KJ", "QJ", "KT",
@@ -183,7 +180,6 @@ var raiseFoldHands = map[string][]string{
 		"A9s", "A8s", "A7s", "A6s", "A5s",
 		"KTs", "K9s", "QJs", "QTs", "JTs",
 		"T9s",
-		"66", "55", "44", "33", "22",
 	},
 	"BU": raiseFoldHandsLatePosition,
 	"SB": raiseFoldHandsLatePosition,
@@ -204,6 +200,12 @@ func (strategy *Strategy) PreflopRaiseDecision() string {
 	}
 
 	for _, card := range raiseWaitPlayerHands {
+		if hand == card {
+			return "RAISE/MANUAL"
+		}
+	}
+
+	for _, card := range callHands {
 		if hand == card {
 			return "RAISE/MANUAL"
 		}
@@ -242,7 +244,7 @@ var stealFoldHands = map[string][]string{
 	"CO": []string{
 		"99", "88", "77", "66", "55", "44", "33", "22",
 		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s", "A8s", "A7s",
-		"KQ", "KQs", "KJ", "KJs", "KTs",
+		"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
 		"QJ", "QJs", "QTs",
 		"JTs",
 	},
@@ -313,7 +315,7 @@ func (strategy *Strategy) PreflopRestealDecision() string {
 	return "FOLD"
 }
 
-var threeBetFoldMPHands = map[string][]string{
+var threeBetFoldHands = map[string][]string{
 	"EP": []string{
 		"QQ",
 	},
@@ -340,11 +342,19 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 		}
 	}
 
+	for _, card := range callHands {
+		if hand == card {
+			return "MANUAL CALL"
+		}
+	}
+
+	strategy.Table.RaisersRecognize()
+
 	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
 
 	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
 
-	for _, card := range threeBetFoldMPHands[strategyPositions[raiserPosition]] {
+	for _, card := range threeBetFoldHands[strategyPositions[raiserPosition]] {
 		if hand == card {
 			if strategy.Table.Pot > potSaneLimitForThreeBet {
 				return "MANUAL"
