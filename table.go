@@ -140,17 +140,16 @@ func (table *Table) HeroPositionRecognize() {
 }
 
 func (table Table) GetFirstRaiserPosition() int {
-	lowestIndex := playersCount + 1
+	lowestPosition := playersCount + 1
 
 	for _, opponent := range table.Opponents {
-		if opponent.Raiser && opponent.Index < lowestIndex {
-			lowestIndex = opponent.Index
+		opponentPosition := table.GetButtonRelativePosition(opponent.Index)
+		if opponent.Raiser && opponentPosition < lowestPosition {
+			lowestPosition = opponentPosition
 		}
 	}
 
-	return table.GetButtonRelativePosition(
-		table.Opponents[lowestIndex].Index,
-	)
+	return lowestPosition
 }
 
 func (table Table) HeroMoveInProgress() bool {

@@ -89,22 +89,21 @@ func main() {
 	wg.Wait()
 
 	strategy := Strategy{}
+	var decision string
 
-	strategy.Table = table
-	decision := strategy.Run()
+	if !table.HeroMoveInProgress() {
+		strategy.Table = table
+		decision = strategy.Run()
 
-	if !table.FoldButtonIsVisible() && decision == "FOLD" {
-		os.Exit(1)
-	}
+		if !table.FoldButtonIsVisible() && decision == "FOLD" {
+			os.Exit(1)
+		}
 
-	if !table.HeroMoveInProgress() && decision != "FOLD" {
-		os.Exit(1)
-	}
-
-	if table.HeroMoveInProgress() {
+		if !table.HeroMoveInProgress() && decision != "FOLD" {
+			os.Exit(1)
+		}
+	} else {
 		table.BoardRecognize()
-
-		strategy = Strategy{}
 
 		strategy.Table = table
 		decision = strategy.Run()
