@@ -10,9 +10,24 @@ var (
 	betDigitHeight      = 12
 )
 
-type Limper struct {
-	Position int
-	BetSize  int
+type Opponent struct {
+	Index      int
+	Raiser     bool
+	Limper     bool
+	ChipsInPot int
+}
+
+// visgrep offsets
+var opponentsOffets = map[int]string{
+	1: "",
+	2: "657,92 -1",
+	3: "700,205 -1",
+	4: "609,321 -1",
+	5: "hero position, not used",
+	6: "157,321 -1",
+	7: "",
+	8: "",
+	9: "264,36 -1",
 }
 
 var limpDigitOffsetsY = map[int]int{
@@ -39,37 +54,46 @@ var limpDigitOffsetsX = map[int]map[int]int{
 	9: map[int]int{0: 337, 1: 349, 2: 358},
 }
 
-func (opponent Limper) GetImageSnippets() []ImageSnippet {
+func (opponent Opponent) GetImageSnippets() []ImageSnippet {
 	return []ImageSnippet{
 		ImageSnippet{
 			Width:   betDigitWidth,
 			Height:  betDigitHeight,
-			OffsetX: limpDigitOffsetsX[opponent.Position][0],
-			OffsetY: limpDigitOffsetsY[opponent.Position],
+			OffsetX: limpDigitOffsetsX[opponent.Index][0],
+			OffsetY: limpDigitOffsetsY[opponent.Index],
 		},
 		ImageSnippet{
 			Width:   betDigitWidth,
 			Height:  betDigitHeight,
-			OffsetX: limpDigitOffsetsX[opponent.Position][1],
-			OffsetY: limpDigitOffsetsY[opponent.Position],
+			OffsetX: limpDigitOffsetsX[opponent.Index][1],
+			OffsetY: limpDigitOffsetsY[opponent.Index],
 		},
 		ImageSnippet{
 			Width:   betDigitWidth,
 			Height:  betDigitHeight,
-			OffsetX: limpDigitOffsetsX[opponent.Position][2],
-			OffsetY: limpDigitOffsetsY[opponent.Position],
+			OffsetX: limpDigitOffsetsX[opponent.Index][2],
+			OffsetY: limpDigitOffsetsY[opponent.Index],
 		},
 	}
 }
 
-func (table *Table) LimpersRecognize() {
-	for index := 1; index <= 9; index++ {
-		table.Limpers = append(table.Limpers, Limper{
-			Position: index,
-		})
+func (table *Table) OpponentsRecognize() {
+	offsets := getSubimageManyOffsets(
+		table.Image.Path,
+		"/tmp/croc/opponents_hand",
+	)
+
+	for _, offset := range offsets {
+		for opponentIndex, opponentOffset := range opponentsOffets {
+			if opponentOffset == offset {
+				table.Opponents = append(table.Opponents, Opponent{
+					Index: opponentIndex,
+				})
+			}
+		}
 	}
 
-	for index, opponent := range table.Limpers {
+	for index, opponent := range table.Opponents {
 		for _, betDigit := range opponent.GetImageSnippets() {
 			img := table.Image.Crop(betDigit)
 
@@ -85,8 +109,12 @@ func (table *Table) LimpersRecognize() {
 
 			betInteger, _ := strconv.Atoi(recognized)
 
-			table.Limpers[index].BetSize += betInteger
+			table.Opponents[index].ChipsInPot += betInteger
+			table.Opponents[index].Limper = true
 		}
 
+		if table.Opponents[index].ChipsInPot == 0 {
+			table.Opponents[index].Raiser = true
+		}
 	}
 }

@@ -24,7 +24,7 @@ type Table struct {
 	Image  Image
 	Hero
 	Board
-	Limpers        []Limper
+	Opponents      []Opponent
 	Pot            int
 	ButtonPosition int
 	Errors         []string
@@ -125,8 +125,30 @@ func getImageSnippets(
 	return imageSnippets
 }
 
+func (table Table) GetButtonRelativePosition(offset int) int {
+	if table.ButtonPosition < offset {
+		return offset - table.ButtonPosition
+	} else {
+		return 9 + offset - table.ButtonPosition
+	}
+}
+
 func (table *Table) HeroPositionRecognize() {
-	table.Hero.Position = len(positions) + 1 - table.ButtonPosition
+	table.Hero.Position = table.GetButtonRelativePosition(5)
+}
+
+func (table Table) GetFirstRaiserPosition() int {
+	lowestIndex := 9
+
+	for opponentIndex, opponent := range table.Opponents {
+		if opponent.Raiser && opponentIndex < lowestIndex {
+			lowestIndex = opponentIndex
+		}
+	}
+
+	return table.GetButtonRelativePosition(
+		table.Opponents[lowestIndex].Index,
+	)
 }
 
 func (table Table) HeroMoveInProgress() bool {
@@ -342,4 +364,14 @@ func flagFileIsOk(flag string) bool {
 	}
 
 	return true
+}
+
+func (table Table) PotIsRaised() bool {
+	for _, opponent := range table.Opponents {
+		if opponent.Raiser {
+			return true
+		}
+	}
+
+	return false
 }

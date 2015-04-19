@@ -77,7 +77,7 @@ func main() {
 	}()
 
 	go func() {
-		table.LimpersRecognize()
+		table.OpponentsRecognize()
 		wg.Done()
 	}()
 

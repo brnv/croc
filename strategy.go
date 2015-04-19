@@ -79,22 +79,8 @@ func (strategy *Strategy) PreflopDecision() string {
 	return "MANUAL"
 }
 
-func (strategy Strategy) PotIsRaised() bool {
-	limpTotalSize := 0
-
-	for _, limper := range strategy.Table.Limpers {
-		limpTotalSize += limper.BetSize
-	}
-
-	if limpTotalSize != strategy.Table.Pot {
-		return true
-	}
-
-	return false
-}
-
 func (strategy Strategy) PreflopRaiseSituation() bool {
-	if !strategy.PotIsRaised() &&
+	if !strategy.Table.PotIsRaised() &&
 		!strategy.PreflopStealSituation() {
 		return true
 	}
@@ -327,9 +313,18 @@ func (strategy *Strategy) PreflopRestealDecision() string {
 	return "FOLD"
 }
 
-var threeBetFoldMPHands = []string{
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs",
-	"TT", "99", "88", "77",
+var threeBetFoldMPHands = map[string][]string{
+	"EP": []string{
+		"QQ",
+	},
+	"MP": []string{
+		"QQ", "TT",
+		"AQ", "AQs", "AK", "AKs",
+	},
+	"LATER": []string{
+		"QQ", "TT", "99", "88",
+		"AQ", "AQs", "AK", "AKs",
+	},
 }
 
 const potSaneLimitForThreeBet = 18
@@ -345,16 +340,11 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 		}
 	}
 
-	for _, card := range raiseWaitPlayerHands {
-		if hand == card {
-			if strategy.Table.Pot > potSaneLimitForThreeBet {
-				return "MANUAL"
-			}
-			return "RAISE/MANUAL"
-		}
-	}
+	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
 
-	for _, card := range threeBetFoldMPHands {
+	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
+
+	for _, card := range threeBetFoldMPHands[strategyPositions[raiserPosition]] {
 		if hand == card {
 			if strategy.Table.Pot > potSaneLimitForThreeBet {
 				return "MANUAL"
