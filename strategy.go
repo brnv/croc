@@ -306,18 +306,20 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 		}
 	}
 
-	if strategy.Table.Pot > potSaneLimitForThreeBet {
-		return "MANUAL"
-	}
-
 	for _, card := range raiseWaitPlayerHands {
 		if hand == card {
+			if strategy.Table.Pot > potSaneLimitForThreeBet {
+				return "MANUAL"
+			}
 			return "RAISE/MANUAL"
 		}
 	}
 
 	for _, card := range threeBetFoldMPHands {
 		if hand == card {
+			if strategy.Table.Pot > potSaneLimitForThreeBet {
+				return "MANUAL"
+			}
 			return "RAISE/FOLD"
 		}
 	}
@@ -391,21 +393,7 @@ func (strategy *Strategy) FlopDecision() string {
 		}
 	}
 
-	//@TODO: automate below logic
-
-	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
-
-	fmt.Println("draws: C-BET/FOLD or FOLD, on freeplay: CHECK/FOLD;")
-
-	fmt.Println(
-		fmt.Sprintf(
-			"draws: if win_size / call_size / " +
-				"[monster/3, flush/4, oesd/5, overcards/7, pair/8] > 1:" +
-				" CALL;",
-		),
-	)
-
-	fmt.Println("gotshot, 2+ opponents: CHECK/FOLD;")
+	strategy.PrintReminders()
 
 	return "MANUAL"
 }
@@ -459,19 +447,7 @@ func (strategy *Strategy) TurnDecision() string {
 		}
 	}
 
-	//@TODO: automate below logic
-
-	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
-
-	fmt.Println("draw: CHECK/FOLD;")
-
-	fmt.Println(
-		fmt.Sprintf(
-			"draws: if win_size / call_size / " +
-				"[monster/1, flush/2, oesd/2, overcards/3, pair/4] > 1:" +
-				" CALL;",
-		),
-	)
+	strategy.PrintReminders()
 
 	return "MANUAL"
 }
@@ -507,4 +483,16 @@ func (strategy Strategy) CheckInput() error {
 	}
 
 	return nil
+}
+
+func (strategy Strategy) PrintReminders() {
+	//@TODO: automate this logic
+
+	fmt.Println("monster draw: BET/ALL-IN or RERAISE;")
+
+	fmt.Println(
+		fmt.Sprintf(
+			"draws: if win_size / call_size / odds > 1: CALL;",
+		),
+	)
 }
