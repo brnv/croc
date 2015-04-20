@@ -1,7 +1,7 @@
 package main
 
 var callHands = []string{
-	"99", "88", "77", "66", "55", "44", "33", "22",
+	"JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
 }
 
 var pushHands = []string{

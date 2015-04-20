@@ -389,3 +389,13 @@ func (table Table) PotIsRaised() bool {
 
 	return false
 }
+
+func (table Table) IsStealerPosition(position int) bool {
+	if position == 8 ||
+		position == 9 ||
+		position == 1 {
+		return true
+	}
+
+	return false
+}

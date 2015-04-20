@@ -80,12 +80,15 @@ func (strategy *Strategy) PreflopDecision() string {
 }
 
 func (strategy Strategy) PreflopRaiseSituation() bool {
-	if !strategy.Table.PotIsRaised() &&
-		!strategy.PreflopStealSituation() {
-		return true
+	if strategy.Table.PotIsRaised() {
+		return false
 	}
 
-	return false
+	if strategy.PreflopStealSituation() {
+		return false
+	}
+
+	return true
 }
 
 const defaultPotSize = 3
@@ -93,44 +96,52 @@ const defaultPotSize = 3
 func (strategy Strategy) PreflopStealSituation() bool {
 	heroPosition := strategy.Table.Hero.Position
 
-	if strategyPositions[positions[heroPosition]] == laterPosition &&
-		strategy.Table.Pot == defaultPotSize {
-		return true
+	if strategy.Table.Pot != defaultPotSize {
+		return false
 	}
 
-	return false
+	if strategyPositions[positions[heroPosition]] != laterPosition {
+		return false
+	}
+
+	return true
 }
 
-const avgStealSizePot = 12
+func (strategy Strategy) PreflopThreeBetSituation() bool {
+	if !strategy.Table.PotIsRaised() {
+		return false
+	}
 
-var stealerPosition = map[int]bool{
-	8: true,
-	9: true,
-	1: true,
-	2: true,
+	if strategy.PreflopRestealSituation() {
+		return false
+	}
+
+	return true
 }
+
+const avgStealSizePot = 10
 
 func (strategy Strategy) PreflopRestealSituation() bool {
 	heroPosition := strategy.Table.Hero.Position
 
-	if positions[heroPosition] == "BB" &&
-		stealerPosition[strategy.Table.GetFirstRaiserPosition()] &&
-		strategy.Table.PotIsRaised() &&
-		strategy.Table.Pot <= avgStealSizePot {
-		return true
+	if !strategy.Table.PotIsRaised() {
+		return false
 	}
 
-	return false
-}
-
-func (strategy Strategy) PreflopThreeBetSituation() bool {
-	if !strategy.PreflopRaiseSituation() &&
-		!strategy.PreflopStealSituation() &&
-		!strategy.PreflopRestealSituation() {
-		return true
+	if strategyPositions[positions[heroPosition]] != laterPosition {
+		return false
 	}
 
-	return false
+	if strategy.Table.Pot > avgStealSizePot {
+		return false
+
+	}
+	if !strategy.Table.IsStealerPosition(
+		strategy.Table.GetFirstRaiserPosition()) {
+		return false
+	}
+
+	return true
 }
 
 func (strategy *Strategy) PreflopRaiseDecision() string {
