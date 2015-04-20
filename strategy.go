@@ -101,12 +101,21 @@ func (strategy Strategy) PreflopStealSituation() bool {
 	return false
 }
 
-const avgStealSizePot = 9
+const avgStealSizePot = 12
+
+var stealerPosition = map[int]bool{
+	8: true,
+	9: true,
+	1: true,
+	2: true,
+}
 
 func (strategy Strategy) PreflopRestealSituation() bool {
 	heroPosition := strategy.Table.Hero.Position
 
 	if positions[heroPosition] == "BB" &&
+		stealerPosition[strategy.Table.GetFirstRaiserPosition()] &&
+		strategy.Table.PotIsRaised() &&
 		strategy.Table.Pot <= avgStealSizePot {
 		return true
 	}
@@ -122,68 +131,6 @@ func (strategy Strategy) PreflopThreeBetSituation() bool {
 	}
 
 	return false
-}
-
-var callHands = []string{
-	"99", "88", "77", "66", "55", "44", "33", "22",
-}
-var pushHands = []string{
-	"AA", "KK",
-}
-var raiseWaitPlayerHands = []string{
-	"AK", "AKs",
-	"QQ", "JJ", "TT", "99",
-}
-var raiseFoldHandsLatePosition = []string{
-	"AQ", "AQs", "AJs",
-
-	"AJ", "KQ",
-	"KQs", "KJs", "ATs",
-
-	"AT", "A9", "A8",
-	"KJ", "QJ", "KT",
-
-	"A9s", "A8s", "A7s", "A6s", "A5s",
-	"KTs", "K9s", "QJs", "QTs", "JTs",
-	"T9s",
-
-	"A7", "A6", "A5", "A4", "A3", "A2",
-	"K9", "K8",
-	"QT", "Q9",
-	"JT",
-	"T9", "98",
-
-	"A4s", "A3s", "A2s",
-	"K8s", "K7s", "K6s",
-	"Q9s", "Q8s", "J9s",
-	"98s", "87s", "76s", "65s",
-}
-var raiseFoldHands = map[string][]string{
-	"EP": []string{
-		"AQ", "AQs", "AJs",
-	},
-	"MP": []string{
-		"AQ", "AQs", "AJs",
-
-		"AJ", "KQ",
-		"KQs", "KJs", "ATs",
-	},
-	"CO": []string{
-		"AQ", "AQs", "AJs",
-
-		"AJ", "KQ",
-		"KQs", "KJs", "ATs",
-
-		"AT", "A9", "A8",
-		"KJ", "QJ", "KT",
-
-		"A9s", "A8s", "A7s", "A6s", "A5s",
-		"KTs", "K9s", "QJs", "QTs", "JTs",
-		"T9s",
-	},
-	"BU": raiseFoldHandsLatePosition,
-	"SB": raiseFoldHandsLatePosition,
-	"BB": raiseFoldHandsLatePosition,
 }
 
 func (strategy *Strategy) PreflopRaiseDecision() string {
@@ -224,34 +171,6 @@ func (strategy *Strategy) PreflopRaiseDecision() string {
 	return "FOLD"
 }
 
-var stealWaitPlayerHands = []string{
-	"AK", "AKs",
-	"QQ", "JJ", "TT",
-}
-var stealFoldHandsBUandSB = []string{
-	"99", "88", "77", "66", "55", "44", "33", "22",
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
-	"A8", "A8s", "A7", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
-	"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
-	"QJ", "QJs", "QT", "QTs",
-	"JT", "JTs",
-	"T9", "T9s",
-	"98s",
-	"87s",
-	"76s",
-}
-var stealFoldHands = map[string][]string{
-	"CO": []string{
-		"99", "88", "77", "66", "55", "44", "33", "22",
-		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s", "A8s", "A7s",
-		"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
-		"QJ", "QJs", "QTs",
-		"JTs",
-	},
-	"BU": stealFoldHandsBUandSB,
-	"SB": stealFoldHandsBUandSB,
-}
-
 func (strategy *Strategy) PreflopStealDecision() string {
 	strategy.Messages = append(strategy.Messages, "steal")
 
@@ -284,11 +203,6 @@ func (strategy *Strategy) PreflopStealDecision() string {
 	return "FOLD"
 }
 
-var restealFoldHands = []string{
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
-	"99", "88",
-}
-
 func (strategy *Strategy) PreflopRestealDecision() string {
 	strategy.Messages = append(strategy.Messages, "resteal")
 
@@ -315,26 +229,16 @@ func (strategy *Strategy) PreflopRestealDecision() string {
 	return "FOLD"
 }
 
-var threeBetFoldHands = map[string][]string{
-	"EP": []string{
-		"QQ",
-	},
-	"MP": []string{
-		"QQ", "TT",
-		"AQ", "AQs", "AK", "AKs",
-	},
-	"LATER": []string{
-		"QQ", "TT", "99", "88",
-		"AQ", "AQs", "AK", "AKs",
-	},
-}
-
 const potSaneLimitForThreeBet = 18
 
 func (strategy *Strategy) PreflopThreeBetDecision() string {
 	strategy.Messages = append(strategy.Messages, "3-bet")
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
+
+	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
+
+	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
 
 	for _, card := range pushHands {
 		if hand == card {
@@ -348,26 +252,16 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 		}
 	}
 
-	strategy.Table.RaisersRecognize()
-
-	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
-
-	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
-
-	for _, card := range threeBetFoldHands[strategyPositions[raiserPosition]] {
+	for _, card := range threeBetHands[strategyPositions[raiserPosition]] {
 		if hand == card {
 			if strategy.Table.Pot > potSaneLimitForThreeBet {
 				return "MANUAL"
 			}
-			return "RAISE/FOLD"
+			return "RAISE/MANUAL"
 		}
 	}
 
 	return "FOLD"
-}
-
-var contBetPairs = []string{
-	"JJ", "TT",
 }
 
 func (strategy *Strategy) FlopDecision() string {

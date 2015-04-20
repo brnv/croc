@@ -373,7 +373,9 @@ func (table Table) PotIsRaised() bool {
 	limpTotalSize := 0
 
 	for _, opponent := range table.Opponents {
-		limpTotalSize += opponent.ChipsInPot
+		if opponent.Limper {
+			limpTotalSize += opponent.ChipsInPot
+		}
 	}
 
 	if positions[table.Hero.Position] == "BB" {

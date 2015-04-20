@@ -19,7 +19,7 @@ var (
 const (
 	usage = `
 	Usage:
-	croc [<filepath>] [--wid=<window_id>] [-v]`
+	croc [<filepath>] [--wid=<window_id>] [-v] [-a]`
 )
 
 func main() {
@@ -78,6 +78,7 @@ func main() {
 
 	go func() {
 		table.OpponentsRecognize()
+		table.RaisersRecognize()
 		wg.Done()
 	}()
 
@@ -109,14 +110,14 @@ func main() {
 		decision = strategy.Run()
 	}
 
-	if table.Window.Id != "" {
+	if args["-a"].(bool) != false && table.Window.Id != "" {
 		table.PerformAutomatedActions(decision)
 	}
 
 	if args["-v"].(bool) != false {
-		fmt.Println(strategy.Messages)
-		fmt.Println(table)
 		fmt.Println(table.Image.Path)
+		fmt.Println(table)
+		fmt.Println(strategy.Messages)
 	}
 
 	fmt.Println(decision)
