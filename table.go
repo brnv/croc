@@ -383,8 +383,6 @@ func flagFileIsOk(flag string) bool {
 	return true
 }
 
-const bigBlindAmount = 2
-
 func (table Table) PotIsRaised() bool {
 	limpTotalSize := 0
 
@@ -395,7 +393,7 @@ func (table Table) PotIsRaised() bool {
 	}
 
 	if positions[table.Hero.Position] == "BB" {
-		limpTotalSize += bigBlindAmount
+		limpTotalSize += table.BigBlindSize
 	}
 
 	if limpTotalSize != table.Pot &&
