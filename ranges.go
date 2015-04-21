@@ -1,16 +1,10 @@
 package main
 
-var pairHands = []string{
-	"KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
-}
+var manualHands = []string{
+	"AA", "KK", "QQ", "JJ", "TT", "99", "88",
+	"77", "66", "55", "44", "33", "22",
 
-var pushHands = []string{
-	"AA",
-}
-
-var raiseWaitPlayerHands = []string{
 	"AK", "AKs",
-	"KK", "QQ", "JJ", "TT", "99",
 }
 
 var raiseFoldHandsLatePosition = []string{
@@ -66,11 +60,6 @@ var raiseFoldHands = map[string][]string{
 	"BB": raiseFoldHandsLatePosition,
 }
 
-var stealWaitPlayerHands = []string{
-	"AK", "AKs",
-	"KK", "QQ", "JJ", "TT",
-}
-
 var stealFoldHandsBUandSB = []string{
 	"99", "88", "77", "66", "55", "44", "33", "22",
 	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
@@ -98,7 +87,7 @@ var stealFoldHands = map[string][]string{
 
 var restealFoldHands = []string{
 	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
-	"99", "88",
+	"99", "88", "77", "66", "55",
 }
 
 var threeBetHands = map[string][]string{
@@ -113,8 +102,4 @@ var threeBetHands = map[string][]string{
 		"QQ", "JJ", "TT", "99", "88",
 		"AQ", "AQs", "AK", "AKs",
 	},
-}
-
-var contBetPairs = []string{
-	"JJ", "TT",
 }

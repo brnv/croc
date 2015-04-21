@@ -147,30 +147,18 @@ func (strategy Strategy) PreflopRestealSituation() bool {
 func (strategy *Strategy) PreflopRaiseDecision() string {
 	strategy.Messages = append(strategy.Messages, "raise")
 
-	position := positions[strategy.Table.Hero.Position]
-
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, card := range pushHands {
-		if hand == card {
-			return "RAISE/ALL-IN"
+	for _, manualHand := range manualHands {
+		if hand == manualHand {
+			return "MANUAL"
 		}
 	}
 
-	for _, card := range raiseWaitPlayerHands {
-		if hand == card {
-			return "RAISE/MANUAL"
-		}
-	}
+	position := positions[strategy.Table.Hero.Position]
 
-	for _, card := range pairHands {
-		if hand == card {
-			return "RAISE/MANUAL"
-		}
-	}
-
-	for _, element := range raiseFoldHands[position] {
-		if element == hand {
+	for _, raiseFoldHand := range raiseFoldHands[position] {
+		if hand == raiseFoldHand {
 			return "RAISE/FOLD"
 		}
 	}
@@ -185,21 +173,15 @@ func (strategy *Strategy) PreflopRaiseDecision() string {
 func (strategy *Strategy) PreflopStealDecision() string {
 	strategy.Messages = append(strategy.Messages, "steal")
 
-	position := positions[strategy.Table.Hero.Position]
-
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, card := range pushHands {
-		if hand == card {
-			return "RAISE/ALL-IN"
+	for _, manualHand := range manualHands {
+		if hand == manualHand {
+			return "MANUAL"
 		}
 	}
 
-	for _, card := range stealWaitPlayerHands {
-		if hand == card {
-			return "RAISE/MANUAL"
-		}
-	}
+	position := positions[strategy.Table.Hero.Position]
 
 	for _, card := range stealFoldHands[position] {
 		if hand == card {
@@ -219,15 +201,9 @@ func (strategy *Strategy) PreflopRestealDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, card := range pushHands {
-		if hand == card {
-			return "RAISE/ALL-IN"
-		}
-	}
-
-	for _, card := range stealWaitPlayerHands {
-		if hand == card {
-			return "RAISE/MANUAL"
+	for _, manualHand := range manualHands {
+		if hand == manualHand {
+			return "MANUAL"
 		}
 	}
 
@@ -247,27 +223,22 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
-
-	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
-
-	for _, card := range pushHands {
-		if hand == card {
-			return "RAISE/ALL-IN"
-		}
-	}
-
-	for _, card := range pairHands {
-		if hand == card {
+	for _, manualHand := range manualHands {
+		if hand == manualHand {
 			return "MANUAL"
 		}
 	}
+
+	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
+
+	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
 
 	for _, card := range threeBetHands[strategyPositions[raiserPosition]] {
 		if hand == card {
 			if strategy.Table.Pot > potSaneLimitForThreeBet {
 				return "MANUAL"
 			}
+
 			return "RAISE/MANUAL"
 		}
 	}
@@ -281,7 +252,6 @@ func (strategy *Strategy) FlopDecision() string {
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 	completedCombination := hero.Hand.GetCompletedCombination(board)
-	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	if completedCombination.OverPair {
 		strategy.Messages = append(strategy.Messages, "overpair")
@@ -313,14 +283,6 @@ func (strategy *Strategy) FlopDecision() string {
 		if strategy.Table.Pot <= 10 {
 			return "FLOP CHECK/FOLD"
 		} else if strategy.Table.Pot <= 35 {
-			return "FLOP C-BET/FOLD"
-		}
-	}
-
-	for _, card := range contBetPairs {
-		if hand == card && strategy.Table.Pot <= 35 {
-			strategy.Messages = append(strategy.Messages, "pair")
-
 			return "FLOP C-BET/FOLD"
 		}
 	}
