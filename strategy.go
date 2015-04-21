@@ -246,62 +246,21 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 	return "FOLD"
 }
 
-func (strategy *Strategy) FlopDecision() string {
-	strategy.Messages = append(strategy.Messages, "flop")
-
+func (strategy *Strategy) IsGoodHand() bool {
 	hero := strategy.Table.Hero
 	board := strategy.Table.Board
 	completedCombination := hero.Hand.GetCompletedCombination(board)
 
-	if completedCombination.OverPair {
-		strategy.Messages = append(strategy.Messages, "overpair")
-
-		return "MANUAL"
+	if completedCombination.OverPair ||
+		completedCombination.Three ||
+		completedCombination.Triplet ||
+		completedCombination.TwoPairs ||
+		completedCombination.StrongTopPair {
+		strategy.Messages = append(strategy.Messages, "good hand")
+		return true
 	}
 
-	if completedCombination.Three || completedCombination.Triplet {
-		strategy.Messages = append(strategy.Messages, "three")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.TwoPairs {
-		strategy.Messages = append(strategy.Messages, "two pairs")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.StrongTopPair {
-		strategy.Messages = append(strategy.Messages, "strong top pair")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.TopPair {
-		strategy.Messages = append(strategy.Messages, "top pair")
-
-		if strategy.Table.Pot <= 10 {
-			return "FLOP CHECK/FOLD"
-		} else if strategy.Table.Pot <= 35 {
-			return "FLOP C-BET/FOLD"
-		}
-	}
-
-	emptyCombination := hero.Hand.GetEmptyCombination(board)
-
-	if emptyCombination.String() != "" {
-		if emptyCombination.OverCards {
-			strategy.Messages = append(strategy.Messages, "overcards")
-
-			if strategy.Table.Pot <= 16 {
-				return "FLOP C-BET/FOLD"
-			}
-		}
-	}
-
-	strategy.PrintReminders()
-
-	return "MANUAL"
+	return false
 }
 
 func (strategy *Strategy) TurnDecision() string {

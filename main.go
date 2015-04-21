@@ -36,7 +36,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	table := Table{}
+	table := Table{
+		BigBlindSize: 2,
+	}
 
 	if args["<filepath>"] != nil {
 		table.Image.Path = args["<filepath>"].(string)

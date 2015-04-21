@@ -30,6 +30,7 @@ type Table struct {
 	Pot            int
 	ButtonPosition int
 	Errors         []string
+	BigBlindSize   int
 }
 
 type Image struct {
@@ -278,6 +279,8 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "FLOP C-BET/FOLD":
 		table.ContBetFold("flop")
 
+	case "FLOP C-BET/MANUAL":
+		table.ContBetManualMove("flop")
 	}
 }
 
@@ -287,12 +290,25 @@ func (table Table) RaiseAllIn() {
 		fmt.Sprintf("/tmp/croc-allin-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 }
+
+func (table Table) ContBetManualMove(street string) {
+	performTwoActions(
+		table.ContBet, table.WaitFold,
+		fmt.Sprintf(
+			"/tmp/croc-%s-c-bet-fold-%s-%s",
+			street,
+			table.Hero.Hand,
+			table.Window.Id),
+	)
+}
+
 func (table Table) RaisePlayerMove() {
 	performTwoActions(
 		table.Raise, table.WaitFold,
 		fmt.Sprintf("/tmp/croc-wait-player-move-%s-%s", table.Hero.Hand, table.Window.Id),
 	)
 }
+
 func (table Table) RaiseFold() {
 	performTwoActions(
 		table.Raise, table.Fold,
