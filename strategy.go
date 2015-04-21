@@ -163,7 +163,7 @@ func (strategy *Strategy) PreflopRaiseDecision() string {
 		}
 	}
 
-	for _, card := range callHands {
+	for _, card := range pairHands {
 		if hand == card {
 			return "RAISE/MANUAL"
 		}
@@ -257,9 +257,9 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 		}
 	}
 
-	for _, card := range callHands {
+	for _, card := range pairHands {
 		if hand == card {
-			return "MANUAL CALL"
+			return "MANUAL"
 		}
 	}
 

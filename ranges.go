@@ -1,16 +1,16 @@
 package main
 
-var callHands = []string{
-	"JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+var pairHands = []string{
+	"KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
 }
 
 var pushHands = []string{
-	"AA", "KK",
+	"AA",
 }
 
 var raiseWaitPlayerHands = []string{
 	"AK", "AKs",
-	"QQ", "JJ", "TT", "99",
+	"KK", "QQ", "JJ", "TT", "99",
 }
 
 var raiseFoldHandsLatePosition = []string{
@@ -68,7 +68,7 @@ var raiseFoldHands = map[string][]string{
 
 var stealWaitPlayerHands = []string{
 	"AK", "AKs",
-	"QQ", "JJ", "TT",
+	"KK", "QQ", "JJ", "TT",
 }
 
 var stealFoldHandsBUandSB = []string{
