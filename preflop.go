@@ -64,7 +64,6 @@ func (strategy Strategy) PreflopStealSituation() bool {
 	heroPosition := strategy.Table.Hero.Position
 
 	defaultPotSize := strategy.Table.BigBlindSize + strategy.Table.BigBlindSize/2
-	log.Notice("%v", defaultPotSize)
 
 	if strategy.Table.Pot != defaultPotSize {
 		return false
@@ -110,7 +109,8 @@ func (strategy Strategy) PreflopRestealSituation() bool {
 		return false
 	}
 
-	if strategyPositions[positions[heroPosition]] != laterPosition {
+	if positions[heroPosition] != "SB" ||
+		positions[heroPosition] != "BB" {
 		return false
 	}
 
@@ -163,6 +163,9 @@ func (strategy Strategy) PreflopThreeBetSituation() bool {
 func (strategy *Strategy) PreflopThreeBetDecision() string {
 	strategy.Messages = append(strategy.Messages, "3-bet")
 
+	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
+	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
+
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
 	for _, manualHand := range manualHands {
@@ -170,10 +173,6 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 			return "MANUAL"
 		}
 	}
-
-	raiserPosition := positions[strategy.Table.GetFirstRaiserPosition()]
-
-	strategy.Messages = append(strategy.Messages, "raiser in "+raiserPosition)
 
 	potSaneLimitForThreeBet := 9 * strategy.Table.BigBlindSize
 

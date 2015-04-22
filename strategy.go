@@ -8,6 +8,7 @@ import (
 type Strategy struct {
 	Table    Table
 	Messages []string
+	Decision string
 }
 
 var positions = map[int]string{
@@ -35,26 +36,32 @@ var strategyPositions = map[string]string{
 	"BB": laterPosition,
 }
 
-func (strategy *Strategy) Run() string {
+func (strategy *Strategy) Run() error {
 	err := strategy.CheckInput()
 
 	if err != nil {
-		return err.Error()
+		return err
 	}
 
 	boardCardsCount := len(strategy.Table.Board.Cards)
 
 	if boardCardsCount == 0 {
-		return strategy.PreflopDecision()
+		strategy.Decision = strategy.PreflopDecision()
 	}
 
 	if boardCardsCount == 3 {
-		return strategy.FlopDecision()
-	} else if boardCardsCount == 4 {
-		return strategy.TurnDecision()
+		strategy.Decision = strategy.FlopDecision()
 	}
 
-	return strategy.RiverDecision()
+	if boardCardsCount == 4 {
+		strategy.Decision = strategy.TurnDecision()
+	}
+
+	if boardCardsCount == 5 {
+		strategy.Decision = strategy.RiverDecision()
+	}
+
+	return nil
 }
 
 func (strategy *Strategy) IsGoodHand() bool {

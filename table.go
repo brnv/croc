@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sync"
 	"text/template"
 	"time"
 
@@ -48,6 +49,41 @@ type ImageSnippet struct {
 	Height  int
 	OffsetX int
 	OffsetY int
+}
+
+func (table *Table) Recognize() {
+	wg := &sync.WaitGroup{}
+
+	wg.Add(5)
+
+	go func() {
+		table.HandRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.ButtonRecognize()
+		table.HeroPositionRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.OpponentsRecognize()
+		table.RaisersRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.PotRecognize()
+		wg.Done()
+	}()
+
+	go func() {
+		table.BoardRecognize()
+		wg.Done()
+	}()
+
+	wg.Wait()
 }
 
 func (table Table) SitOut() {

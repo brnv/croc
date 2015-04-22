@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"sync"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
@@ -63,57 +62,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	wg := &sync.WaitGroup{}
+	table.Recognize()
 
-	wg.Add(4)
+	strategy := Strategy{
+		Table: table,
+	}
 
-	go func() {
-		table.HandRecognize()
-		wg.Done()
-	}()
-
-	go func() {
-		table.ButtonRecognize()
-		table.HeroPositionRecognize()
-		wg.Done()
-	}()
-
-	go func() {
-		table.OpponentsRecognize()
-		table.RaisersRecognize()
-		wg.Done()
-	}()
-
-	go func() {
-		table.PotRecognize()
-		wg.Done()
-	}()
-
-	wg.Wait()
-
-	strategy := Strategy{}
-	var decision string
+	err = strategy.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if !table.HeroMoveInProgress() {
-		strategy.Table = table
-		decision = strategy.Run()
-
-		if !table.FoldButtonIsVisible() && decision == "FOLD" {
+		if !table.FoldButtonIsVisible() && strategy.Decision == "FOLD" {
 			os.Exit(1)
 		}
 
-		if !table.HeroMoveInProgress() && decision != "FOLD" {
+		if strategy.Decision != "FOLD" {
 			os.Exit(1)
 		}
-	} else {
-		table.BoardRecognize()
-
-		strategy.Table = table
-		decision = strategy.Run()
 	}
 
 	if args["-a"].(bool) != false && table.Window.Id != "" {
-		table.PerformAutomatedActions(decision)
+		table.PerformAutomatedActions(strategy.Decision)
 	}
 
 	if args["-v"].(bool) != false {
@@ -122,5 +93,5 @@ func main() {
 		fmt.Println(strategy.Messages)
 	}
 
-	fmt.Println(decision)
+	fmt.Println(strategy.Decision)
 }
