@@ -43,21 +43,19 @@ func (strategy *Strategy) Run() error {
 		return err
 	}
 
-	boardCardsCount := len(strategy.Table.Board.Cards)
-
-	if boardCardsCount == 0 {
+	if strategy.Table.IsPreflop() {
 		strategy.Decision = strategy.PreflopDecision()
 	}
 
-	if boardCardsCount == 3 {
+	if strategy.Table.IsFlop() {
 		strategy.Decision = strategy.FlopDecision()
 	}
 
-	if boardCardsCount == 4 {
+	if strategy.Table.IsTurn() {
 		strategy.Decision = strategy.TurnDecision()
 	}
 
-	if boardCardsCount == 5 {
+	if strategy.Table.IsRiver() {
 		strategy.Decision = strategy.RiverDecision()
 	}
 

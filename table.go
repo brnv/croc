@@ -449,3 +449,35 @@ func (table Table) IsStealerPosition(position int) bool {
 
 	return false
 }
+
+func (table Table) IsPreflop() bool {
+	if len(table.Board.Cards) == 0 {
+		return true
+	}
+
+	return false
+}
+
+func (table Table) IsFlop() bool {
+	if len(table.Board.Cards) == 3 {
+		return true
+	}
+
+	return false
+}
+
+func (table Table) IsTurn() bool {
+	if len(table.Board.Cards) == 4 {
+		return true
+	}
+
+	return false
+}
+
+func (table Table) IsRiver() bool {
+	if len(table.Board.Cards) == 5 {
+		return true
+	}
+
+	return false
+}
