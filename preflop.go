@@ -109,7 +109,7 @@ func (strategy Strategy) PreflopRestealSituation() bool {
 		return false
 	}
 
-	if positions[heroPosition] != "SB" ||
+	if positions[heroPosition] != "SB" &&
 		positions[heroPosition] != "BB" {
 		return false
 	}

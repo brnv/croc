@@ -13,6 +13,10 @@ func (strategy *Strategy) PotStealIsOk() bool {
 		return false
 	}
 
+	if !strategy.Table.CheckButtonIsVisible() {
+		return false
+	}
+
 	strategy.Messages = append(strategy.Messages, "pot steal")
 
 	return true
@@ -23,6 +27,14 @@ func (strategy *Strategy) FlopDecision() string {
 
 	if strategy.IsGoodHand() {
 		return "MANUAL"
+	}
+
+	hand := strategy.Table.Hero.Hand.ShortNotation()
+
+	for _, manualHand := range manualHands {
+		if hand == manualHand {
+			return "MANUAL"
+		}
 	}
 
 	if !strategy.IsGoodHand() && strategy.PotStealIsOk() {

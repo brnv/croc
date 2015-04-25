@@ -70,7 +70,7 @@ func main() {
 
 	err = strategy.Run()
 	if err != nil {
-		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	if !table.HeroMoveInProgress() {
