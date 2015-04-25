@@ -84,52 +84,6 @@ func (strategy *Strategy) IsGoodHand() bool {
 func (strategy *Strategy) TurnDecision() string {
 	strategy.Messages = append(strategy.Messages, "turn")
 
-	hero := strategy.Table.Hero
-	board := strategy.Table.Board
-	completedCombination := hero.Hand.GetCompletedCombination(board)
-
-	if completedCombination.OverPair {
-		strategy.Messages = append(strategy.Messages, "overpair")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.Three || completedCombination.Triplet {
-		strategy.Messages = append(strategy.Messages, "three")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.TwoPairs {
-		strategy.Messages = append(strategy.Messages, "two pairs")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.StrongTopPair {
-		strategy.Messages = append(strategy.Messages, "strong top pair")
-
-		return "MANUAL"
-	}
-
-	if completedCombination.TopPair {
-		strategy.Messages = append(strategy.Messages, "top pair")
-		if strategy.Table.Pot <= 10 {
-			return "CHECK/FOLD"
-		}
-
-		return "MANUAL"
-	}
-
-	emptyCombination := hero.Hand.GetEmptyCombination(board)
-
-	if emptyCombination.String() != "" {
-		if emptyCombination.OverCards {
-			strategy.Messages = append(strategy.Messages, "overcards")
-			return "CHECK/FOLD"
-		}
-	}
-
 	strategy.PrintReminders()
 
 	return "MANUAL"
@@ -137,18 +91,6 @@ func (strategy *Strategy) TurnDecision() string {
 
 func (strategy *Strategy) RiverDecision() string {
 	strategy.Messages = append(strategy.Messages, "river")
-
-	hero := strategy.Table.Hero
-	board := strategy.Table.Board
-	completedCombination := hero.Hand.GetCompletedCombination(board)
-
-	if completedCombination.OverPair ||
-		completedCombination.Three ||
-		completedCombination.Triplet ||
-		completedCombination.TopPair ||
-		completedCombination.TwoPairs {
-		return "MANUAL"
-	}
 
 	//@TODO: automate this logic
 
@@ -159,9 +101,7 @@ func (strategy *Strategy) RiverDecision() string {
 }
 
 func (strategy Strategy) CheckInput() error {
-	hand := strategy.Table.Hero.Hand.ShortNotation()
-
-	if hand == "" {
+	if strategy.Table.Hero.Hand.ShortNotation() == "" {
 		return errors.New("no hand provided")
 	}
 
