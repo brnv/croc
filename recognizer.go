@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -33,6 +34,7 @@ func (image Image) Crop(snippet ImageSnippet) string {
 		snippet.Width, snippet.Height, snippet.OffsetX, snippet.OffsetY,
 		image.Path, croppedPath),
 	)
+
 	_, _ = command.Run()
 
 	return croppedPath
@@ -50,6 +52,7 @@ func recognize(
 
 		_, err := command.Run()
 		if err == nil {
+			os.Remove(input)
 			return path.Base(sample), nil
 		}
 
@@ -62,12 +65,14 @@ func recognize(
 			)
 
 			if errorLevel < compareThreshold {
+				os.Remove(input)
 				return path.Base(sample), nil
 			}
 
 		}
 	}
 
+	os.Remove(input)
 	return "", errors.New(fmt.Sprintf("%s failed!", input))
 }
 
@@ -81,6 +86,8 @@ func getSubimageOffset(
 	cmd.Stdout = &out
 
 	cmd.Run()
+
+	os.Remove(subimage)
 
 	offset := reSubimageOffset.FindStringSubmatch(out.String())
 
