@@ -86,7 +86,7 @@ var stealFoldHands = map[string][]string{
 }
 
 var restealFoldHands = []string{
-	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
+	"AQ", "AQs", "AJ", "AJs", "ATs",
 	"99", "88", "77", "66", "55",
 }
 
