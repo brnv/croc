@@ -60,7 +60,7 @@ func (board Board) GetBoardImageSnippets(offsets []int) []ImageSnippet {
 	)
 }
 
-func (board Board) GetStrontestBoardCard() string {
+func (board Board) GetStrongestBoardCard() string {
 	strongestBoardCard := board.Cards[0].Value
 
 	for _, boardCard := range board.Cards {

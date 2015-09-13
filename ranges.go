@@ -1,14 +1,26 @@
 package main
 
-var manualHands = []string{
-	"AA", "KK", "QQ", "JJ", "TT", "99", "88",
-	"77", "66", "55", "44", "33", "22",
-
+var preflopAllInHands = []string{
+	"AA", "KK", "QQ",
 	"AK", "AKs",
+}
+
+var stealAllInHands = []string{
+	"JJ", "TT", "99",
+}
+
+var flopAllInHands = []string{
+	"AA",
+}
+
+var manualHands = []string{
+	"JJ", "TT", "99", "88",
+	"77", "66", "55", "44", "33", "22",
 }
 
 var raiseFoldHandsLatePosition = []string{
 	"AQ", "AQs", "AJs",
+	"JJ", "TT", "99", "88",
 
 	"AJ", "KQ",
 	"KQs", "KJs", "ATs",
@@ -35,15 +47,18 @@ var raiseFoldHandsLatePosition = []string{
 var raiseFoldHands = map[string][]string{
 	"EP": []string{
 		"AQ", "AQs", "AJs",
+		"JJ", "TT", "99", "88",
 	},
 	"MP": []string{
 		"AQ", "AQs", "AJs",
+		"JJ", "TT", "99", "88",
 
 		"AJ", "KQ",
 		"KQs", "KJs", "ATs",
 	},
 	"CO": []string{
 		"AQ", "AQs", "AJs",
+		"JJ", "TT", "99", "88",
 
 		"AJ", "KQ",
 		"KQs", "KJs", "ATs",
@@ -61,7 +76,7 @@ var raiseFoldHands = map[string][]string{
 }
 
 var stealFoldHandsBUandSB = []string{
-	"99", "88", "77", "66", "55", "44", "33", "22",
+	"TT", "99", "88", "77", "66", "55", "44", "33", "22",
 	"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9", "A9s",
 	"A8", "A8s", "A7", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
 	"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
@@ -75,7 +90,7 @@ var stealFoldHandsBUandSB = []string{
 
 var stealFoldHands = map[string][]string{
 	"CO": []string{
-		"99", "88", "77", "66", "55", "44", "33", "22",
+		"TT", "99", "88", "77", "66", "55", "44", "33", "22",
 		"AQ", "AQs", "AJ", "AJs", "AT", "ATs", "A9s", "A8s", "A7s",
 		"KQ", "KQs", "KJ", "KJs", "KT", "KTs",
 		"QJ", "QJs", "QTs",
@@ -87,7 +102,7 @@ var stealFoldHands = map[string][]string{
 
 var restealFoldHands = []string{
 	"AQ", "AQs", "AJ", "AJs", "ATs",
-	"99", "88", "77", "66", "55",
+	"TT", "99", "88", "77", "66", "55",
 }
 
 var threeBetHands = map[string][]string{

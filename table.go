@@ -102,8 +102,7 @@ func (table Table) Check() {
 }
 
 func (table Table) Call() {
-	// same button
-	table.Check()
+	table.Window.Click(540, 505)
 }
 
 func (table Table) Raise() {
@@ -276,8 +275,8 @@ func (table Table) FastFoldToAnyBetIsChecked() bool {
 }
 
 const (
-	sitOutTopChipsAmount    = 230
-	sitOutBottomChipsAmount = 50
+	sitOutTopChipsAmount    = 180
+	sitOutBottomChipsAmount = 10
 )
 
 func (table Table) PerformAutomatedActions(decision string) {
@@ -300,6 +299,15 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "RAISE/ALL-IN":
 		table.RaiseAllIn()
 
+	case "FLOP RAISE/ALL-IN":
+		table.FlopRaiseAllIn()
+
+	case "TURN RAISE/ALL-IN":
+		table.TurnRaiseAllIn()
+
+	case "RIVER CHECK/CALL":
+		table.RiverCheckCall()
+
 	case "RAISE/FOLD":
 		table.RaiseFold()
 
@@ -318,6 +326,27 @@ func (table Table) PerformAutomatedActions(decision string) {
 	case "FLOP C-BET/MANUAL":
 		table.ContBetManualMove("flop")
 	}
+}
+
+func (table Table) RiverCheckCall() {
+	performTwoActions(
+		table.Check, table.Call,
+		fmt.Sprintf("/tmp/croc-river-check-call-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) TurnRaiseAllIn() {
+	performTwoActions(
+		table.Raise, table.AllIn,
+		fmt.Sprintf("/tmp/croc-turn-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
+}
+
+func (table Table) FlopRaiseAllIn() {
+	performTwoActions(
+		table.Raise, table.AllIn,
+		fmt.Sprintf("/tmp/croc-flop-allin-%s-%s", table.Hero.Hand, table.Window.Id),
+	)
 }
 
 func (table Table) RaiseAllIn() {

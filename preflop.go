@@ -19,7 +19,7 @@ func (strategy *Strategy) PreflopDecision() string {
 		return strategy.PreflopRestealDecision()
 	}
 
-	return "MANUAL"
+	return "FOLD"
 }
 
 func (strategy Strategy) PreflopRaiseSituation() bool {
@@ -39,9 +39,9 @@ func (strategy *Strategy) PreflopRaiseDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, manualHand := range manualHands {
-		if hand == manualHand {
-			return "MANUAL"
+	for _, preflopAllInHand := range preflopAllInHands {
+		if hand == preflopAllInHand {
+			return "RAISE/ALL-IN"
 		}
 	}
 
@@ -81,9 +81,15 @@ func (strategy *Strategy) PreflopStealDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, manualHand := range manualHands {
-		if hand == manualHand {
-			return "MANUAL"
+	for _, preflopAllInHand := range preflopAllInHands {
+		if hand == preflopAllInHand {
+			return "RAISE/ALL-IN"
+		}
+	}
+
+	for _, stealAllInHand := range stealAllInHands {
+		if hand == stealAllInHand {
+			return "RAISE/ALL-IN"
 		}
 	}
 
@@ -133,9 +139,15 @@ func (strategy *Strategy) PreflopRestealDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, manualHand := range manualHands {
-		if hand == manualHand {
-			return "MANUAL"
+	for _, preflopAllInHand := range preflopAllInHands {
+		if hand == preflopAllInHand {
+			return "RAISE/ALL-IN"
+		}
+	}
+
+	for _, stealAllInHand := range stealAllInHands {
+		if hand == stealAllInHand {
+			return "RAISE/ALL-IN"
 		}
 	}
 
@@ -168,21 +180,25 @@ func (strategy *Strategy) PreflopThreeBetDecision() string {
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, manualHand := range manualHands {
-		if hand == manualHand {
-			return "MANUAL"
+	for _, preflopAllInHand := range preflopAllInHands {
+		if hand == preflopAllInHand {
+			return "RAISE/ALL-IN"
 		}
 	}
 
 	potSaneLimitForThreeBet := 9 * strategy.Table.BigBlindSize
 
+	if len(strategy.Table.Opponents) == 1 {
+		potSaneLimitForThreeBet = 7 * strategy.Table.BigBlindSize
+	}
+
 	for _, card := range threeBetHands[strategyPositions[raiserPosition]] {
 		if hand == card {
 			if strategy.Table.Pot > potSaneLimitForThreeBet {
-				return "MANUAL"
+				return "FOLD"
 			}
 
-			return "RAISE/MANUAL"
+			return "RAISE/FOLD"
 		}
 	}
 

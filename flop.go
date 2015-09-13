@@ -26,22 +26,22 @@ func (strategy *Strategy) FlopDecision() string {
 	strategy.Messages = append(strategy.Messages, "flop")
 
 	if strategy.IsGoodHand() {
-		return "MANUAL"
+		return "FLOP RAISE/ALL-IN"
 	}
 
 	hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	for _, manualHand := range manualHands {
-		if hand == manualHand {
-			return "MANUAL"
+	for _, flopAllInHand := range flopAllInHands {
+		if hand == flopAllInHand {
+			return "FLOP RAISE/ALL-IN"
 		}
 	}
 
 	if !strategy.IsGoodHand() && strategy.PotStealIsOk() {
-		return "FLOP C-BET/MANUAL"
+		return "FLOP C-BET/FOLD"
 	}
 
 	strategy.PrintReminders()
 
-	return "MANUAL"
+	return "CHECK/FOLD"
 }

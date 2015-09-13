@@ -199,7 +199,7 @@ func (combination EmptyCombination) String() string {
 }
 
 func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) bool {
-	strongestBoardCard := board.GetStrontestBoardCard()
+	strongestBoardCard := board.GetStrongestBoardCard()
 
 	for _, handCard := range hand.Cards {
 		if strongestBoardCard == handCard.Value {
@@ -212,7 +212,11 @@ func (combination CompletedCombination) CheckTopPair(hand Hand, board Board) boo
 }
 
 func (combination CompletedCombination) CheckStrongTopPair(hand Hand, board Board) bool {
-	strongestBoardCard := board.GetStrontestBoardCard()
+	strongestBoardCard := board.GetStrongestBoardCard()
+
+	if cardStrength[strongestBoardCard] < cardStrength["9"] {
+		return false
+	}
 
 	if hand.Cards[0].Value == strongestBoardCard {
 		if cardStrength[hand.Cards[1].Value] >= cardStrength["J"] {
@@ -231,7 +235,7 @@ func (combination CompletedCombination) CheckStrongTopPair(hand Hand, board Boar
 }
 
 func checkOverCards(hand Hand, board Board) bool {
-	strongestBoardCard := board.GetStrontestBoardCard()
+	strongestBoardCard := board.GetStrongestBoardCard()
 
 	for _, handCard := range hand.Cards {
 		if cardStrength[strongestBoardCard] >= cardStrength[handCard.Value] {

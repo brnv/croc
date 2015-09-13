@@ -82,20 +82,32 @@ func (strategy *Strategy) IsGoodHand() bool {
 func (strategy *Strategy) TurnDecision() string {
 	strategy.Messages = append(strategy.Messages, "turn")
 
-	strategy.PrintReminders()
+	//hand := strategy.Table.Hero.Hand.ShortNotation()
 
-	return "MANUAL"
+	//strategy.PrintReminders()
+
+	if strategy.IsGoodHand() {
+		return "TURN RAISE/ALL-IN"
+	}
+
+	return "CHECK/FOLD"
 }
 
 func (strategy *Strategy) RiverDecision() string {
 	strategy.Messages = append(strategy.Messages, "river")
 
+	//hand := strategy.Table.Hero.Hand.ShortNotation()
+
 	//@TODO: automate this logic
 
-	fmt.Println("monster: BET/RAISE or BET/CALL;")
-	fmt.Println("anything else: CHECK/FOLD;")
+	//fmt.Println("monster: BET/RAISE or BET/CALL;")
+	//fmt.Println("anything else: CHECK/FOLD;")
 
-	return "MANUAL"
+	if strategy.IsGoodHand() {
+		return "RIVER CHECK/CALL"
+	}
+
+	return "CHECK/FOLD"
 }
 
 func (strategy Strategy) CheckInput() error {
