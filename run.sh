@@ -14,7 +14,7 @@ while true; do
     echo -n \#
 
     start=`date +%s%N`
-    result=`./croc --wid $window_id -v $1`
+    result=`./croc --wid $window_id -v $1 --max-chips $2`
     code=$?
     stop=`date +%s%N`
 
