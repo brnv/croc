@@ -27,11 +27,12 @@ type Table struct {
 	Image  Image
 	Hero
 	Board
-	Opponents      []Opponent
-	Pot            int
-	ButtonPosition int
-	Errors         []string
-	BigBlindSize   int
+	Opponents            []Opponent
+	Pot                  int
+	ButtonPosition       int
+	Errors               []string
+	BigBlindSize         int
+	SitOutTopChipsAmount int
 }
 
 type Image struct {
@@ -275,7 +276,6 @@ func (table Table) FastFoldToAnyBetIsChecked() bool {
 }
 
 const (
-	sitOutTopChipsAmount    = 180
 	sitOutBottomChipsAmount = 10
 )
 
@@ -289,7 +289,7 @@ func (table Table) PerformAutomatedActions(decision string) {
 		table.HeroChipsRecognize()
 
 		if table.Chips != 0 &&
-			(table.Hero.Chips >= sitOutTopChipsAmount ||
+			(table.Hero.Chips >= table.SitOutTopChipsAmount ||
 				table.Hero.Chips <= sitOutBottomChipsAmount) {
 			table.SitOut()
 		} else {

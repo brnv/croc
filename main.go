@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 
 	"github.com/docopt/docopt-go"
 	"github.com/op/go-logging"
@@ -15,11 +16,16 @@ var (
 	cmdRunner *runcmd.Local
 )
 
-const (
-	usage = `
-	Usage:
-	croc [<filepath>] [--wid=<window_id>] [-v] [-a]`
-)
+const usage = `
+
+Usage:
+    croc [<filepath>] [--wid=<window_id>] [-v] [-a] [--max-chips=<max-chips>]
+    croc -h | --help
+
+Options:
+    --max-chips <max-chips> sit out top chips amount.
+                            [default: 200]
+`
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -35,8 +41,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	sitOutTopChipsAmount, _ := strconv.Atoi(args["--max-chips"].(string))
+
 	table := Table{
-		BigBlindSize: 2,
+		BigBlindSize:         2,
+		SitOutTopChipsAmount: sitOutTopChipsAmount,
 	}
 
 	if args["<filepath>"] != nil {
